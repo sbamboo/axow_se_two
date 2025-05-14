@@ -1,0 +1,5 @@
+{
+    "repo": "https://sbamboo.github.io/theaxolot77/storage/chibits/chibits.json",
+    "repo_version": "v1",
+    "default_group": "" // For v1 this is empty, for v2 this should be filled out
+}
