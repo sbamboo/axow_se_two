@@ -25,7 +25,7 @@ Content-Type: application/json
 ```json (Request)
 {
     "username": "<string>",
-    "password": "<string:hash>"
+    "password_hash": "<string:hash>"
 }
 ```
 ```json (Response)

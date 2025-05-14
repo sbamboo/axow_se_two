@@ -1,0 +1,7 @@
+backend/
+└── site/
+    ├── common/
+    │   ├── auth.php       <- contains auth functions
+    │   └── jwt.php        <- contains JwtToken classes
+    └── auth/
+        └── index.php      <- entrypoint (calls functions from auth.php)
