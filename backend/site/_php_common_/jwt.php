@@ -1,7 +1,9 @@
 <?php
 
+require_once('permissions.php');
+
 class JwtToken {
-    protected static $secretKey = 'your-secret-key'; // Secret key for signing the JWT
+    protected static $secretKey = 'your-secret-key';
 
     protected $usr;  // User ID
     protected $iat;  // Issued At time (timestamp)
@@ -31,7 +33,7 @@ class JwtToken {
         return $this->encodeJWT($payload);
     }
 
-    // Method to validate the token
+    // Static method to validate the token
     public static function validateToken($token) {
         $decoded = self::decodeJWT($token);
 
@@ -39,7 +41,29 @@ class JwtToken {
             return false; // Token is either invalid or expired
         }
 
-        return $decoded; // Return decoded payload if valid
+        // If the tokentype is single-use (tt = 0), invalidate it
+        /*
+        if ($decoded['tt'] == 0) {
+            invalidate_token($token);
+        } 
+        */   
+
+        return $decoded;
+    }
+
+    public static function checkPermission($token, $required_permission) {
+        // Decode the token
+        $decoded = self::validateToken($token);
+        if (!$decoded) {
+            return false;
+        }
+
+        return self::checkDecodedPermission($decoded_token, $required_permission);
+    }
+
+    // Static check if a permission is valid
+    public static function checkDecodedPermission($decoded_token, $permission) {
+        return permissionInPermissionDigits($decoded_token['perm'], $permission);
     }
 
     // Encode the JWT using the header, payload, and signature
@@ -92,4 +116,15 @@ class Single_JwtToken extends JwtToken {
     }
 }
 
-//MARK:TODO: Add classes for `single_use`, `refresh`, and `refresh_refresh` token types
+// Token type `single-use` (extends JwtToken class)
+class SingleUse_JwtToken extends JwtToken {
+    public function __construct($usr, $exp, $perm) {
+        parent::__construct($usr, $exp, 0, $perm); // tt = 0 for type `single-use`
+    }
+
+    public static function validateToken($token) {
+        return parent::validateToken($token);
+    }
+}
+
+//MARK:TODO: Add classes for `pair`, and `refresh` token types

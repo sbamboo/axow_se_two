@@ -1,7 +1,26 @@
 backend/
 └── site/
-    ├── common/
-    │   ├── auth.php       <- contains auth functions
-    │   └── jwt.php        <- contains JwtToken classes
-    └── auth/
-        └── index.php      <- entrypoint (calls functions from auth.php)
+    ├── _static_/...        <- Contains all static site assets
+    ├── _php_common_/
+    │   ├── auth.php        <- contains auth functions
+    │   ├── db.php          <- contains db functions
+    │   ├── jwt.php         <- contains JwtToken classes
+    │   ├── permissions.php <- contains helper functions for the digit-based permission system
+    │   ├── request.php     <- contains helper functions for interacting as a rest api
+    │   └── user.php        <- contains user management functions
+    ├── _php_common_/
+    │   └── schema.sql      <- A schema/sql-setup describing the auth database
+    ├── auth/
+    │   ├── index.php       <- Endpoint, authenticate to the API
+    |   ├── validate/
+    |   |   └── index.php   <- Endpoint, validate a token
+    |   └── refresh/
+    |       └── index.php   <- Endpoint, refresh a 'pair' type token
+    ├── unauth/
+    │   └── index.php       <- Endpoint, invalidate a token
+    ├── users/
+    |   ├── change_username/
+    |   |   └── index.php   <- Endpoint
+    |   └── change_password/
+    |       └── index.php   <- Endpoint
+    └── index.php           <- Main API Endpoint

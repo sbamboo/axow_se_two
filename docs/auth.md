@@ -25,12 +25,12 @@
 
 ## Token Type (`tt`) Mappings
 
-| Value | Token Type         | Description |
-|--------|--------------------|-------------|
-| `0`  | Single-Use         | One-time token. |
-| `1`  | Single             | Only one active token, no refresh key. |
-| `2`  | Refresh:Main       | Requires a Refresh:Refresh token to refresh. |
-| `3`  | Refresh:Refresh    | Used to refresh another token. |
+| Value | Token Type | Description |
+|--------|------------|-------------|
+| `0`  | Single-Use | One-time token. |
+| `1`  | Single     | Only one active token, no refresh key. |
+| `2`  | Pair       | Requires a Refresh token to refresh. |
+| `3`  | Refresh    | Used to refresh a pair token. |
 
 ---
 

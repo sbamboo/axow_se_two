@@ -15,26 +15,102 @@ GET `api.axow.se/site/url_preview?url=<string:urlencoded>`
     "type": "<string=type/card>"
 }
 ```
+<br><br>
 
 # Auth
-POST `api.axow.se/site/auth?token_type=<string>` (Credential)<br>
-(`token_type` = `single`, `single_use`, `refresh`)
+## Authorize
+GET `api.axow.se/site/auth?token_type=<string>&username=<string>&password=<string>` (Credential)<br>
+(`token_type` = `single`, `single-use`, `pair`)
 ```Headers (Request)
 Content-Type: application/json
 ```
-```json (Request)
-{
-    "username": "<string>",
-    "password_hash": "<string:hash>"
-}
-```
-```json (Response)
+```json (Response, non-pair)
 {
     "status": "success"/"failed",
     "msg": "<string:optional>",
     "token_type": "single",
     "expires": <epoch>,
-    "token": "<string:token>"
+    "token": "<string:token>",
+    "has_full_access": <bool>
+}
+```
+```json (Response, pair)
+{
+    "status": "success"/"failed",
+    "msg": "<string:optional>",
+    "token_type": "single",
+    "expires": <epoch>,
+    "token": "<string:token>",
+    "refresh_token":  "<string:token>",
+    "refresh_expires": <epoch>,
+    "has_full_access": <bool>
+}
+```
+(`has_full_access` depicts if the account has the `*` permission, one can have all permissions sepparatelly and still not have this enabled)
+
+## UnAuthorize
+GET `api.axow.se/site/unauth` (Authed)
+```Headers (Request)
+Content-Type: application/json
+Authorization: <string:token>
+```
+```json (Response)
+{
+    "status": "success"/"failed",
+    "msg": "<string:optional>"
+}
+```
+
+## Validate Authorization
+GET `api.axow.se/site/auth/validate` (Authed)
+```Headers (Request)
+Content-Type: application/json
+Authorization: <string:token>
+```
+```json (Response)
+{
+    "status": "success"/"failed",
+    "msg": "<string:optional>",
+    "valid": <bool>
+}
+```
+<br><br>
+
+# User Management
+## Change Username
+POST `api.axow.se/site/users/change_username` (Authed)
+```Headers (Request)
+Content-Type: application/json
+Authorization: <string:token>
+```
+```json (Request)
+{
+    "new_username": "<string>"
+}
+```
+```json (Response)
+{
+    "status": "success"/"failed",
+    "msg": "<string:optional>"
+}
+```
+
+## Change Password
+POST `api.axow.se/site/users/change_password` (Authed)
+```Headers (Request)
+Content-Type: application/json
+Authorization: <string:token>
+```
+```json (Request)
+{
+    "new_password": "<string>",
+    "old_password": "<string>"
+}
+```
+```json (Response)
+{
+    "status": "success"/"failed",
+    "msg": "<string:optional>"
 }
 ```
 <br><br>
@@ -220,7 +296,6 @@ GET `api.axow.se/site/article/get?id=<string:article_id>`
     }
 }
 ```
-<br><br>
 
 ## Add an article
 POST `api.axow.se/site/article/add` (Authed)
@@ -245,7 +320,6 @@ Authorization: <string:token>
     "content": "<markdown:if-action=merge>"
 }
 ```
-<br><br>
 
 ## Modify an article
 POST `api.axow.se/site/article/update?id=<string:article_id>&action=<merge/remove>` (Authed)
@@ -277,7 +351,6 @@ Authorization: <string:token>
     "msg": "<string:optional>"
 }
 ```
-<br><br>
 
 ## Remove an article
 DELETE `api.axow.se/site/article/remove?id=<string:article_id>` (Authed)
@@ -536,7 +609,6 @@ GET `api.axow.se/site/wiki/home`
     }
 }
 ```
-<br><br>
 
 ## Modify the wiki homepage
 POST `api.axow.se/site/wiki/home/update?action=<merge/remove>` (Authed)
@@ -575,7 +647,6 @@ Authorization: <string:token>
     "msg": "<string:optional>"
 }
 ```
-<br><br>
 
 ## Get wiki articles
 GET `api.axow.se/site/wiki/articles/getAll?cat_filter=<string:optional>&subcat_filter=<string:optional>`
@@ -598,7 +669,6 @@ GET `api.axow.se/site/wiki/articles/getAll?cat_filter=<string:optional>&subcat_f
     ]
 }
 ```
-<br><br>
 
 ## Get an article
 GET `api.axow.se/site/wiki/articles/get?id=<string>`
@@ -629,7 +699,6 @@ GET `api.axow.se/site/wiki/articles/get?id=<string>`
     }
 }
 ```
-<br><br>
 
 ## Add an article
 POST `api.axow.se/site/wiki/articles/add` (Authed)
@@ -651,7 +720,6 @@ Authorization: <string:token>
     }
 }
 ```
-<br><br>
 
 ## Modify an article
 PUT `api.axow.se/site/wiki/articles/update?action=<merge/remove>` (Authed)
@@ -680,7 +748,6 @@ Authorization: <string:token>
     "msg": "<string:optional>"
 }
 ```
-<br><br>
 
 ## Remove an article
 DELETE `api.axow.se/site/wiki/articles/remove?id=<string:article_id>` (Authed)
@@ -751,7 +818,6 @@ GET `api.axow.se/site/profiles/get?id=<string:profile_id_with_@>&contexts=<strin
     }
 }
 ```
-<br><br>
 
 ## Add a profile
 POST `api.axow.se/site/profiles/add` (Authed)
@@ -787,7 +853,6 @@ Authorization: <string:token>
     }
 }
 ```
-<br><br>
 
 ## Modify a profile
 POST `api.axow.se/site/profiles/modify?id=<string:profile_id_with_@>&action=<merge/remove>` (Authed)
@@ -829,7 +894,6 @@ Authorization: <string:token>
     "msg": "<string:optional>"
 }
 ```
-<br><br>
 
 ## Remove a profile
 DELETE `api.axow.se/site/profiles/remove?id=<string:profile_id_with_@>` (Authed)
