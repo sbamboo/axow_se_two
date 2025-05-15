@@ -1,6 +1,6 @@
 backend/
 └── site/
-    ├── _static_/...        <- Contains all static site assets
+    ├── _data_/...          <- Contains all data nodes
     ├── _php_common_/
     │   ├── auth.php        <- contains auth functions
     │   ├── db.php          <- contains db functions
@@ -8,7 +8,7 @@ backend/
     │   ├── permissions.php <- contains helper functions for the digit-based permission system
     │   ├── request.php     <- contains helper functions for interacting as a rest api
     │   └── user.php        <- contains user management functions
-    ├── _php_common_/
+    ├── db/
     │   └── schema.sql      <- A schema/sql-setup describing the auth database
     ├── auth/
     │   ├── index.php       <- Endpoint, authenticate to the API

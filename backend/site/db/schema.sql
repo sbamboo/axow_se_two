@@ -9,11 +9,26 @@ CREATE TABLE IF NOT EXISTS users (
     ID CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     username VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
-    permissions TEXT, -- Store permissions as a delimited string (e.g., 'articles.add; articles.modify')
     valid_token TEXT, -- Stores the current valid single token
     valid_token_type VARCHAR(50), -- Stores the type of the current valid token ('single', 'single-use', 'pair')
     valid_refresh_token TEXT, -- Stores the refresh token if applicable for the token type
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create the permissions table
+CREATE TABLE IF NOT EXISTS user_permissions (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    string VARCHAR(255) NOT NULL UNIQUE, -- e.g., 'articles.add'
+);
+
+-- Create the user_permissions table
+CREATE TABLE IF NOT EXISTS users_to_permissions (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    user_id CHAR(36) NOT NULL,
+    permission_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(ID) ON DELETE CASCADE,
+    FOREIGN KEY (permission_id) REFERENCES permissions(ID) ON DELETE CASCADE,
+    UNIQUE (user_id, permission_id) -- Ensure a user can't have the same permission multiple times
 );
 
 -- You can optionally add an index on the username for faster lookups

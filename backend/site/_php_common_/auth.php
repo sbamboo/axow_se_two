@@ -269,6 +269,35 @@ function user_invalidate_single_use_token($userid) {
     return true;
 }
 
+function user_get_permissions($userid) {
+    // table user_permissions stores permissions
+    // table users_to_permissions stores user_id and permission_id foreign keys
+    $db = get_db();
+    // Fetch users_to_permissions where user_id = $userid
+    $stmt = $db->prepare('SELECT permission_id FROM users_to_permissions WHERE user_id = ?');
+    $stmt->bind_param('i', $userid);
+    if (!$stmt->execute()) {
+        return [];
+    }
+    $result = $stmt->get_result();
+    
+    // Foreach in $row fetch the user_permissions table to get the permission name under 'string' field
+    $permissions = [];
+    while ($row = $result->fetch_assoc()) {
+        $permission_id = $row['permission_id'];
+        $stmt2 = $db->prepare('SELECT string FROM user_permissions WHERE id = ?');
+        $stmt2->bind_param('i', $permission_id);
+        if (!$stmt2->execute()) {
+            continue;
+        }
+        $result2 = $stmt2->get_result();
+        $permission = $result2->fetch_assoc();
+        if ($permission) {
+            $permissions[] = $permission['string'];
+        }
+    }
+}
+
 function user_grant_permission($userid, $permission, $invalidate_token = true) {
     $db = get_db();
 
