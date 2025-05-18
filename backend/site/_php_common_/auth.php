@@ -313,7 +313,7 @@ function user_grant_permission($userid, $permission, $invalidate_token = true) {
         return false;
     }
 
-    $current_permissions = empty($user['permissions']) ? [] : explode('; ', $user['permissions']);
+    $current_permissions = empty($permissiondigit_string) ? [] : explode('; ', $permissiondigit_string);
 
     if (in_array($permission, $current_permissions)) {
         return true;
@@ -350,7 +350,7 @@ function user_revoke_permission($userid, $permission, $invalidate_token = true) 
         return false;
     }
 
-    $current_permissions = empty($user['permissions']) ? [] : explode('; ', $user['permissions']);
+    $current_permissions = empty($permissiondigit_string) ? [] : explode('; ', $permissiondigit_string);
 
     $key = array_search($permission, $current_permissions);
     if ($key !== false) {
@@ -389,11 +389,11 @@ function user_query_permissions($userid) {
         return false;
     }
 
-    if (empty($user['permissions'])) {
+    if (empty($permissiondigit_string)) {
         return [];
     }
 
-    return explode('; ', $user['permissions']);
+    return explode('; ', $permissiondigit_string);
 }
 
 function user_has_permission($userid, $permission) {
@@ -460,7 +460,14 @@ function user_get_new_token($token_type, $userid) {
     // Get permissions
     $permissiondigit_string = "000000000";
     if (!empty($user['permissions'])) {
-        $permissiondigit_string = permissionsStringToPermissionDigits($user['permissions']);
+        list($permissionsstring, $permissionsstring_success, $permissionsstring_msg) = getUserPermissionsString($user['ID']);
+        if (!$permissionsstring_success) {
+            $toRet['http_code'] = 500;
+            $toRet['status'] = 'failed';
+            $toRet['msg'] = 'Failed to get user permissions: ' . $permissionsstring_msg;
+            return $toRet;
+        }
+        $permissiondigit_string = permissionsStringToPermissionDigits($permissionsstring);
     }
 
     $token_type_lower = strtolower($token_type);
@@ -481,7 +488,7 @@ function user_get_new_token($token_type, $userid) {
         $toRet['expires'] = $expires;
         $toRet['token'] = $token;
         $toRet['msg'] = 'Token generated successfully';
-        $toRet['has_full_access'] = in_array('*', explode('; ', $user['permissions']));
+        $toRet['has_full_access'] = in_array('*', explode('; ', $permissiondigit_string));
 
     } else if ($token_type_lower === 'single-use') {
         // Configure
@@ -499,7 +506,7 @@ function user_get_new_token($token_type, $userid) {
         $toRet['expires'] = $expires;
         $toRet['token'] = $token;
         $toRet['msg'] = 'Token generated successfully';
-        $toRet['has_full_access'] = in_array('*', explode('; ', $user['permissions']));
+        $toRet['has_full_access'] = in_array('*', explode('; ', $permissiondigit_string));
 
     } else {
         $toRet['http_code'] = 400;
@@ -562,7 +569,13 @@ function req_get_new_token($token_type, $data) {
     // Get permissions
     $permissiondigit_string = "000000000";
     if (!empty($user['permissions'])) {
-        $permissiondigit_string = permissionsStringToPermissionDigits($user['permissions']);
+        list($permissionsstring, $permissionsstring_success, $permissionsstring_msg) = getUserPermissionsString($user['ID']);
+        if (!$permissionsstring_success) {
+            http_response_code(500);
+            echo json_encode(['status' => 'failed', 'msg' => 'Failed to get user permissions: ' . $permissionsstring_msg]);
+            return;
+        }
+        $permissiondigit_string = permissionsStringToPermissionDigits($permissionsstring);
     }
 
     $token_type_lower = strtolower($token_type);
@@ -585,7 +598,7 @@ function req_get_new_token($token_type, $data) {
             'expires' => $expires,
             'token' => $token,
             'msg' => 'Token generated successfully',
-            'has_full_access' => in_array('*', explode('; ', $user['permissions']))
+            'has_full_access' => in_array('*', explode('; ', $permissiondigit_string))
         ]);
         return;
 
@@ -608,7 +621,7 @@ function req_get_new_token($token_type, $data) {
             'expires' => $expires,
             'token' => $token,
             'msg' => 'Token generated successfully',
-            'has_full_access' => in_array('*', explode('; ', $user['permissions']))
+            'has_full_access' => in_array('*', explode('; ', $permissiondigit_string))
         ]);
         return;
 

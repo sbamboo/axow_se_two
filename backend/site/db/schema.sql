@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- Create the permissions table
 CREATE TABLE IF NOT EXISTS user_permissions (
     ID INT AUTO_INCREMENT PRIMARY KEY,
-    string VARCHAR(255) NOT NULL UNIQUE, -- e.g., 'articles.add'
+    string VARCHAR(255) NOT NULL UNIQUE -- e.g., 'articles.add'
 );
 
 -- Create the user_permissions table
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS users_to_permissions (
     user_id CHAR(36) NOT NULL,
     permission_id INT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(ID) ON DELETE CASCADE,
-    FOREIGN KEY (permission_id) REFERENCES permissions(ID) ON DELETE CASCADE,
+    FOREIGN KEY (permission_id) REFERENCES user_permissions(ID) ON DELETE CASCADE,
     UNIQUE (user_id, permission_id) -- Ensure a user can't have the same permission multiple times
 );
 
@@ -35,4 +35,6 @@ CREATE TABLE IF NOT EXISTS users_to_permissions (
 CREATE INDEX idx_username ON users (username);
 
 -- Add the admin user with full permissions
-INSERT INTO users (username, password_hash, permissions) VALUES ('admin', '$2y$10$jYCWrLmfdm9MGrvKJ5D5yOwS3a0Bi6W5u1w0AXc9.0rIzCkZb9coi', '*'); -- Temp 'admin' password (sha256) CHANGE TO SAFER IN PROD
+INSERT INTO users (username, password_hash) VALUES ('admin', '$2y$10$jYCWrLmfdm9MGrvKJ5D5yOwS3a0Bi6W5u1w0AXc9.0rIzCkZb9coi'); -- Temp 'admin' password (sha256) CHANGE TO SAFER IN PROD
+INSERT INTO user_permissions (string) VALUES ('*');
+INSERT INTO users_to_permissions (user_id, permission_id) SELECT u.ID, p.ID FROM users u, user_permissions p WHERE u.username = 'admin' AND p.string = '*';
