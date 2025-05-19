@@ -209,6 +209,20 @@ function parse_metadata($html, $base_url) {
         $meta["description"] = $desc_meta[0]->getAttribute("content");
     }
 
+    // Further fallback for description: first <p>, <b>, <i>
+    if ($meta["description"] === null || empty($meta["description"])) {
+        $desc_fallback_nodes = $xpath->query("//p | //b | //i");
+        if ($desc_fallback_nodes->length > 0) {
+            foreach ($desc_fallback_nodes as $node) {
+                $text = trim($node->textContent);
+                if ($text !== '') {
+                    $meta["description"] = $text;
+                    break;  // Use the first non-empty found
+                }
+            }
+        }
+    }
+
     $images = $doc->getElementsByTagName("img");
     for ($i = 0; $i < $images->length; $i++) {
         $src = $images->item($i)->getAttribute("src");
