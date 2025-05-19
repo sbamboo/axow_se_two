@@ -5,6 +5,7 @@
 # Backend
 - Implement endpoints
 - Validator for the refresh-token
+- Epoch -> Timestamp?
 
 # Frontend
 - Make website

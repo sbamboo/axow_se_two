@@ -8,11 +8,11 @@ GET `api.axow.se/site/url_preview?url=<string:urlencoded>`
 ```json (Response)
 {
     "type": "twitter"/"opengraph",
-    "title": "<string>",
-    "description": "<string>",
-    "image": "<string>",
-    "url": "<string>",
-    "type": "<string=type/card>"
+    "title": "<optional:string>",
+    "description": "<optional:string>",
+    "image": "<optional:string>",
+    "url": "<optional:string>",
+    "type": "<optional:string=type/card>"
 }
 ```
 <br><br>

@@ -38,3 +38,28 @@ CREATE INDEX idx_username ON users (username);
 INSERT INTO users (username, password_hash) VALUES ('admin', '$2y$10$jYCWrLmfdm9MGrvKJ5D5yOwS3a0Bi6W5u1w0AXc9.0rIzCkZb9coi'); -- Temp 'admin' password (sha256) CHANGE TO SAFER IN PROD
 INSERT INTO user_permissions (string) VALUES ('*');
 INSERT INTO users_to_permissions (user_id, permission_id) SELECT u.ID, p.ID FROM users u, user_permissions p WHERE u.username = 'admin' AND p.string = '*';
+
+
+
+
+
+-- URL Preview Cache
+CREATE TABLE url_metadata_cache (
+    url_hash   CHAR(32)  NOT NULL PRIMARY KEY,   -- md5($url)
+    url        TEXT      NOT NULL,               -- original URL (for reference/debug)
+    metadata   JSON      NOT NULL,               -- the JSON you already echo()
+    expires_at TIMESTAMP NOT NULL,               -- row-specific expiry
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                           ON UPDATE CURRENT_TIMESTAMP,
+    INDEX      (expires_at)                      -- speeds up cleanup
+);
+
+-- Make sure the event scheduler is enabled:
+SET GLOBAL event_scheduler = ON;
+
+CREATE EVENT purge_expired_cache
+    ON SCHEDULE EVERY 1 HOUR
+    DO
+      DELETE FROM url_metadata_cache
+      WHERE expires_at < NOW();
