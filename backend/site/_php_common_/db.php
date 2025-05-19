@@ -6,10 +6,10 @@
 
 // Get database connection with MariaDB (MySQLi)
 function get_db() {
-    $host = 'localhost'; // Database host
-    $user = 'root';      // Database username
-    $password = '';      // Database password
-    $dbname = 'axow_se'; // Database name
+    $host = "localhost"; // Database host
+    $user = "root";      // Database username
+    $password = "";      // Database password
+    $dbname = "axow_se"; // Database name
 
     // Create a new MySQLi connection
     $db = new mysqli($host, $user, $password, $dbname);

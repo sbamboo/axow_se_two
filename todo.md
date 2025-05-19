@@ -3,9 +3,8 @@
 - Current token JWT key is 'your-secret-key'
 
 # Backend
-- /_php_common_/auth.php: standardize returns as `[<success>, <msg>, <http_code>, <opt:data>]` and make `req_` funcs just wrap regular
-- Auth: 'pair' type tokens with refresh tokens
 - Implement endpoints
+- Validator for the refresh-token
 
 # Frontend
 - Make website

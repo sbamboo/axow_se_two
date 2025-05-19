@@ -9,6 +9,12 @@ require_once("jwt.php");
 require_once("requests.php");
 require_once("permissions.php");
 
+//MARK: Token times
+$SINGLE_TOKEN_EXPIRATION = 3600; // 1h
+$SINGLE_USE_TOKEN_EXPIRATION = 3600; // 1h
+$PAIR_TOKEN_EXPIRATION = 300; // 5min
+$REFRESH_TOKEN_EXPIRATION = 86400; // 1d
+
 function get_secure_hash($password) {
     // Hash the password using a secure hashing algorithm
     return password_hash($password, PASSWORD_DEFAULT);
@@ -35,7 +41,7 @@ function any_has_token($token) {
     $db->close();
 
     if (!$user) {
-        return [false, true, "Didn't found matching user", 200]; // HTTP code 200 : OK
+        return [false, true, "Didn't find matching user", 200]; // HTTP code 200 : OK
     } else {
         return [true, true, "Found matching user", 200]; // HTTP code 200 : OK
     }
@@ -57,7 +63,7 @@ function any_has_refresh_token($token) {
     $db->close();
 
     if (!$user) {
-        return [false, true, "Didn't found matching user", 200]; // HTTP code 200 : OK
+        return [false, true, "Didn't find matching user", 200]; // HTTP code 200 : OK
     } else {
         return [true, true, "Found matching user", 200]; // HTTP code 200 : OK
     }
@@ -80,7 +86,7 @@ function validate_token_ownership($decoded_token) {
     $db->close();
 
     if (!$user) {
-        return [false, true, "Didn't found matching user", 200]; // HTTP code 200 : OK
+        return [false, true, "Didn't find matching user", 200]; // HTTP code 200 : OK
     } else {
         return [$user, true, "Found matching user", 200]; // HTTP code 200 : OK
     }
@@ -94,7 +100,7 @@ function validate_refresh_token_ownership($decoded_token) {
         return [null, false, $db_msg, $db_http_code];
     }
 
-    $stmt = $db->prepare("SELECT * FROM users WHERE ID = ? AND valid_token = ?");
+    $stmt = $db->prepare("SELECT * FROM users WHERE ID = ? AND valid_refresh_token = ?");
     $stmt->bind_param("ss", $decoded_token["usr"], $decoded_token["_jwt_"]);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -103,7 +109,7 @@ function validate_refresh_token_ownership($decoded_token) {
     $db->close();
 
     if (!$user) {
-        return [false, true, "Didn't found matching user", 200]; // HTTP code 200 : OK
+        return [false, true, "Didn't find matching user", 200]; // HTTP code 200 : OK
     } else {
         return [$user, true, "Found matching user", 200]; // HTTP code 200 : OK
     }
@@ -181,6 +187,8 @@ function get_new_token($token_type, $userid) {
      3  refresh     Used to refresh a pair token.
     */
 
+    global $SINGLE_TOKEN_EXPIRATION, $SINGLE_USE_TOKEN_EXPIRATION, $PAIR_TOKEN_EXPIRATION, $REFRESH_TOKEN_EXPIRATION;
+
     // Validate the token type input
     if (!isset($token_type)) {
         return [false, "Missing token-type", 400]; // HTTP code 400 : Bad Request
@@ -189,11 +197,12 @@ function get_new_token($token_type, $userid) {
 
     // Get permissions
     $permissiondigit_string = "000000000";
-    if (!empty($user["permissions"])) {
-        list($permissions_array, $permissions_success, $permissions_msg, $permissions_http_code) = get_user_permissions($userid);
-        if (!$permissions_success) {
-            return [null, false, $permissions_msg, $permissions_http_code];
-        }
+    $permissions_array = [];
+    list($permissions_array, $permissions_success, $permissions_msg, $permissions_http_code) = get_user_permissions($userid);
+    if (!$permissions_success) {
+        return [null, false, $permissions_msg, $permissions_http_code];
+    }
+    if (!empty($permissions_array)) {
         $permissiondigit_string = permission_array_to_digits($permissions_array);
     }
 
@@ -206,13 +215,13 @@ function get_new_token($token_type, $userid) {
     if ($token_type_lower === "single") {
         // Configure
         $token = null;
-        $expires = time() + 3600; // 1h
+        $expires = time() + $SINGLE_TOKEN_EXPIRATION;
         $tokenObj = new Single_JwtToken($userid, $expires, $permissiondigit_string);
         $token = $tokenObj->issueToken();
 
         // Update the database with the generated token and its type
         $update = $db->prepare("UPDATE users SET valid_token = ?, valid_token_type = ? WHERE ID = ?");
-        $update->bind_param("sss", $token, $token_type, $userid);
+        $update->bind_param("sss", $token, $token_type_lower, $userid);
         $update->execute();
         $update->close();
         $db->close();
@@ -223,7 +232,7 @@ function get_new_token($token_type, $userid) {
                 "token_type" => $token_type_lower,
                 "expires" => $expires,
                 "token" => $token,
-                "has_full_access" => in_array("*", explode("; ", $permissiondigit_string))
+                "has_full_access" => in_array("*", $permissions_array)
             ],
             true,
             "Token generated successfully",
@@ -233,13 +242,13 @@ function get_new_token($token_type, $userid) {
     } else if ($token_type_lower === "single-use") {
         // Configure
         $token = null;
-        $expires = time() + 3600; // 1h
+        $expires = time() + $SINGLE_USE_TOKEN_EXPIRATION;
         $tokenObj = new SingleUse_JwtToken($userid, $expires, $permissiondigit_string);
         $token = $tokenObj->issueToken();
 
         // Update the database with the generated token and its type
         $update = $db->prepare("UPDATE users SET valid_token = ?, valid_token_type = ? WHERE ID = ?");
-        $update->bind_param("sss", $token, $token_type, $userid);
+        $update->bind_param("sss", $token, $token_type_lower, $userid);
         $update->execute();
         $update->close();
         $db->close();
@@ -250,7 +259,43 @@ function get_new_token($token_type, $userid) {
                 "token_type" => $token_type_lower,
                 "expires" => $expires,
                 "token" => $token,
-                "has_full_access" => in_array("*", explode("; ", $permissiondigit_string))
+                "has_full_access" => in_array("*", $permissions_array)
+            ],
+            true,
+            "Token generated successfully",
+            200
+        ]; // HTTP code 200 : OK
+
+    } else if ($token_type_lower === "pair") {
+        $pair_token = null;
+        $pair_expires = time() + $PAIR_TOKEN_EXPIRATION; // 5min
+        $pair_tokenObj = new Pair_JwtToken($userid, $pair_expires, $permissiondigit_string);
+        $pair_token = $pair_tokenObj->issueToken();
+
+        $refresh_token = null;
+        $refresh_expires = time() + $REFRESH_TOKEN_EXPIRATION; // 1d
+        $refresh_tokenObj = new Refresh_JwtToken($userid, $refresh_expires);
+        $refresh_token = $refresh_tokenObj->issueToken();
+
+        // Update the database with the generated token and its type
+        //   valid_token = $pair_token
+        //   valid_token_type = $token_type_lower
+        //   valid_refresh_token = $refresh_token
+        $update = $db->prepare("UPDATE users SET valid_token = ?, valid_token_type = ?, valid_refresh_token = ? WHERE ID = ?");
+        $update->bind_param("ssss", $pair_token, $token_type_lower, $refresh_token, $userid);
+        $update->execute();
+        $update->close();
+        $db->close();
+
+        // Return success
+        return [
+            [
+                "token_type" => $token_type_lower,
+                "expires" => $pair_expires,
+                "token" => $pair_token,
+                "refresh_token" => $refresh_token,
+                "refresh_expires" => $refresh_expires,
+                "has_full_access" => in_array("*", $permissions_array)
             ],
             true,
             "Token generated successfully",
@@ -261,12 +306,10 @@ function get_new_token($token_type, $userid) {
         $db->close();
         return [null, false, "Invalid token type", 400]; // HTTP code 400 : Bad Request
     }
-
-    //MARK:TODO: Add other token types handling pair
 }
 
 // Function to invalidate a token
-function invalidate_token($token) {
+function invalidate_token($token, $invalidate_all=false) {
     $decoded_token = JwtToken::validateToken($token);
     if (!$decoded_token) {
         return [true, "Token already invalid", 200]; // HTTP code 200 : OK
@@ -277,9 +320,14 @@ function invalidate_token($token) {
         return [false, $db_msg, $db_http_code];
     }
 
-    if ($decoded_token["tt"] == 1 || $decoded_token["tt"] == 0) { // 0 single-use, 1 single
+    if ($decoded_token["tt"] == 0 || $decoded_token["tt"] == 1 || $decoded_token["tt"] == 2 || $decoded_token["tt"] == 3) { // 0 single-use, 1 single, 2 pair, 3 refresh
         // Find the user in the database based on the token
-        $stmt = $db->prepare("SELECT * FROM users WHERE valid_token = ?");
+        $stmt = null;
+        if ($decoded_token["tt"] == 3) {
+            $stmt = $db->prepare("SELECT * FROM users WHERE valid_refresh_token = ?");
+        } else {
+            $stmt = $db->prepare("SELECT * FROM users WHERE valid_token = ?");
+        }
         $stmt->bind_param("s", $token);
         if (!$stmt->execute()) {
             return [false, "Database error", 500]; // HTTP code 500 : Internal Server Error
@@ -294,7 +342,12 @@ function invalidate_token($token) {
         }
 
         // Invalidate the token in the database
-        $update = $db->prepare("UPDATE users SET valid_token = NULL, valid_token_type = NULL, valid_refresh_token = NULL WHERE ID = ?");
+        $update = null;
+        if ($decoded_token["tt"] == 2 && $invalidate_all == false) {
+            $update = $db->prepare("UPDATE users SET valid_token = NULL, valid_token_type = NULL WHERE ID = ?");
+        } else {
+            $update = $db->prepare("UPDATE users SET valid_token = NULL, valid_token_type = NULL, valid_refresh_token = NULL WHERE ID = ?");
+        }
         $update->bind_param("s", $user["ID"]);
         if (!$update->execute()) {
             return [false, "Database error", 500]; // HTTP code 500 : Internal Server Error

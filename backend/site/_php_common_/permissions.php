@@ -4,16 +4,16 @@
  * @brief This file contains functions to handle permissions.
  */
 
-require_once('db.php');
+require_once("db.php");
 
 /**
  * Formats:
- *   'permission_digits'       : A string of the digits used to represent permissions inside tokens, each index is a permission category and each value is a specific permission.
- *   'permission_string'       : The string name of a permission. (Used for users)
- *   'user_permissions_string' : A string with a "; " sepparated list of permission_string:s.
+ *   "permission_digits"       : A string of the digits used to represent permissions inside tokens, each index is a permission category and each value is a specific permission.
+ *   "permission_string"       : The string name of a permission. (Used for users)
+ *   "user_permissions_string" : A string with a "; " sepparated list of permission_string:s.
  */
 
-// Function to get the permissions of a user as array of 'permission_string's
+// Function to get the permissions of a user as array of "permission_string"s
 function get_user_permissions($userid) {
     list($db, $db_success, $db_msg, $db_http_code) = get_db();
     if (!$db_success) {
@@ -29,202 +29,202 @@ function get_user_permissions($userid) {
     $db->close();
 
     if (!$permissions) {
-        return [null, false, "Didn't found matching user", 200]; // HTTP code 200 : OK
+        return [null, false, "Didn't find matching user", 200]; // HTTP code 200 : OK
     } else {
-        $permissions = array_map(function($permission) { return $permission['string']; }, $permissions);
+        $permissions = array_map(function($permission) { return $permission["string"]; }, $permissions);
         return [$permissions, true, "Found matching user", 200]; // HTTP code 200 : OK
     }
 }
 
-// Function to get the 'permission_digits' from an array of 'permission_string's
+// Function to get the "permission_digits" from an array of "permission_string"s
 function permission_array_to_digits($permissions) {
     // Start zeroed
-    $permissions_array = array_fill(0, 9, '0');
+    $permissions_array = array_fill(0, 9, "0");
 
     // Loop through the user permissions
     foreach ($permissions as $permission) {
         switch ($permission) {
             // Full Access Permissions (Index 0)
-            case '*':
-                $permissions_array[0] = '1';
+            case "*":
+                $permissions_array[0] = "1";
                 break;
 
             // Articles Permissions (Index 1)
-            case 'articles.*':
-                $permissions_array[1] = '1';
+            case "articles.*":
+                $permissions_array[1] = "1";
                 break;
-            case 'articles.add':
-                $permissions_array[1] = '2';
+            case "articles.add":
+                $permissions_array[1] = "2";
                 break;
-            case 'articles.modify':
-                $permissions_array[1] = '3';
+            case "articles.modify":
+                $permissions_array[1] = "3";
                 break;
-            case 'articles.remove':
-                $permissions_array[1] = '4';
+            case "articles.remove":
+                $permissions_array[1] = "4";
                 break;
-            case 'articles.add-modify':
-                $permissions_array[1] = '5';
+            case "articles.add-modify":
+                $permissions_array[1] = "5";
                 break;
-            case 'articles.add-remove':
-                $permissions_array[1] = '6';
+            case "articles.add-remove":
+                $permissions_array[1] = "6";
                 break;
-            case 'articles.remove-modify':
-                $permissions_array[1] = '7';
+            case "articles.remove-modify":
+                $permissions_array[1] = "7";
                 break;
 
             // Articles Categories Permissions (Index 2)
-            case 'articles-cat.*':
-                $permissions_array[2] = '1';
+            case "articles-cat.*":
+                $permissions_array[2] = "1";
                 break;
-            case 'articles-cat.add':
-                $permissions_array[2] = '2';
+            case "articles-cat.add":
+                $permissions_array[2] = "2";
                 break;
-            case 'articles-cat.modify':
-                $permissions_array[2] = '3';
+            case "articles-cat.modify":
+                $permissions_array[2] = "3";
                 break;
-            case 'articles-cat.remove':
-                $permissions_array[2] = '4';
+            case "articles-cat.remove":
+                $permissions_array[2] = "4";
                 break;
-            case 'articles-cat.add-modify':
-                $permissions_array[2] = '5';
+            case "articles-cat.add-modify":
+                $permissions_array[2] = "5";
                 break;
-            case 'articles-cat.add-remove':
-                $permissions_array[2] = '6';
+            case "articles-cat.add-remove":
+                $permissions_array[2] = "6";
                 break;
-            case 'articles-cat.remove-modify':
-                $permissions_array[2] = '7';
+            case "articles-cat.remove-modify":
+                $permissions_array[2] = "7";
                 break;
 
             // Articles Subcategories Permissions (Index 3)
-            case 'articles-subcat.*':
-                $permissions_array[3] = '1';
+            case "articles-subcat.*":
+                $permissions_array[3] = "1";
                 break;
-            case 'articles-subcat.add':
-                $permissions_array[3] = '2';
+            case "articles-subcat.add":
+                $permissions_array[3] = "2";
                 break;
-            case 'articles-subcat.modify':
-                $permissions_array[3] = '3';
+            case "articles-subcat.modify":
+                $permissions_array[3] = "3";
                 break;
-            case 'articles-subcat.remove':
-                $permissions_array[3] = '4';
+            case "articles-subcat.remove":
+                $permissions_array[3] = "4";
                 break;
-            case 'articles-subcat.add-modify':
-                $permissions_array[3] = '5';
+            case "articles-subcat.add-modify":
+                $permissions_array[3] = "5";
                 break;
-            case 'articles-subcat.add-remove':
-                $permissions_array[3] = '6';
+            case "articles-subcat.add-remove":
+                $permissions_array[3] = "6";
                 break;
-            case 'articles-subcat.remove-modify':
-                $permissions_array[3] = '7';
+            case "articles-subcat.remove-modify":
+                $permissions_array[3] = "7";
                 break;
 
             // Wiki Permissions (Index 4)
-            case 'wiki.*':
-                $permissions_array[4] = '1';
+            case "wiki.*":
+                $permissions_array[4] = "1";
                 break;
-            case 'wiki.add':
-                $permissions_array[4] = '2';
+            case "wiki.add":
+                $permissions_array[4] = "2";
                 break;
-            case 'wiki.modify':
-                $permissions_array[4] = '3';
+            case "wiki.modify":
+                $permissions_array[4] = "3";
                 break;
-            case 'wiki.remove':
-                $permissions_array[4] = '4';
+            case "wiki.remove":
+                $permissions_array[4] = "4";
                 break;
-            case 'wiki.add-modify':
-                $permissions_array[4] = '5';
+            case "wiki.add-modify":
+                $permissions_array[4] = "5";
                 break;
-            case 'wiki.add-remove':
-                $permissions_array[4] = '6';
+            case "wiki.add-remove":
+                $permissions_array[4] = "6";
                 break;
-            case 'wiki.remove-modify':
-                $permissions_array[4] = '7';
+            case "wiki.remove-modify":
+                $permissions_array[4] = "7";
                 break;
 
             // Wiki Categories Permissions (Index 5)
-            case 'wiki-cat.*':
-                $permissions_array[5] = '1';
+            case "wiki-cat.*":
+                $permissions_array[5] = "1";
                 break;
-            case 'wiki-cat.add':
-                $permissions_array[5] = '2';
+            case "wiki-cat.add":
+                $permissions_array[5] = "2";
                 break;
-            case 'wiki-cat.modify':
-                $permissions_array[5] = '3';
+            case "wiki-cat.modify":
+                $permissions_array[5] = "3";
                 break;
-            case 'wiki-cat.remove':
-                $permissions_array[5] = '4';
+            case "wiki-cat.remove":
+                $permissions_array[5] = "4";
                 break;
-            case 'wiki-cat.add-modify':
-                $permissions_array[5] = '5';
+            case "wiki-cat.add-modify":
+                $permissions_array[5] = "5";
                 break;
-            case 'wiki-cat.add-remove':
-                $permissions_array[5] = '6';
+            case "wiki-cat.add-remove":
+                $permissions_array[5] = "6";
                 break;
-            case 'wiki-cat.remove-modify':
-                $permissions_array[5] = '7';
+            case "wiki-cat.remove-modify":
+                $permissions_array[5] = "7";
                 break;
 
             // Wiki Subcategories Permissions (Index 6)
-            case 'wiki-subcat.*':
-                $permissions_array[6] = '1';
+            case "wiki-subcat.*":
+                $permissions_array[6] = "1";
                 break;
-            case 'wiki-subcat.add':
-                $permissions_array[6] = '2';
+            case "wiki-subcat.add":
+                $permissions_array[6] = "2";
                 break;
-            case 'wiki-subcat.modify':
-                $permissions_array[6] = '3';
+            case "wiki-subcat.modify":
+                $permissions_array[6] = "3";
                 break;
-            case 'wiki-subcat.remove':
-                $permissions_array[6] = '4';
+            case "wiki-subcat.remove":
+                $permissions_array[6] = "4";
                 break;
-            case 'wiki-subcat.add-modify':
-                $permissions_array[6] = '5';
+            case "wiki-subcat.add-modify":
+                $permissions_array[6] = "5";
                 break;
-            case 'wiki-subcat.add-remove':
-                $permissions_array[6] = '6';
+            case "wiki-subcat.add-remove":
+                $permissions_array[6] = "6";
                 break;
-            case 'wiki-subcat.remove-modify':
-                $permissions_array[6] = '7';
+            case "wiki-subcat.remove-modify":
+                $permissions_array[6] = "7";
                 break;
 
             // Profiles Permissions (Index 7)
-            case 'profiles.*':
-                $permissions_array[7] = '1';
+            case "profiles.*":
+                $permissions_array[7] = "1";
                 break;
-            case 'profiles.add':
-                $permissions_array[7] = '2';
+            case "profiles.add":
+                $permissions_array[7] = "2";
                 break;
-            case 'profiles.modify':
-                $permissions_array[7] = '3';
+            case "profiles.modify":
+                $permissions_array[7] = "3";
                 break;
-            case 'profiles.remove':
-                $permissions_array[7] = '4';
+            case "profiles.remove":
+                $permissions_array[7] = "4";
                 break;
-            case 'profiles.add-modify':
-                $permissions_array[7] = '5';
+            case "profiles.add-modify":
+                $permissions_array[7] = "5";
                 break;
-            case 'profiles.add-remove':
-                $permissions_array[7] = '6';
+            case "profiles.add-remove":
+                $permissions_array[7] = "6";
                 break;
-            case 'profiles.remove-modify':
-                $permissions_array[7] = '7';
+            case "profiles.remove-modify":
+                $permissions_array[7] = "7";
                 break;
 
             // Profile Restriction Permissions (Index 8)
-            case 'all-profiles':
-                $permissions_array[8] = '1';
+            case "all-profiles":
+                $permissions_array[8] = "1";
                 break;
-            case 'your-profile':
-                $permissions_array[8] = '2';
+            case "your-profile":
+                $permissions_array[8] = "2";
                 break;
         }
     }
 
     // Convert the array into a string of digits and return
-    return implode('', $permissions_array);
+    return implode("", $permissions_array);
 }
 
-// Function to get an array of 'permission_string's from a 'permission_digits' string
+// Function to get an array of "permission_string"s from a "permission_digits" string
 function permission_digits_to_array($digits) {
     // Check if the $digits is a string of 9 digits
     if (!is_string($digits) || strlen($digits) != 9) {
@@ -238,134 +238,134 @@ function permission_digits_to_array($digits) {
     for ($i = 0; $i < strlen($digits); $i++) {
         switch ($i) {
             case 0:
-                if ($digits[$i] == '1') {
-                    $permissions[] = '*';
+                if ($digits[$i] == "1") {
+                    $permissions[] = "*";
                 }
                 break;
             case 1:
-                if ($digits[$i] == '1') {
-                    $permissions[] = 'articles.*';
-                } elseif ($digits[$i] == '2') {
-                    $permissions[] = 'articles.add';
-                } elseif ($digits[$i] == '3') {
-                    $permissions[] = 'articles.modify';
-                } elseif ($digits[$i] == '4') {
-                    $permissions[] = 'articles.remove';
-                } elseif ($digits[$i] == '5') {
-                    $permissions[] = 'articles.add-modify';
-                } elseif ($digits[$i] == '6') {
-                    $permissions[] = 'articles.add-remove';
-                } elseif ($digits[$i] == '7') {
-                    $permissions[] = 'articles.remove-modify';
+                if ($digits[$i] == "1") {
+                    $permissions[] = "articles.*";
+                } elseif ($digits[$i] == "2") {
+                    $permissions[] = "articles.add";
+                } elseif ($digits[$i] == "3") {
+                    $permissions[] = "articles.modify";
+                } elseif ($digits[$i] == "4") {
+                    $permissions[] = "articles.remove";
+                } elseif ($digits[$i] == "5") {
+                    $permissions[] = "articles.add-modify";
+                } elseif ($digits[$i] == "6") {
+                    $permissions[] = "articles.add-remove";
+                } elseif ($digits[$i] == "7") {
+                    $permissions[] = "articles.remove-modify";
                 }
                 break;
             case 2:
-                if ($digits[$i] == '1') {
-                    $permissions[] = 'articles-cat.*';
-                } elseif ($digits[$i] == '2') {
-                    $permissions[] = 'articles-cat.add';
-                } elseif ($digits[$i] == '3') {
-                    $permissions[] = 'articles-cat.modify';
-                } elseif ($digits[$i] == '4') {
-                    $permissions[] = 'articles-cat.remove';
-                } elseif ($digits[$i] == '5') {
-                    $permissions[] = 'articles-cat.add-modify';
-                } elseif ($digits[$i] == '6') {
-                    $permissions[] = 'articles-cat.add-remove';
-                } elseif ($digits[$i] == '7') {
-                    $permissions[] = 'articles-cat.remove-modify';
+                if ($digits[$i] == "1") {
+                    $permissions[] = "articles-cat.*";
+                } elseif ($digits[$i] == "2") {
+                    $permissions[] = "articles-cat.add";
+                } elseif ($digits[$i] == "3") {
+                    $permissions[] = "articles-cat.modify";
+                } elseif ($digits[$i] == "4") {
+                    $permissions[] = "articles-cat.remove";
+                } elseif ($digits[$i] == "5") {
+                    $permissions[] = "articles-cat.add-modify";
+                } elseif ($digits[$i] == "6") {
+                    $permissions[] = "articles-cat.add-remove";
+                } elseif ($digits[$i] == "7") {
+                    $permissions[] = "articles-cat.remove-modify";
                 }
                 break;
             case 3:
-                if ($digits[$i] == '1') {
-                    $permissions[] = 'articles-subcat.*';
-                } elseif ($digits[$i] == '2') {
-                    $permissions[] = 'articles-subcat.add';
-                } elseif ($digits[$i] == '3') {
-                    $permissions[] = 'articles-subcat.modify';
-                } elseif ($digits[$i] == '4') {
-                    $permissions[] = 'articles-subcat.remove';
-                } elseif ($digits[$i] == '5') {
-                    $permissions[] = 'articles-subcat.add-modify';
-                } elseif ($digits[$i] == '6') {
-                    $permissions[] = 'articles-subcat.add-remove';
-                } elseif ($digits[$i] == '7') {
-                    $permissions[] = 'articles-subcat.remove-modify';
+                if ($digits[$i] == "1") {
+                    $permissions[] = "articles-subcat.*";
+                } elseif ($digits[$i] == "2") {
+                    $permissions[] = "articles-subcat.add";
+                } elseif ($digits[$i] == "3") {
+                    $permissions[] = "articles-subcat.modify";
+                } elseif ($digits[$i] == "4") {
+                    $permissions[] = "articles-subcat.remove";
+                } elseif ($digits[$i] == "5") {
+                    $permissions[] = "articles-subcat.add-modify";
+                } elseif ($digits[$i] == "6") {
+                    $permissions[] = "articles-subcat.add-remove";
+                } elseif ($digits[$i] == "7") {
+                    $permissions[] = "articles-subcat.remove-modify";
                 }
                 break;
             case 4:
-                if ($digits[$i] == '1') {
-                    $permissions[] = 'wiki.*';
-                } elseif ($digits[$i] == '2') {
-                    $permissions[] = 'wiki.add';
-                } elseif ($digits[$i] == '3') {
-                    $permissions[] = 'wiki.modify';
-                } elseif ($digits[$i] == '4') {
-                    $permissions[] = 'wiki.remove';
-                } elseif ($digits[$i] == '5') {
-                    $permissions[] = 'wiki.add-modify';
-                } elseif ($digits[$i] == '6') {
-                    $permissions[] = 'wiki.add-remove';
-                } elseif ($digits[$i] == '7') {
-                    $permissions[] = 'wiki.remove-modify';
+                if ($digits[$i] == "1") {
+                    $permissions[] = "wiki.*";
+                } elseif ($digits[$i] == "2") {
+                    $permissions[] = "wiki.add";
+                } elseif ($digits[$i] == "3") {
+                    $permissions[] = "wiki.modify";
+                } elseif ($digits[$i] == "4") {
+                    $permissions[] = "wiki.remove";
+                } elseif ($digits[$i] == "5") {
+                    $permissions[] = "wiki.add-modify";
+                } elseif ($digits[$i] == "6") {
+                    $permissions[] = "wiki.add-remove";
+                } elseif ($digits[$i] == "7") {
+                    $permissions[] = "wiki.remove-modify";
                 }
                 break;
             case 5:
-                if ($digits[$i] == '1') {
-                    $permissions[] = 'wiki-cat.*';
-                } elseif ($digits[$i] == '2') {
-                    $permissions[] = 'wiki-cat.add';
-                } elseif ($digits[$i] == '3') {
-                    $permissions[] = 'wiki-cat.modify';
-                } elseif ($digits[$i] == '4') {
-                    $permissions[] = 'wiki-cat.remove';
-                } elseif ($digits[$i] == '5') {
-                    $permissions[] = 'wiki-cat.add-modify';
-                } elseif ($digits[$i] == '6') {
-                    $permissions[] = 'wiki-cat.add-remove';
-                } elseif ($digits[$i] == '7') {
-                    $permissions[] = 'wiki-cat.remove-modify';
+                if ($digits[$i] == "1") {
+                    $permissions[] = "wiki-cat.*";
+                } elseif ($digits[$i] == "2") {
+                    $permissions[] = "wiki-cat.add";
+                } elseif ($digits[$i] == "3") {
+                    $permissions[] = "wiki-cat.modify";
+                } elseif ($digits[$i] == "4") {
+                    $permissions[] = "wiki-cat.remove";
+                } elseif ($digits[$i] == "5") {
+                    $permissions[] = "wiki-cat.add-modify";
+                } elseif ($digits[$i] == "6") {
+                    $permissions[] = "wiki-cat.add-remove";
+                } elseif ($digits[$i] == "7") {
+                    $permissions[] = "wiki-cat.remove-modify";
                 }
                 break;
             case 6:
-                if ($digits[$i] == '1') {
-                    $permissions[] = 'wiki-subcat.*';
-                } elseif ($digits[$i] == '2') {
-                    $permissions[] = 'wiki-subcat.add';
-                } elseif ($digits[$i] == '3') {
-                    $permissions[] = 'wiki-subcat.modify';
-                } elseif ($digits[$i] == '4') {
-                    $permissions[] = 'wiki-subcat.remove';
-                } elseif ($digits[$i] == '5') {
-                    $permissions[] = 'wiki-subcat.add-modify';
-                } elseif ($digits[$i] == '6') {
-                    $permissions[] = 'wiki-subcat.add-remove';
-                } elseif ($digits[$i] == '7') {
-                    $permissions[] = 'wiki-subcat.remove-modify';
+                if ($digits[$i] == "1") {
+                    $permissions[] = "wiki-subcat.*";
+                } elseif ($digits[$i] == "2") {
+                    $permissions[] = "wiki-subcat.add";
+                } elseif ($digits[$i] == "3") {
+                    $permissions[] = "wiki-subcat.modify";
+                } elseif ($digits[$i] == "4") {
+                    $permissions[] = "wiki-subcat.remove";
+                } elseif ($digits[$i] == "5") {
+                    $permissions[] = "wiki-subcat.add-modify";
+                } elseif ($digits[$i] == "6") {
+                    $permissions[] = "wiki-subcat.add-remove";
+                } elseif ($digits[$i] == "7") {
+                    $permissions[] = "wiki-subcat.remove-modify";
                 }
                 break;
             case 7:
-                if ($digits[$i] == '1') {
-                    $permissions[] = 'profiles.*';
-                } elseif ($digits[$i] == '2') {
-                    $permissions[] = 'profiles.add';
-                } elseif ($digits[$i] == '3') {
-                    $permissions[] = 'profiles.modify';
-                } elseif ($digits[$i] == '4') {
-                    $permissions[] = 'profiles.remove';
-                } elseif ($digits[$i] == '5') {
-                    $permissions[] = 'profiles.add-modify';
-                } elseif ($digits[$i] == '6') {
-                    $permissions[] = 'profiles.add-remove';
-                } elseif ($digits[$i] == '7') {
-                    $permissions[] = 'profiles.remove-modify';
+                if ($digits[$i] == "1") {
+                    $permissions[] = "profiles.*";
+                } elseif ($digits[$i] == "2") {
+                    $permissions[] = "profiles.add";
+                } elseif ($digits[$i] == "3") {
+                    $permissions[] = "profiles.modify";
+                } elseif ($digits[$i] == "4") {
+                    $permissions[] = "profiles.remove";
+                } elseif ($digits[$i] == "5") {
+                    $permissions[] = "profiles.add-modify";
+                } elseif ($digits[$i] == "6") {
+                    $permissions[] = "profiles.add-remove";
+                } elseif ($digits[$i] == "7") {
+                    $permissions[] = "profiles.remove-modify";
                 }
                 break;
             case 8:
-                if ($digits[$i] == '1') {
-                    $permissions[] = 'all-profiles';
-                } elseif ($digits[$i] == '2') {
-                    $permissions[] = 'your-profile';
+                if ($digits[$i] == "1") {
+                    $permissions[] = "all-profiles";
+                } elseif ($digits[$i] == "2") {
+                    $permissions[] = "your-profile";
                 }
                 break;
         }
@@ -375,7 +375,7 @@ function permission_digits_to_array($digits) {
     return $permissions;
 }
 
-// Function to grant a 'permission_string' to a user
+// Function to grant a "permission_string" to a user
 function grant_user_permission($userid, $permission) {
     list($db, $db_success, $db_msg, $db_http_code) = get_db();
     if (!$db_success) {
@@ -404,7 +404,7 @@ function grant_user_permission($userid, $permission) {
     }
 }
 
-// Function to revoke a 'permission_string' from a user
+// Function to revoke a "permission_string" from a user
 function revoke_user_permission($userid, $permission) {
     list($db, $db_success, $db_msg, $db_http_code) = get_db();
     if (!$db_success) {
@@ -433,7 +433,7 @@ function revoke_user_permission($userid, $permission) {
     }
 }
 
-// Function to check if a user has a 'permission_string'
+// Function to check if a user has a "permission_string"
 function check_user_permission_exact($userid, $permission) {
     list($permissions, $success, $msg, $http_code) = get_user_permissions($userid);
     if (!$success) {
@@ -446,7 +446,7 @@ function check_user_permission_exact($userid, $permission) {
     return false;
 }
 
-// Function to check if a user has a 'permission_string' or a higher-level or joint permission including the 'permission_string'
+// Function to check if a user has a "permission_string" or a higher-level or joint permission including the "permission_string"
 function check_user_permission($userid, $permission) {
     // Check if the $user has the "*" permission, i.e full access
     if (check_user_permission_exact($userid, "*")) {
@@ -489,7 +489,7 @@ function check_user_permission($userid, $permission) {
     return false;
 }
 
-// Function to check if a 'permission_digits' contains a 'permission_string'
+// Function to check if a "permission_digits" contains a "permission_string"
 function check_digits_permission_exact($digits, $permission) {
     $permission_array = permission_digits_to_array($digits);
 
@@ -500,7 +500,7 @@ function check_digits_permission_exact($digits, $permission) {
     return false;
 }
 
-// Function to check if a 'permission_digits' contains a 'permission_string' or a higher-level or joint permission including the 'permission_string'
+// Function to check if a "permission_digits" contains a "permission_string" or a higher-level or joint permission including the "permission_string"
 function check_digits_permission($digits, $permission) {
     $permission_array = permission_digits_to_array($digits);
 

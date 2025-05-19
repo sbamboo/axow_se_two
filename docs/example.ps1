@@ -1,6 +1,7 @@
 class axow {
     [string]$BaseUrl
     [string]$Token = $null
+    [string]$RefreshToken = $null # Add property for refresh token
 
     axow([string]$baseUrl) {
         $this.BaseUrl = $baseUrl.TrimEnd('/')
@@ -16,6 +17,10 @@ class axow {
             $json = $response | ConvertFrom-Json
             if ($json.status -eq "success" -and $json.token) {
                 $this.Token = $json.token
+            }
+            # Collect refresh_token if token_type is 'pair' and it exists
+            if ($token_type -eq 'pair' -and $json.refresh_token) {
+                $this.RefreshToken = $json.refresh_token
             }
         } catch {
             # Ignore parse errors or handle them if necessary
@@ -68,6 +73,28 @@ class axow {
         # -H for Authorization and Content-Type, and -d for the body
         $response = curl -s -X POST -H "Authorization: Bearer $($this.Token)" -H "Content-Type: application/json" -d $body $url 2>&1
         Write-Host $response
+    }
+
+    # Add new method for refreshing token
+    [void] refresh() {
+        $url = "$($this.BaseUrl)/auth/refresh/index.php"
+        $body = @{ refresh_token = $this.RefreshToken } | ConvertTo-Json -Compress
+        # Using curl with -s (silent), -X POST, -H for Content-Type, and -d for the body
+        $response = curl -s -X POST -H "Content-Type: application/json" -d $body $url 2>&1
+        Write-Host $response
+
+        try {
+            $json = $response | ConvertFrom-Json
+            if ($json.status -eq "success" -and $json.token) {
+                $this.Token = $json.token
+                # Optionally, update the refresh token if the response includes a new one
+                if ($json.refresh_token) {
+                    $this.RefreshToken = $json.refresh_token
+                }
+            }
+        } catch {
+            # Ignore parse errors or handle them if necessary
+        }
     }
 }
 

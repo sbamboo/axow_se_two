@@ -4,10 +4,10 @@
  * @brief This file contains classes to handle JWTs. (JSON Web Tokens)
  */
 
-require_once('permissions.php');
+require_once("permissions.php");
 
 class JwtToken {
-    protected static $secretKey = 'your-secret-key';
+    protected static $secretKey = "your-secret-key";
 
     protected $usr;  // User ID
     protected $iat;  // Issued At time (timestamp)
@@ -27,11 +27,11 @@ class JwtToken {
     // Method to issue the JWT
     public function issueToken() {
         $payload = [
-            'usr'  => $this->usr,
-            'iat'  => $this->iat,
-            'exp'  => $this->exp,
-            'tt'   => $this->tt,
-            'perm' => $this->perm
+            "usr"  => $this->usr,
+            "iat"  => $this->iat,
+            "exp"  => $this->exp,
+            "tt"   => $this->tt,
+            "perm" => $this->perm
         ];
 
         return $this->encodeJWT($payload);
@@ -41,13 +41,13 @@ class JwtToken {
     public static function validateToken($token) {
         $decoded = self::decodeJWT($token);
 
-        if (!$decoded || $decoded['exp'] < time()) {
+        if (!$decoded || $decoded["exp"] < time()) {
             return false; // Token is either invalid or expired
         }
 
         // If the tokentype is single-use (tt = 0), invalidate it
         /*
-        if ($decoded['tt'] == 0) {
+        if ($decoded["tt"] == 0) {
             invalidate_token($token);
         } 
         */   
@@ -58,13 +58,13 @@ class JwtToken {
     // Encode the JWT using the header, payload, and signature
     protected function encodeJWT($payload) {
         // Header part
-        $header = base64_encode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
+        $header = base64_encode(json_encode(["alg" => "HS256", "typ" => "JWT"]));
 
         // Payload part
         $payload = base64_encode(json_encode($payload));
 
         // Signature part
-        $signature = hash_hmac('sha256', "$header.$payload", self::$secretKey, true);
+        $signature = hash_hmac("sha256", "$header.$payload", self::$secretKey, true);
         $signature = base64_encode($signature);
 
         // Return the complete JWT token ("<header>.<payload>.<signature>")
@@ -73,7 +73,7 @@ class JwtToken {
 
     // Decode the JWT and verify signature
     protected static function decodeJWT($jwt) {
-        $parts = explode('.', $jwt);
+        $parts = explode(".", $jwt);
 
         if (count($parts) !== 3) return false; // Invalid JWT format
 
@@ -84,11 +84,11 @@ class JwtToken {
         $payload = json_decode(base64_decode($payload), true);
 
         // Generate the expected signature and compare with the provided signature
-        $validSignature = base64_encode(hash_hmac('sha256', "$parts[0].$parts[1]", self::$secretKey, true));
+        $validSignature = base64_encode(hash_hmac("sha256", "$parts[0].$parts[1]", self::$secretKey, true));
 
         if ($validSignature === $signature) {
             // add "_jwt_" field to $payload with the orignal token
-            $payload['_jwt_'] = $jwt;
+            $payload["_jwt_"] = $jwt;
             return $payload;
         } else {
             return false;
@@ -118,4 +118,24 @@ class SingleUse_JwtToken extends JwtToken {
     }
 }
 
-//MARK:TODO: Add classes for `pair`, and `refresh` token types
+// Token type `pair` (extends JwtToken class)
+class Pair_JwtToken extends JwtToken {
+    public function __construct($usr, $exp, $perm) {
+        parent::__construct($usr, $exp, 2, $perm); // tt = 2 for type `pair`
+    }
+
+    public static function validateToken($token) {
+        return parent::validateToken($token);
+    }
+}
+
+// Token type `refresh` (extends JwtToken class)
+class Refresh_JwtToken extends JwtToken {
+    public function __construct($usr, $exp) {
+        parent::__construct($usr, $exp, 3, ""); // tt = 3 for type `refresh`
+    }
+
+    public static function validateToken($token) {
+        return parent::validateToken($token);
+    }
+}
