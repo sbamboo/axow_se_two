@@ -4,9 +4,11 @@ backend/
     ├── _php_common_/
     │   ├── auth.php        <- contains auth functions
     │   ├── db.php          <- contains db functions
+    │   ├── env.php         <- set's up a PHP enviroment
     │   ├── jwt.php         <- contains JwtToken classes
     │   ├── permissions.php <- contains helper functions for the digit-based permission system
-    │   ├── request.php     <- contains helper functions for interacting as a rest api
+    │   ├── requests.php    <- contains helper functions for interacting as a rest api
+    │   └── responders.php  <- contains function wrappers that auto respond with JSON
     │   └── user.php        <- contains user management functions
     ├── db/
     │   └── schema.sql      <- A schema/sql-setup describing the auth database

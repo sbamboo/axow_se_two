@@ -1,8 +1,13 @@
 <?php
-require_once('db.php');
-require_once('jwt.php');
-require_once('permissions.php');
-require_once('request.php');
+/**
+ * @file auth.php
+ * @brief This file contains functions needed for handling authentication.
+ */
+
+require_once("db.php");
+require_once("jwt.php");
+require_once("requests.php");
+require_once("permissions.php");
 
 function get_secure_hash($password) {
     // Hash the password using a secure hashing algorithm
@@ -14,516 +19,161 @@ function compare_secure_hash($password, $hash) {
     return password_verify($password, $hash);
 }
 
-function validate_token($token) {
-    // Validate the token (Check if it's valid and not expired)
-    $decoded = JwtToken::validateToken($token);
-
-    if (!$decoded) {
-        return false;
-    }
-
-    return $decoded;
-}
-
-function validate_token_permission($token, $permission) {
-    $decoded = JwtToken::validateToken($token);
-
-    if (!$decoded) {
-        return false;
-    }
-
-    if (!JwtToken::checkPermission($decoded, $permission)) {
-        return false;
-    }
-
-    return true;
-}
-
-function validate_decoded_token_permission($decoded_token, $permission) {
-    if (!JwtToken::checkPermission($decoded_token, $permission)) {
-        return false;
-    }
-    return true;
-}
-
-function invalidate_token($token) {
-
-    $toRet = [
-        'http_code' => 200,
-        'status' => 'success',
-        'msg' => ''
-    ];
-
-    $decoded = JwtToken::validateToken($token);
-
-    // Already invalid token
-    if (!$decoded) {
-        $toRet['http_code'] = 200;
-        $toRet['status'] = 'success';
-        $toRet['msg'] = 'Token already invalid';
-        return $toRet;
-    }
-
-    if ($decoded['tt'] == 1 || $decoded['tt'] == 0) { // 0 single-use, 1 single
-        // Find the user in the database based on the token
-        $db = get_db();
-        $stmt = $db->prepare('SELECT * FROM users WHERE valid_token = ?');
-        $stmt->bind_param('s', $token);
-        if (!$stmt->execute()) {
-            $toRet['http_code'] = 500;
-            $toRet['status'] = 'failed';
-            $toRet['msg'] = 'Database query execution failed';
-        }
-        $result = $stmt->get_result();
-        $user = $result->fetch_assoc();
-
-        // Check if any user was found, if not no one had the token so we success already invalid
-        if (!$user) {
-            $toRet['http_code'] = 200;
-            $toRet['status'] = 'success';
-            $toRet['msg'] = 'Token already invalid';
-            return $toRet;
-        }
-
-        // Invalidate the token in the database
-        $update = $db->prepare('UPDATE users SET valid_token = NULL, valid_token_type = NULL, valid_refresh_token = NULL WHERE ID = ?');
-        $update->bind_param('i', $user['ID']);
-        if (!$update->execute()) {
-            $toRet['http_code'] = 500;
-            $toRet['status'] = 'failed';
-            $toRet['msg'] = 'Database update failed';
-            return $toRet;
-        }
-        $result = $update->get_result();
-        /*
-        if ($result === false) {
-            $toRet['http_code'] = 500;
-            $toRet['status'] = 'failed';
-            $toRet['msg'] = 'Database update failed';
-            return $toRet;
-        }
-        */
-
-        $toRet['msg'] = 'Token invalidated';
-        return $toRet;
-
-    } else {
-        $toRet['http_code'] = 400;
-        $toRet['status'] = 'failed';
-        $toRet['msg'] = 'Invalid token type';
-        return $toRet;
-    }
-
-    //MARK:TODO: Handle other token types like pair
-}
-
-function invalidate_single_use_token($token) {
-
-    $toRet = [
-        'http_code' => 200,
-        'status' => 'success',
-        'msg' => ''
-    ];
-
-    $decoded = JwtToken::validateToken($token);
-
-    // Already invalid token
-    if (!$decoded) {
-        $toRet['http_code'] = 200;
-        $toRet['status'] = 'success';
-        $toRet['msg'] = 'Token already invalid';
-        return $toRet;
-    }
-
-    if ($decoded['tt'] == 0) { // 0 single-use
-        // Find the user in the database based on the token
-        $db = get_db();
-        $stmt = $db->prepare('SELECT * FROM users WHERE valid_token = ?');
-        $stmt->bind_param('s', $token);
-        if (!$stmt->execute()) {
-            $toRet['http_code'] = 500;
-            $toRet['status'] = 'failed';
-            $toRet['msg'] = 'Database query execution failed';
-        }
-        $result = $stmt->get_result();
-        $user = $result->fetch_assoc();
-
-        // Check if any user was found, if not no one had the token so we success already invalid
-        if (!$user) {
-            $toRet['http_code'] = 200;
-            $toRet['status'] = 'success';
-            $toRet['msg'] = 'Token already invalid';
-            return $toRet;
-        }
-
-        // Invalidate the token in the database
-        $update = $db->prepare('UPDATE users SET valid_token = NULL, valid_token_type = NULL, valid_refresh_token = NULL WHERE ID = ?');
-        $update->bind_param('i', $user['ID']);
-        if (!$update->execute()) {
-            $toRet['http_code'] = 500;
-            $toRet['status'] = 'failed';
-            $toRet['msg'] = 'Database update failed';
-            return $toRet;
-        }
-        $result = $update->get_result();
-        /*
-        if ($result === false) {
-            $toRet['http_code'] = 500;
-            $toRet['status'] = 'failed';
-            $toRet['msg'] = 'Database update failed';
-            return $toRet;
-        }
-        */
-
-        $toRet['msg'] = 'Token invalidated';
-        return $toRet;
-
-    }
-}
-
-function auto_invalidate_single_use_token() {
-    list('type' => $type, 'token' => $token) = get_auth_header_token();
-    return invalidate_single_use_token($token);
-}
-
+// Function to check if any user has the token as valid_token field
 function any_has_token($token) {
-    // Find the user in the database based on the token
-    $db = get_db();
-    $stmt = $db->prepare('SELECT * FROM users WHERE valid_token = ?');
-    $stmt->bind_param('s', $token);
+    list($db, $db_success, $db_msg, $db_http_code) = get_db();
+    if (!$db_success) {
+        return [null, false, $db_msg, $db_http_code];
+    }
+
+    $stmt = $db->prepare("SELECT COUNT(*) FROM users WHERE valid_token = ?");
+    $stmt->bind_param("s", $token);
     $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
+    $stmt->close();
+    $db->close();
 
-    // Check if any user was found, if not no one had the token so we success already invalid
     if (!$user) {
-        return false;
+        return [false, true, "Didn't found matching user", 200]; // HTTP code 200 : OK
     } else {
-        return true;
+        return [true, true, "Found matching user", 200]; // HTTP code 200 : OK
     }
 }
 
-//MARK: UserID Functions
-
-function user_has_valid_token($userid) {
-    $db = get_db();
-    $stmt = $db->prepare('SELECT valid_token, valid_token_type FROM users WHERE id = ?');
-    $stmt->bind_param('i', $userid);
-    if (!$stmt->execute()) {
-        return [false, null];
+// Function to check if any user has the token as valid_refresh_token field
+function any_has_refresh_token($token) {
+    list($db, $db_success, $db_msg, $db_http_code) = get_db();
+    if (!$db_success) {
+        return [null, false, $db_msg, $db_http_code];
     }
+
+    $stmt = $db->prepare("SELECT * FROM users WHERE valid_refresh_token = ?");
+    $stmt->bind_param("s", $token);
+    $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
+    $stmt->close();    
+    $db->close();
 
-    if (!$user || empty($user['valid_token']) || empty($user['valid_token_type'])) {
-        return [false, null];
-    }
-
-    $decoded = JwtToken::validateToken($user['valid_token']);
-
-    if ($decoded) {
-        return [true, $user['valid_token_type']];
+    if (!$user) {
+        return [false, true, "Didn't found matching user", 200]; // HTTP code 200 : OK
     } else {
-        user_invalidate_token($userid);
-        return [false, null];
+        return [true, true, "Found matching user", 200]; // HTTP code 200 : OK
     }
 }
 
-function user_invalidate_token($userid) {
-    $db = get_db();
-
-    $stmt = $db->prepare('SELECT valid_token FROM users WHERE id = ?');
-    $stmt->bind_param('i', $userid);
-    if (!$stmt->execute()) {
-        return false;
+// Function to check if any user by an undecoded_token:s "usr" has the token as valid_token field, returning the user
+//MARK: Should we really get token from the undecoded_token._jwt_ or is it better to pass as param?
+function validate_token_ownership($decoded_token) {
+    list($db, $db_success, $db_msg, $db_http_code) = get_db();
+    if (!$db_success) {
+        return [null, false, $db_msg, $db_http_code];
     }
+
+    $stmt = $db->prepare("SELECT * FROM users WHERE ID = ? AND valid_token = ?");
+    $stmt->bind_param("ss", $decoded_token["usr"], $decoded_token["_jwt_"]);
+    $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
-
-    if (!$user || empty($user['valid_token'])) {
-        return true;
-    }
-
-    invalidate_token($user['valid_token']);
-
-    return true;
-}
-
-function user_invalidate_single_use_token($userid) {
-    $db = get_db();
-
-    $stmt = $db->prepare('SELECT valid_token FROM users WHERE id = ?');
-    $stmt->bind_param('i', $userid);
-    if (!$stmt->execute()) {
-        return false;
-    }
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
-
-    if (!$user || empty($user['valid_token'])) {
-        return true;
-    }
-
-    invalidate_single_use_token($user['valid_token']);
-
-    return true;
-}
-
-function user_get_permissions($userid) {
-    // table user_permissions stores permissions
-    // table users_to_permissions stores user_id and permission_id foreign keys
-    $db = get_db();
-    // Fetch users_to_permissions where user_id = $userid
-    $stmt = $db->prepare('SELECT permission_id FROM users_to_permissions WHERE user_id = ?');
-    $stmt->bind_param('i', $userid);
-    if (!$stmt->execute()) {
-        return [];
-    }
-    $result = $stmt->get_result();
-    
-    // Foreach in $row fetch the user_permissions table to get the permission name under 'string' field
-    $permissions = [];
-    while ($row = $result->fetch_assoc()) {
-        $permission_id = $row['permission_id'];
-        $stmt2 = $db->prepare('SELECT string FROM user_permissions WHERE id = ?');
-        $stmt2->bind_param('i', $permission_id);
-        if (!$stmt2->execute()) {
-            continue;
-        }
-        $result2 = $stmt2->get_result();
-        $permission = $result2->fetch_assoc();
-        if ($permission) {
-            $permissions[] = $permission['string'];
-        }
-    }
-}
-
-function user_grant_permission($userid, $permission, $invalidate_token = true) {
-    $db = get_db();
-
-    $stmt = $db->prepare('SELECT permissions, valid_token FROM users WHERE id = ?');
-    $stmt->bind_param('i', $userid);
-    if (!$stmt->execute()) {
-        return false;
-    }
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
+    $stmt->close();
+    $db->close();
 
     if (!$user) {
-        return false;
-    }
-
-    $current_permissions = empty($permissiondigit_string) ? [] : explode('; ', $permissiondigit_string);
-
-    if (in_array($permission, $current_permissions)) {
-        return true;
-    }
-
-    $current_permissions[] = $permission;
-    $new_permissions = implode('; ', $current_permissions);
-
-    $update_stmt = $db->prepare('UPDATE users SET permissions = ? WHERE id = ?');
-    $update_stmt->bind_param('si', $new_permissions, $userid);
-    if (!$update_stmt->execute()) {
-        return false;
-    }
-
-    if ($invalidate_token && !empty($user['valid_token'])) {
-        user_invalidate_token($userid);
-    }
-
-    return true;
-}
-
-function user_revoke_permission($userid, $permission, $invalidate_token = true) {
-    $db = get_db();
-
-    $stmt = $db->prepare('SELECT permissions, valid_token FROM users WHERE id = ?');
-    $stmt->bind_param('i', $userid);
-    if (!$stmt->execute()) {
-        return false;
-    }
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
-
-    if (!$user) {
-        return false;
-    }
-
-    $current_permissions = empty($permissiondigit_string) ? [] : explode('; ', $permissiondigit_string);
-
-    $key = array_search($permission, $current_permissions);
-    if ($key !== false) {
-        unset($current_permissions[$key]);
+        return [false, true, "Didn't found matching user", 200]; // HTTP code 200 : OK
     } else {
-        return true;
+        return [$user, true, "Found matching user", 200]; // HTTP code 200 : OK
     }
-
-    $new_permissions = implode('; ', array_values($current_permissions));
-
-    $update_stmt = $db->prepare('UPDATE users SET permissions = ? WHERE id = ?');
-    $update_stmt->bind_param('si', $new_permissions, $userid);
-    if (!$update_stmt->execute()) {
-        return false;
-    }
-
-    if ($invalidate_token && !empty($user['valid_token'])) {
-        user_invalidate_token($userid);
-    }
-
-    return true;
 }
 
-function user_query_permissions($userid) {
-    $db = get_db();
-
-    $stmt = $db->prepare('SELECT permissions FROM users WHERE id = ?');
-    $stmt->bind_param('i', $userid);
-    if (!$stmt->execute()) {
-        return false;
+// Function to check if any user by an undecoded_token:s "usr" has the token as valid_refresh_token field, returning the user
+//MARK: Should we really get token from the undecoded_token._jwt_ or is it better to pass as param?
+function validate_refresh_token_ownership($decoded_token) {
+    list($db, $db_success, $db_msg, $db_http_code) = get_db();
+    if (!$db_success) {
+        return [null, false, $db_msg, $db_http_code];
     }
+
+    $stmt = $db->prepare("SELECT * FROM users WHERE ID = ? AND valid_token = ?");
+    $stmt->bind_param("ss", $decoded_token["usr"], $decoded_token["_jwt_"]);
+    $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
+    $stmt->close();
+    $db->close();
 
     if (!$user) {
-        return false;
+        return [false, true, "Didn't found matching user", 200]; // HTTP code 200 : OK
+    } else {
+        return [$user, true, "Found matching user", 200]; // HTTP code 200 : OK
     }
-
-    if (empty($permissiondigit_string)) {
-        return [];
-    }
-
-    return explode('; ', $permissiondigit_string);
 }
 
-function user_has_permission($userid, $permission) {
-    $permissions = user_query_permissions($userid);
+// Function that uses JwtToken to decode and thus validate the token format
+function validate_token_format($token) {
+    $decoded_token = JwtToken::validateToken($token);
 
-    if ($permissions === false) {
-        return false;
+    if ($decoded_token === null) {
+        return [null, false, "Invalid or expired token", 401]; // HTTP code 401 : Unauthorized
     }
 
-    return in_array($permission, $permissions);
+    return [$decoded_token, true, "", 200]; // HTTP code 200 : OK
 }
 
-function user_get_new_token($token_type, $userid) {
-    /*
-     0  single-use  One-time token.
-     1  single      Only one active token, no refresh key.
-     2  pair        Requires a refresh token to refresh.
-     3  refresh     Used to refresh a pair token.
-    */
-    $toRet = [
-        'http_code' => 200,
-        'status' => 'success',
-        'msg' => ''
-    ];
-
-    if (!isset($token_type)) {
-        $toRet['http_code'] = 400;
-        $toRet['status'] = 'failed';
-        $toRet['msg'] = 'Missing token_type';
-        return $toRet;
+// Function to check if an undecoded_token:s "usr" is a valid userid, returns bool
+function validate_token_user($decoded_token) {
+    list($db, $db_success, $db_msg, $db_http_code) = get_db();
+    if (!$db_success) {
+        return [null, false, $db_msg, $db_http_code];
     }
 
-    // Validate required fields
-    if (!isset($data['username'], $data['password'])) {
-        http_response_code(400);
-        echo json_encode(['status' => 'failed', 'msg' => 'Missing username or password']);
-        return;
+    // Check if any match exists and return boolean
+    $stmt = $db->prepare("SELECT COUNT(*) FROM users WHERE id = ?");
+    $stmt->bind_param("s", $decoded_token["usr"]);
+    $stmt->execute();
+    $stmt->bind_result($count);
+    $stmt->fetch();
+    $stmt->close();
+    $db->close();
+    return $count > 0;
+}
+
+// Function to validate
+function validate_user_credentials($data) {
+    // Validate the username and password are not empty or null
+    if (!isset($data["username"]) || !isset($data["password"])) {
+        return [null, false, "Missing username or password", 400]; // HTTP code 400 : Bad Request
+    }
+
+    // Get the DB
+    list($db, $db_success, $db_msg, $db_http_code) = get_db();
+    if (!$db_success) {
+        return [null, false, $db_msg, $db_http_code];
     }
 
     // Get the user from the database
-    $db = get_db();
-    $stmt = $db->prepare('SELECT * FROM users WHERE ID = ?');
-    $stmt->bind_param('i', $userid);
+    $stmt = $db->prepare("SELECT * FROM users WHERE username = ?");
+    $stmt->bind_param("s", $data["username"]);
+
     if (!$stmt->execute()) {
-        http_response_code(500);
-        echo json_encode(['status' => 'failed', 'msg' => 'Database query execution failed']);
-        return;
+        return [null, false, "Database error", 500]; // HTTP code 500 : Internal Server Error
     }
+
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
-    if (!$user) {
-        http_response_code(404);
-        echo json_encode(['status' => 'failed', 'msg' => 'User not found']);
-        return;
-    }
+    $stmt->close();
+    $db->close();
 
     // Check if the user exists and password matches
-    if (!$user || compare_secure_hash($data['password'], $user['password_hash'])) {
-        http_response_code(401); // Unauthorized
-        echo json_encode(['status' => 'failed', 'msg' => 'Invalid credentials']);
-        return;
-    }
-
-    // Get permissions
-    $permissiondigit_string = "000000000";
-    if (!empty($user['permissions'])) {
-        list($permissionsstring, $permissionsstring_success, $permissionsstring_msg) = getUserPermissionsString($user['ID']);
-        if (!$permissionsstring_success) {
-            $toRet['http_code'] = 500;
-            $toRet['status'] = 'failed';
-            $toRet['msg'] = 'Failed to get user permissions: ' . $permissionsstring_msg;
-            return $toRet;
-        }
-        $permissiondigit_string = permissionsStringToPermissionDigits($permissionsstring);
-    }
-
-    $token_type_lower = strtolower($token_type);
-
-    if ($token_type_lower === 'single') {
-        // Configure
-        $token = null;
-        $expires = time() + 3600; // 1h
-        $tokenObj = new Single_JwtToken($user['ID'], $expires, $permissiondigit_string);
-        $token = $tokenObj->issueToken();
-
-        // Update the database with the generated token and its type
-        $update = $db->prepare('UPDATE users SET valid_token = ?, valid_token_type = ? WHERE username = ?');
-        $update->bind_param('sss', $token, $token_type_lower, $user['username']);
-        $update->execute();
-
-        $toRet['token_type'] = $token_type_lower;
-        $toRet['expires'] = $expires;
-        $toRet['token'] = $token;
-        $toRet['msg'] = 'Token generated successfully';
-        $toRet['has_full_access'] = in_array('*', explode('; ', $permissiondigit_string));
-
-    } else if ($token_type_lower === 'single-use') {
-        // Configure
-        $token = null;
-        $expires = time() + 3600; // 1h
-        $tokenObj = new SingleUse_JwtToken($user['ID'], $expires, $permissiondigit_string);
-        $token = $tokenObj->issueToken();
-
-        // Update the database with the generated token and its type
-        $update = $db->prepare('UPDATE users SET valid_token = ?, valid_token_type = ? WHERE username = ?');
-        $update->bind_param('sss', $token, $token_type_lower, $user['username']);
-        $update->execute();
-
-        $toRet['token_type'] = $token_type_lower;
-        $toRet['expires'] = $expires;
-        $toRet['token'] = $token;
-        $toRet['msg'] = 'Token generated successfully';
-        $toRet['has_full_access'] = in_array('*', explode('; ', $permissiondigit_string));
-
+    if ($user && compare_secure_hash($data["password"], $user["password_hash"])) {
+        return [$user["ID"], true, "User authenticated", 200]; // HTTP code 200 : OK
     } else {
-        $toRet['http_code'] = 400;
-        $toRet['status'] = 'failed';
-        $toRet['msg'] = 'Invalid token type';
-        return $toRet;
+        return [null, false, "Invalid username or password", 401]; // HTTP code 401 : Unauthorized
     }
-
-    //MARK:TODO: Add other token types handling pair
-
-    return $toRet;
 }
 
-//MARK: Request Functions
-
-function req_get_new_token($token_type, $data) {
-
+// Function to generate a new token
+function get_new_token($token_type, $userid) {
     /*
      0  single-use  One-time token.
      1  single      Only one active token, no refresh key.
@@ -533,284 +183,172 @@ function req_get_new_token($token_type, $data) {
 
     // Validate the token type input
     if (!isset($token_type)) {
-        http_response_code(400);
-        echo json_encode(['status' => 'failed', 'msg' => 'Missing token_type']);
-        return;
+        return [false, "Missing token-type", 400]; // HTTP code 400 : Bad Request
     }
-
-    // Validate required fields
-    if (!isset($data['username'], $data['password'])) {
-        http_response_code(400);
-        echo json_encode(['status' => 'failed', 'msg' => 'Missing username or password']);
-        return;
-    }
-
-    // Get the user from the database
-    $db = get_db();
-    $stmt = $db->prepare('SELECT * FROM users WHERE username = ?');
-    $stmt->bind_param('s', $data['username']);
-
-    if (!$stmt->execute()) {
-        http_response_code(500);
-        echo json_encode(['status' => 'failed', 'msg' => 'Database query execution failed']);
-        return;
-    }
-
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
-
-    // Check if the user exists and password matches
-    if (!$user || compare_secure_hash($data['password'], $user['password_hash']) === false) {
-        http_response_code(401); // Unauthorized
-        echo json_encode(['status' => 'failed', 'msg' => 'Invalid credentials']);
-        return;
-    }
+    $token_type_lower = strtolower($token_type);
 
     // Get permissions
     $permissiondigit_string = "000000000";
-    if (!empty($user['permissions'])) {
-        list($permissionsstring, $permissionsstring_success, $permissionsstring_msg) = getUserPermissionsString($user['ID']);
-        if (!$permissionsstring_success) {
-            http_response_code(500);
-            echo json_encode(['status' => 'failed', 'msg' => 'Failed to get user permissions: ' . $permissionsstring_msg]);
-            return;
+    if (!empty($user["permissions"])) {
+        list($permissions_array, $permissions_success, $permissions_msg, $permissions_http_code) = get_user_permissions($userid);
+        if (!$permissions_success) {
+            return [null, false, $permissions_msg, $permissions_http_code];
         }
-        $permissiondigit_string = permissionsStringToPermissionDigits($permissionsstring);
+        $permissiondigit_string = permission_array_to_digits($permissions_array);
     }
 
-    $token_type_lower = strtolower($token_type);
-    if ($token_type_lower === 'single') {
+    list($db, $db_success, $db_msg, $db_http_code) = get_db();
+    if (!$db_success) {
+        return [null, false, $db_msg, $db_http_code];
+    }
+
+    // Generate the token
+    if ($token_type_lower === "single") {
         // Configure
         $token = null;
         $expires = time() + 3600; // 1h
-        $tokenObj = new Single_JwtToken($user['ID'], $expires, $permissiondigit_string);
+        $tokenObj = new Single_JwtToken($userid, $expires, $permissiondigit_string);
         $token = $tokenObj->issueToken();
 
         // Update the database with the generated token and its type
-        $update = $db->prepare('UPDATE users SET valid_token = ?, valid_token_type = ? WHERE username = ?');
-        $update->bind_param('sss', $token, $token_type_lower, $user['username']);
+        $update = $db->prepare("UPDATE users SET valid_token = ?, valid_token_type = ? WHERE ID = ?");
+        $update->bind_param("sss", $token, $token_type, $userid);
         $update->execute();
+        $update->close();
+        $db->close();
 
-        // Return success response with the token and expiration time
-        echo json_encode([
-            'status' => 'success',
-            'token_type' => $token_type_lower,
-            'expires' => $expires,
-            'token' => $token,
-            'msg' => 'Token generated successfully',
-            'has_full_access' => in_array('*', explode('; ', $permissiondigit_string))
-        ]);
-        return;
+        // Return success
+        return [
+            [
+                "token_type" => $token_type_lower,
+                "expires" => $expires,
+                "token" => $token,
+                "has_full_access" => in_array("*", explode("; ", $permissiondigit_string))
+            ],
+            true,
+            "Token generated successfully",
+            200
+        ]; // HTTP code 200 : OK
 
-    } else if ($token_type_lower === 'single-use') {
+    } else if ($token_type_lower === "single-use") {
         // Configure
         $token = null;
         $expires = time() + 3600; // 1h
-        $tokenObj = new SingleUse_JwtToken($user['ID'], $expires, $permissiondigit_string);
+        $tokenObj = new SingleUse_JwtToken($userid, $expires, $permissiondigit_string);
         $token = $tokenObj->issueToken();
 
         // Update the database with the generated token and its type
-        $update = $db->prepare('UPDATE users SET valid_token = ?, valid_token_type = ? WHERE username = ?');
-        $update->bind_param('sss', $token, $token_type_lower, $user['username']);
+        $update = $db->prepare("UPDATE users SET valid_token = ?, valid_token_type = ? WHERE ID = ?");
+        $update->bind_param("sss", $token, $token_type, $userid);
         $update->execute();
+        $update->close();
+        $db->close();
 
-        // Return success response with the token and expiration time
-        echo json_encode([
-            'status' => 'success',
-            'token_type' => $token_type_lower,
-            'expires' => $expires,
-            'token' => $token,
-            'msg' => 'Token generated successfully',
-            'has_full_access' => in_array('*', explode('; ', $permissiondigit_string))
-        ]);
-        return;
+        // Return success
+        return [
+            [
+                "token_type" => $token_type_lower,
+                "expires" => $expires,
+                "token" => $token,
+                "has_full_access" => in_array("*", explode("; ", $permissiondigit_string))
+            ],
+            true,
+            "Token generated successfully",
+            200
+        ]; // HTTP code 200 : OK
 
     } else {
-        http_response_code(400);
-        echo json_encode(['status' => 'failed', 'msg' => 'Invalid token type']);
-        return;
+        $db->close();
+        return [null, false, "Invalid token type", 400]; // HTTP code 400 : Bad Request
     }
 
     //MARK:TODO: Add other token types handling pair
 }
 
-function req_validate_token($token) {
-    $decoded = validate_token($token);
-
-    if (!$decoded) {
-        http_response_code(401);
-        echo json_encode(['status' => 'failed', 'msg' => 'Invalid or expired token']);
-        return false;
+// Function to invalidate a token
+function invalidate_token($token) {
+    $decoded_token = JwtToken::validateToken($token);
+    if (!$decoded_token) {
+        return [true, "Token already invalid", 200]; // HTTP code 200 : OK
     }
 
-    return $decoded;
-}
-
-function req_validate_token_permission($token, $permission) {
-    $decoded = JwtToken::validateToken($token);
-
-    if (!$decoded) {
-        http_response_code(401);
-        echo json_encode(['status' => 'failed', 'msg' => 'Invalid or expired token']);
-        return false;
+    list($db, $db_success, $db_msg, $db_http_code) = get_db();
+    if (!$db_success) {
+        return [false, $db_msg, $db_http_code];
     }
 
-    if (!JwtToken::checkPermission($decoded, $permission)) {
-        http_response_code(403);
-        echo json_encode(['status' => 'success', 'msg' => 'Token does not have that permission', 'has_permission' => false]);
-        return false;
-    }
-
-    http_response_code(200);
-    echo json_encode(['status' => 'success', 'msg' => 'Token has that permission', 'has_permission' => true]);
-    return true;
-}
-
-function req_validate_decoded_token_permission($decoded_token, $permission) {
-    if (!JwtToken::checkPermission($decoded_token, $permission)) {
-        http_response_code(403);
-        echo json_encode(['status' => 'success', 'msg' => 'Token does not have that permission', 'has_permission' => false]);
-        return false;
-    }
-
-    http_response_code(200);
-    echo json_encode(['status' => 'success', 'msg' => 'Token has that permission', 'has_permission' => true]);
-    return true;
-}
-
-function req_invalidate_token($token) {
-
-    $decoded = JwtToken::validateToken($token);
-
-    // Already invalid token
-    if (!$decoded) {
-        http_response_code(200);
-        echo json_encode(['status' => 'success', 'msg' => 'Token already invalid']);
-        return;
-    }
-
-    if ($decoded['tt'] == 1 || $decoded['tt'] == 0) { // 0 single-use, 1 single
+    if ($decoded_token["tt"] == 1 || $decoded_token["tt"] == 0) { // 0 single-use, 1 single
         // Find the user in the database based on the token
-        $db = get_db();
-        $stmt = $db->prepare('SELECT * FROM users WHERE valid_token = ?');
-        $stmt->bind_param('s', $token);
+        $stmt = $db->prepare("SELECT * FROM users WHERE valid_token = ?");
+        $stmt->bind_param("s", $token);
         if (!$stmt->execute()) {
-            http_response_code(500);
-            echo json_encode(['status' => 'failed', 'msg' => 'Database query execution failed']);
-            return;
+            return [false, "Database error", 500]; // HTTP code 500 : Internal Server Error
         }
         $result = $stmt->get_result();
         $user = $result->fetch_assoc();
+        $stmt->close();
 
         // Check if any user was found, if not no one had the token so we success already invalid
         if (!$user) {
-            http_response_code(200);
-            echo json_encode(['status' => 'success', 'msg' => 'Token already invalid']);
-            return;
+            return [true, "Token already invalid", 200]; // HTTP code 200 : OK
         }
 
         // Invalidate the token in the database
-        $update = $db->prepare('UPDATE users SET valid_token = NULL, valid_token_type = NULL, valid_refresh_token = NULL WHERE ID = ?');
-        $update->bind_param('i', $user['ID']);
+        $update = $db->prepare("UPDATE users SET valid_token = NULL, valid_token_type = NULL, valid_refresh_token = NULL WHERE ID = ?");
+        $update->bind_param("s", $user["ID"]);
         if (!$update->execute()) {
-            http_response_code(500);
-            echo json_encode(['status' => 'failed', 'msg' => 'Database update failed']);
-            return;
+            return [false, "Database error", 500]; // HTTP code 500 : Internal Server Error
         }
-        $result = $update->get_result();
-        /*
-        if ($result === false) {
-            http_response_code(500);
-            echo json_encode(['status' => 'failed', 'msg' => 'Database update failed']);
-            return;
-        }
-        */
+        $update->close();
+        $db->close();
 
-        http_response_code(200);
-        echo json_encode(['status' => 'success', 'msg' => 'Token invalidated']);
-        return;
-
+        return [true, "Token invalidated", 200]; // HTTP code 200 : OK
     } else {
-        http_response_code(400);
-        echo json_encode(['status' => 'failed', 'msg' => 'Invalid token type']);
-        return;
+        return [false, "Invalid token type", 400]; // HTTP code 400 : Bad Request
     }
-
-    //MARK:TODO: Handle other token types like pair
 }
 
-function req_invalidate_single_use_token($token) {
-
-    $decoded = JwtToken::validateToken($token);
-
-    // Already invalid token
-    if (!$decoded) {
-        http_response_code(200);
-        echo json_encode(['status' => 'success', 'msg' => 'Token already invalid']);
-        return;
+// Function to invalidate single-use tokens
+function invalidate_single_use_token($token, $decoded_token=null) {
+    if ($decoded_token === null) {
+        $decoded_token = JwtToken::validateToken($token);
+    }
+    if (!$decoded_token) {
+        return [true, "Token already invalid", 200]; // HTTP code 200 : OK
     }
 
-    if ($decoded['tt'] == 0) { // single-use
+    if ($decoded_token["tt"] == 0) { // 0 single-use
+        list($db, $db_success, $db_msg, $db_http_code) = get_db();
+        if (!$db_success) {
+            return [false, $db_msg, $db_http_code];
+        }
+
         // Find the user in the database based on the token
-        $db = get_db();
-        $stmt = $db->prepare('SELECT * FROM users WHERE valid_token = ?');
-        $stmt->bind_param('s', $token);
+        $stmt = $db->prepare("SELECT * FROM users WHERE valid_token = ?");
+        $stmt->bind_param("s", $token);
         if (!$stmt->execute()) {
-            http_response_code(500);
-            echo json_encode(['status' => 'failed', 'msg' => 'Database query execution failed']);
-            return;
+            return [false, "Database error", 500]; // HTTP code 500 : Internal Server Error
         }
         $result = $stmt->get_result();
         $user = $result->fetch_assoc();
+        $stmt->close();
 
         // Check if any user was found, if not no one had the token so we success already invalid
         if (!$user) {
-            http_response_code(200);
-            echo json_encode(['status' => 'success', 'msg' => 'Token already invalid']);
-            return;
+            return [true, "Token already invalid", 200]; // HTTP code 200 : OK
         }
 
         // Invalidate the token in the database
-        $update = $db->prepare('UPDATE users SET valid_token = NULL, valid_token_type = NULL, valid_refresh_token = NULL WHERE ID = ?');
-        $update->bind_param('i', $user['ID']);
+        $update = $db->prepare("UPDATE users SET valid_token = NULL, valid_token_type = NULL WHERE ID = ?");
+        $update->bind_param("s", $user["ID"]);
         if (!$update->execute()) {
-            http_response_code(500);
-            echo json_encode(['status' => 'failed', 'msg' => 'Database update failed']);
-            return;
+            return [false, "Database error", 500]; // HTTP code 500 : Internal Server Error
         }
-        $result = $update->get_result();
-        /*
-        if ($result === false) {
-            http_response_code(500);
-            echo json_encode(['status' => 'failed', 'msg' => 'Database update failed']);
-            return;
-        }
-        */
+        $update->close();
+        $db->close();
 
-        http_response_code(200);
-        echo json_encode(['status' => 'success', 'msg' => 'Token invalidated']);
-        return;
-
-    }
-}
-
-function req_auto_validate_token() {
-    list('type' => $type, 'token' => $token) = get_auth_header_token();
-
-    // Validate the token (assignment wise)
-    if (any_has_token($token) === false) {
-        http_response_code(200); // OK, becase this is validation endpoint
-        echo json_encode(['status' => 'failed', 'msg' => 'Invalid or expired token', 'valid' => false]);
-        return false;
+        return [true, "Token invalidated", 200]; // HTTP code 200 : OK
     }
 
-    // Validate the token (spec wise)
-    $decoded = JwtToken::validateToken($token);
-    if (!$decoded) {
-        http_response_code(200); // OK, becase this is validation endpoint
-        echo json_encode(['status' => 'failed', 'msg' => 'Invalid or expired token', 'valid' => false]);
-        return false;
-    }
-
-    return $decoded;
+    return [true, "Invalid token type, skipped", 200];
 }

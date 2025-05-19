@@ -8,6 +8,7 @@ class axow {
 
     [void] auth([string]$token_type, [string]$username, [string]$password) {
         $url = "$($this.BaseUrl)/auth/index.php?token_type=$token_type&username=$username&password=$password"
+        # Using curl with -s (silent), -X GET, and capturing stderr to allow JSON parsing
         $response = curl -s -X GET $url 2>&1
         Write-Host $response
 
@@ -17,7 +18,7 @@ class axow {
                 $this.Token = $json.token
             }
         } catch {
-            # Ignore parse errors
+            # Ignore parse errors or handle them if necessary
         }
     }
 
@@ -27,7 +28,8 @@ class axow {
             return
         }
         $url = "$($this.BaseUrl)/auth/validate/index.php"
-        $response = curl -s -X GET -H @{"Authorization"="Bearer $($this.Token)"} $url 2>&1
+        # Using curl with -s (silent), -X GET, and -H for the Authorization header
+        $response = curl -s -X GET -H "Authorization: Bearer $($this.Token)" $url 2>&1
         Write-Host $response
     }
 
@@ -37,7 +39,8 @@ class axow {
             return
         }
         $url = "$($this.BaseUrl)/unauth/index.php"
-        $response = curl -s -X GET -H @{"Authorization"="Bearer $($this.Token)"} $url 2>&1
+        # Using curl with -s (silent), -X GET, and -H for the Authorization header
+        $response = curl -s -X GET -H "Authorization: Bearer $($this.Token)" $url 2>&1
         Write-Host $response
     }
 
@@ -48,7 +51,9 @@ class axow {
         }
         $url = "$($this.BaseUrl)/users/change_username/index.php"
         $body = @{ new_username = $new_username } | ConvertTo-Json -Compress
-        $response = curl -s -X GET -H @{"Authorization"="Bearer $($this.Token)"} -Body $body $url 2>&1
+        # Using curl with -s (silent), -X POST (assuming POST for change_username),
+        # -H for Authorization and Content-Type, and -d for the body
+        $response = curl -s -X POST -H "Authorization: Bearer $($this.Token)" -H "Content-Type: application/json" -d $body $url 2>&1
         Write-Host $response
     }
 
@@ -59,7 +64,9 @@ class axow {
         }
         $url = "$($this.BaseUrl)/users/change_password/index.php"
         $body = @{ old_password = $old_password; new_password = $new_password } | ConvertTo-Json -Compress
-        $response = curl -s -X GET -H @{"Authorization"="Bearer $($this.Token)"} -Body $body $url 2>&1
+        # Using curl with -s (silent), -X POST (assuming POST for change_password),
+        # -H for Authorization and Content-Type, and -d for the body
+        $response = curl -s -X POST -H "Authorization: Bearer $($this.Token)" -H "Content-Type: application/json" -d $body $url 2>&1
         Write-Host $response
     }
 }

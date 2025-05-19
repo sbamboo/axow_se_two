@@ -1,12 +1,48 @@
 <?php
+/**
+ * @file permissions.php
+ * @brief This file contains functions to handle permissions.
+ */
 
-function permissionsStringToPermissionDigits($permissions) {
+require_once('db.php');
+
+/**
+ * Formats:
+ *   'permission_digits'       : A string of the digits used to represent permissions inside tokens, each index is a permission category and each value is a specific permission.
+ *   'permission_string'       : The string name of a permission. (Used for users)
+ *   'user_permissions_string' : A string with a "; " sepparated list of permission_string:s.
+ */
+
+// Function to get the permissions of a user as array of 'permission_string's
+function get_user_permissions($userid) {
+    list($db, $db_success, $db_msg, $db_http_code) = get_db();
+    if (!$db_success) {
+        return [null, false, $db_msg, $db_http_code];
+    }
+
+    $stmt = $db->prepare("SELECT up.string FROM users_to_permissions utp JOIN user_permissions up ON utp.permission_id = up.ID WHERE utp.user_id = ?");
+    $stmt->bind_param("s", $userid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $permissions = $result->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+    $db->close();
+
+    if (!$permissions) {
+        return [null, false, "Didn't found matching user", 200]; // HTTP code 200 : OK
+    } else {
+        $permissions = array_map(function($permission) { return $permission['string']; }, $permissions);
+        return [$permissions, true, "Found matching user", 200]; // HTTP code 200 : OK
+    }
+}
+
+// Function to get the 'permission_digits' from an array of 'permission_string's
+function permission_array_to_digits($permissions) {
     // Start zeroed
     $permissions_array = array_fill(0, 9, '0');
 
     // Loop through the user permissions
-    $permissions_array = explode('; ', $permissions);
-    foreach ($permissions_array as $permission) {
+    foreach ($permissions as $permission) {
         switch ($permission) {
             // Full Access Permissions (Index 0)
             case '*':
@@ -188,193 +224,322 @@ function permissionsStringToPermissionDigits($permissions) {
     return implode('', $permissions_array);
 }
 
-
-function permissionInPermissionDigits($digitsString, $query_permission) {
-    // string => [<digit>]
-    $perm_array = str_split($digitsString['perm']);
-
-    // If index 0='1' => full access
-    if (isset($perm_array[0]) && $perm_array[0] === '1') {
-        return true;
+// Function to get an array of 'permission_string's from a 'permission_digits' string
+function permission_digits_to_array($digits) {
+    // Check if the $digits is a string of 9 digits
+    if (!is_string($digits) || strlen($digits) != 9) {
+        return null;
     }
 
-    // Iterate through the permissions array and check each index
-    foreach ($perm_array as $index => $permission) {
-        // Check each permission index for the required permission
-        switch ($index) {
+    // Initialize an empty array to store the permissions
+    $permissions = [];
+
+    // Loop through the digits and add the corresponding permission to the array
+    for ($i = 0; $i < strlen($digits); $i++) {
+        switch ($i) {
             case 0:
-                // Checked above
+                if ($digits[$i] == '1') {
+                    $permissions[] = '*';
+                }
                 break;
             case 1:
-                if ($query_permission === 'articles.*' && $permission !== '0') {
-                    return true;
-                }
-                if ($query_permission === 'articles.add' && $permission === '2') {
-                    return true;
-                }
-                if ($query_permission === 'articles.modify' && $permission === '3') {
-                    return true;
-                }
-                if ($query_permission === 'articles.remove' && $permission === '4') {
-                    return true;
-                }
-                if ($query_permission === 'articles.add-modify' && $permission === '5') {
-                    return true;
-                }
-                if ($query_permission === 'articles.add-remove' && $permission === '6') {
-                    return true;
-                }
-                if ($query_permission === 'articles.remove-modify' && $permission === '7') {
-                    return true;
+                if ($digits[$i] == '1') {
+                    $permissions[] = 'articles.*';
+                } elseif ($digits[$i] == '2') {
+                    $permissions[] = 'articles.add';
+                } elseif ($digits[$i] == '3') {
+                    $permissions[] = 'articles.modify';
+                } elseif ($digits[$i] == '4') {
+                    $permissions[] = 'articles.remove';
+                } elseif ($digits[$i] == '5') {
+                    $permissions[] = 'articles.add-modify';
+                } elseif ($digits[$i] == '6') {
+                    $permissions[] = 'articles.add-remove';
+                } elseif ($digits[$i] == '7') {
+                    $permissions[] = 'articles.remove-modify';
                 }
                 break;
             case 2:
-                if ($query_permission === 'articles-cat.*' && $permission !== '0') {
-                    return true;
-                }
-                if ($query_permission === 'articles-cat.add' && $permission === '2') {
-                    return true;
-                }
-                if ($query_permission === 'articles-cat.modify' && $permission === '3') {
-                    return true;
-                }
-                if ($query_permission === 'articles-cat.remove' && $permission === '4') {
-                    return true;
-                }
-                if ($query_permission === 'articles-cat.add-modify' && $permission === '5') {
-                    return true;
-                }
-                if ($query_permission === 'articles-cat.add-remove' && $permission === '6') {
-                    return true;
-                }
-                if ($query_permission === 'articles-cat.remove-modify' && $permission === '7') {
-                    return true;
+                if ($digits[$i] == '1') {
+                    $permissions[] = 'articles-cat.*';
+                } elseif ($digits[$i] == '2') {
+                    $permissions[] = 'articles-cat.add';
+                } elseif ($digits[$i] == '3') {
+                    $permissions[] = 'articles-cat.modify';
+                } elseif ($digits[$i] == '4') {
+                    $permissions[] = 'articles-cat.remove';
+                } elseif ($digits[$i] == '5') {
+                    $permissions[] = 'articles-cat.add-modify';
+                } elseif ($digits[$i] == '6') {
+                    $permissions[] = 'articles-cat.add-remove';
+                } elseif ($digits[$i] == '7') {
+                    $permissions[] = 'articles-cat.remove-modify';
                 }
                 break;
             case 3:
-                if ($query_permission === 'articles-subcat.*' && $permission !== '0') {
-                    return true;
-                }
-                if ($query_permission === 'articles-subcat.add' && $permission === '2') {
-                    return true;
-                }
-                if ($query_permission === 'articles-subcat.modify' && $permission === '3') {
-                    return true;
-                }
-                if ($query_permission === 'articles-subcat.remove' && $permission === '4') {
-                    return true;
-                }
-                if ($query_permission === 'articles-subcat.add-modify' && $permission === '5') {
-                    return true;
-                }
-                if ($query_permission === 'articles-subcat.add-remove' && $permission === '6') {
-                    return true;
-                }
-                if ($query_permission === 'articles-subcat.remove-modify' && $permission === '7') {
-                    return true;
+                if ($digits[$i] == '1') {
+                    $permissions[] = 'articles-subcat.*';
+                } elseif ($digits[$i] == '2') {
+                    $permissions[] = 'articles-subcat.add';
+                } elseif ($digits[$i] == '3') {
+                    $permissions[] = 'articles-subcat.modify';
+                } elseif ($digits[$i] == '4') {
+                    $permissions[] = 'articles-subcat.remove';
+                } elseif ($digits[$i] == '5') {
+                    $permissions[] = 'articles-subcat.add-modify';
+                } elseif ($digits[$i] == '6') {
+                    $permissions[] = 'articles-subcat.add-remove';
+                } elseif ($digits[$i] == '7') {
+                    $permissions[] = 'articles-subcat.remove-modify';
                 }
                 break;
             case 4:
-                if ($query_permission === 'wiki.*' && $permission !== '0') {
-                    return true;
-                }
-                if ($query_permission === 'wiki.add' && $permission === '2') {
-                    return true;
-                }
-                if ($query_permission === 'wiki.modify' && $permission === '3') {
-                    return true;
-                }
-                if ($query_permission === 'wiki.remove' && $permission === '4') {
-                    return true;
-                }
-                if ($query_permission === 'wiki.add-modify' && $permission === '5') {
-                    return true;
-                }
-                if ($query_permission === 'wiki.add-remove' && $permission === '6') {
-                    return true;
-                }
-                if ($query_permission === 'wiki.remove-modify' && $permission === '7') {
-                    return true;
+                if ($digits[$i] == '1') {
+                    $permissions[] = 'wiki.*';
+                } elseif ($digits[$i] == '2') {
+                    $permissions[] = 'wiki.add';
+                } elseif ($digits[$i] == '3') {
+                    $permissions[] = 'wiki.modify';
+                } elseif ($digits[$i] == '4') {
+                    $permissions[] = 'wiki.remove';
+                } elseif ($digits[$i] == '5') {
+                    $permissions[] = 'wiki.add-modify';
+                } elseif ($digits[$i] == '6') {
+                    $permissions[] = 'wiki.add-remove';
+                } elseif ($digits[$i] == '7') {
+                    $permissions[] = 'wiki.remove-modify';
                 }
                 break;
             case 5:
-                if ($query_permission === 'wiki-cat.*' && $permission !== '0') {
-                    return true;
-                }
-                if ($query_permission === 'wiki-cat.add' && $permission === '2') {
-                    return true;
-                }
-                if ($query_permission === 'wiki-cat.modify' && $permission === '3') {
-                    return true;
-                }
-                if ($query_permission === 'wiki-cat.remove' && $permission === '4') {
-                    return true;
-                }
-                if ($query_permission === 'wiki-cat.add-modify' && $permission === '5') {
-                    return true;
-                }
-                if ($query_permission === 'wiki-cat.add-remove' && $permission === '6') {
-                    return true;
-                }
-                if ($query_permission === 'wiki-cat.remove-modify' && $permission === '7') {
-                    return true;
+                if ($digits[$i] == '1') {
+                    $permissions[] = 'wiki-cat.*';
+                } elseif ($digits[$i] == '2') {
+                    $permissions[] = 'wiki-cat.add';
+                } elseif ($digits[$i] == '3') {
+                    $permissions[] = 'wiki-cat.modify';
+                } elseif ($digits[$i] == '4') {
+                    $permissions[] = 'wiki-cat.remove';
+                } elseif ($digits[$i] == '5') {
+                    $permissions[] = 'wiki-cat.add-modify';
+                } elseif ($digits[$i] == '6') {
+                    $permissions[] = 'wiki-cat.add-remove';
+                } elseif ($digits[$i] == '7') {
+                    $permissions[] = 'wiki-cat.remove-modify';
                 }
                 break;
             case 6:
-                if ($query_permission === 'wiki-subcat.*' && $permission !== '0') {
-                    return true;
-                }
-                if ($query_permission === 'wiki-subcat.add' && $permission === '2') {
-                    return true;
-                }
-                if ($query_permission === 'wiki-subcat.modify' && $permission === '3') {
-                    return true;
-                }
-                if ($query_permission === 'wiki-subcat.remove' && $permission === '4') {
-                    return true;
-                }
-                if ($query_permission === 'wiki-subcat.add-modify' && $permission === '5') {
-                    return true;
-                }
-                if ($query_permission === 'wiki-subcat.add-remove' && $permission === '6') {
-                    return true;
-                }
-                if ($query_permission === 'wiki-subcat.remove-modify' && $permission === '7') {
-                    return true;
+                if ($digits[$i] == '1') {
+                    $permissions[] = 'wiki-subcat.*';
+                } elseif ($digits[$i] == '2') {
+                    $permissions[] = 'wiki-subcat.add';
+                } elseif ($digits[$i] == '3') {
+                    $permissions[] = 'wiki-subcat.modify';
+                } elseif ($digits[$i] == '4') {
+                    $permissions[] = 'wiki-subcat.remove';
+                } elseif ($digits[$i] == '5') {
+                    $permissions[] = 'wiki-subcat.add-modify';
+                } elseif ($digits[$i] == '6') {
+                    $permissions[] = 'wiki-subcat.add-remove';
+                } elseif ($digits[$i] == '7') {
+                    $permissions[] = 'wiki-subcat.remove-modify';
                 }
                 break;
             case 7:
-                if ($query_permission === 'profiles.*' && $permission !== '0') {
-                    return true;
-                }
-                if ($query_permission === 'profiles.add' && $permission === '2') {
-                    return true;
-                }
-                if ($query_permission === 'profiles.modify' && $permission === '3') {
-                    return true;
-                }
-                if ($query_permission === 'profiles.remove' && $permission === '4') {
-                    return true;
-                }
-                if ($query_permission === 'profiles.add-modify' && $permission === '5') {
-                    return true;
-                }
-                if ($query_permission === 'profiles.add-remove' && $permission === '6') {
-                    return true;
-                }
-                if ($query_permission === 'profiles.remove-modify' && $permission === '7') {
-                    return true;
+                if ($digits[$i] == '1') {
+                    $permissions[] = 'profiles.*';
+                } elseif ($digits[$i] == '2') {
+                    $permissions[] = 'profiles.add';
+                } elseif ($digits[$i] == '3') {
+                    $permissions[] = 'profiles.modify';
+                } elseif ($digits[$i] == '4') {
+                    $permissions[] = 'profiles.remove';
+                } elseif ($digits[$i] == '5') {
+                    $permissions[] = 'profiles.add-modify';
+                } elseif ($digits[$i] == '6') {
+                    $permissions[] = 'profiles.add-remove';
+                } elseif ($digits[$i] == '7') {
+                    $permissions[] = 'profiles.remove-modify';
                 }
                 break;
             case 8:
-                if ($query_permission === 'all-profiles' && $permission === '1') {
-                    return true;
-                }
-                if ($query_permission === 'your-profile' && $permission === '2') {
-                    return true;
+                if ($digits[$i] == '1') {
+                    $permissions[] = 'all-profiles';
+                } elseif ($digits[$i] == '2') {
+                    $permissions[] = 'your-profile';
                 }
                 break;
         }
+    }
+
+    // Return the array of permissions
+    return $permissions;
+}
+
+// Function to grant a 'permission_string' to a user
+function grant_user_permission($userid, $permission) {
+    list($db, $db_success, $db_msg, $db_http_code) = get_db();
+    if (!$db_success) {
+        return [false, $db_msg, $db_http_code];
+    }
+
+    if (check_user_permission_exact($userid, $permission)) {
+        return [false, "User already has the permission", 200]; // HTTP code 200 : OK
+    }
+
+    // Add the permission to the user
+    //   users_to_permissions : ID, user_id, permission_id
+    //   user_permissions     : ID, string
+
+    $stmt = $db->prepare("INSERT INTO users_to_permissions (user_id, permission_id) VALUES (?, (SELECT ID FROM user_permissions WHERE string = ?))");
+    $stmt->bind_param("ss", $userid, $permission);
+    $stmt->execute();
+    $result = $stmt->affected_rows;
+    $stmt->close();
+    $db->close();
+
+    if ($result == 0) {
+        return [false, "Failed to grant permission", 500]; // HTTP code 500 : Internal Server Error
+    } else {
+        return [true, "Permission granted", 200]; // HTTP code 200 : OK
+    }
+}
+
+// Function to revoke a 'permission_string' from a user
+function revoke_user_permission($userid, $permission) {
+    list($db, $db_success, $db_msg, $db_http_code) = get_db();
+    if (!$db_success) {
+        return [false, $db_msg, $db_http_code];
+    }
+
+    if (!check_user_permission_exact($userid, $permission)) {
+        return [false, "User doesn't have the permission", 200]; // HTTP code 200 : OK
+    }
+
+    // Remove the permission from the user
+    //   users_to_permissions : ID, user_id, permission_id
+    //   user_permissions     : ID, string
+
+    $stmt = $db->prepare("DELETE FROM users_to_permissions WHERE user_id = ? AND permission_id = (SELECT ID FROM user_permissions WHERE string = ?)");
+    $stmt->bind_param("ss", $userid, $permission);
+    $stmt->execute();
+    $result = $stmt->affected_rows;
+    $stmt->close();
+    $db->close();
+
+    if ($result == 0) {
+        return [false, "Failed to revoke permission", 500]; // HTTP code 500 : Internal Server Error
+    } else {
+        return [true, "Permission revoked", 200]; // HTTP code 200 : OK
+    }
+}
+
+// Function to check if a user has a 'permission_string'
+function check_user_permission_exact($userid, $permission) {
+    list($permissions, $success, $msg, $http_code) = get_user_permissions($userid);
+    if (!$success) {
+        return false;
+    }
+
+    if (in_array($permission, $permissions)) {
+        return true;
+    }
+    return false;
+}
+
+// Function to check if a user has a 'permission_string' or a higher-level or joint permission including the 'permission_string'
+function check_user_permission($userid, $permission) {
+    // Check if the $user has the "*" permission, i.e full access
+    if (check_user_permission_exact($userid, "*")) {
+        return true;
+    }
+
+    // Get the root of $permission (i.e articles.add -> articles)
+    //   Check for ".", if found split by "." and $permission_root is first ad $permission_action is latter
+    if (strpos($permission, ".") !== false) {
+        list($permission_root, $permission_action) = explode(".", $permission, 2);
+    } else {
+        $permission_root = $permission;
+        $permission_action = null;
+    }
+
+    // Check if the $user has the "$permission_root.*" permission, i.e access to all actions
+    if (check_user_permission_exact($userid, "$permission_root.*")) {
+        return true;
+    }
+
+    // Check if the $user has any joint permission, i.e "articles.add-remove" -> "articles.add", "articles.remove"
+    //   Check if "-" in the $permission_action, if found split by "-" and check for $permission
+    if (strpos($permission_action, "-") !== false) {
+        // Get array of permissions from $permission_action by splitting by "-"
+        $permission_actions = explode("-", $permission_action);
+
+        // Check if any of the $permission_actions is equal to $permission
+        foreach ($permission_actions as $action) {
+            if (check_user_permission_exact($userid, "$permission_root.$action")) {
+                return true;
+            }
+        }
+    }
+
+    // Check if the $user has the $permission
+    if (check_user_permission_exact($userid, $permission)) {
+        return true;
+    }
+
+    return false;
+}
+
+// Function to check if a 'permission_digits' contains a 'permission_string'
+function check_digits_permission_exact($digits, $permission) {
+    $permission_array = permission_digits_to_array($digits);
+
+    // Check if the $permission is in the $permission_array
+    if (in_array($permission, $permission_array)) {
+        return true;
+    }
+    return false;
+}
+
+// Function to check if a 'permission_digits' contains a 'permission_string' or a higher-level or joint permission including the 'permission_string'
+function check_digits_permission($digits, $permission) {
+    $permission_array = permission_digits_to_array($digits);
+
+    // Check if the $user has the "*" permission, i.e full access
+    if (in_array("*", $permission_array)) {
+        return true;
+    }
+
+    // Get the root of $permission (i.e articles.add -> articles)
+    //   Check for ".", if found split by "." and $permission_root is first ad $permission_action is latter
+    if (strpos($permission, ".") !== false) {
+        list($permission_root, $permission_action) = explode(".", $permission, 2);
+    } else {
+        $permission_root = $permission;
+        $permission_action = null;
+    }
+
+    // Check if the $user has the "$permission_root.*" permission, i.e access to all actions
+    if (in_array("$permission_root.*", $permission_array)) {
+        return true;
+    }
+
+    // Check if the $user has any joint permission, i.e "articles.add-remove" -> "articles.add", "articles.remove"
+    //   Check if "-" in the $permission_action, if found split by "-" and check for $permission
+    if (strpos($permission_action, "-") !== false) {
+        // Get array of permissions from $permission_action by splitting by "-"
+        $permission_actions = explode("-", $permission_action);
+
+        // Check if any of the $permission_actions is equal to $permission
+        foreach ($permission_actions as $action) {
+            if (in_array("$permission_root.$action", $permission_array)) {
+                return true;
+            }
+        }
+    }
+
+    // Check if the $user has the $permission
+    if (in_array($permission, $permission_array)) {
+        return true;
     }
 
     return false;

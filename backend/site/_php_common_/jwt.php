@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file jwt.php
+ * @brief This file contains classes to handle JWTs. (JSON Web Tokens)
+ */
 
 require_once('permissions.php');
 
@@ -51,21 +55,6 @@ class JwtToken {
         return $decoded;
     }
 
-    public static function checkPermission($token, $required_permission) {
-        // Decode the token
-        $decoded = self::validateToken($token);
-        if (!$decoded) {
-            return false;
-        }
-
-        return self::checkDecodedPermission($decoded_token, $required_permission);
-    }
-
-    // Static check if a permission is valid
-    public static function checkDecodedPermission($decoded_token, $permission) {
-        return permissionInPermissionDigits($decoded_token['perm'], $permission);
-    }
-
     // Encode the JWT using the header, payload, and signature
     protected function encodeJWT($payload) {
         // Header part
@@ -98,6 +87,8 @@ class JwtToken {
         $validSignature = base64_encode(hash_hmac('sha256', "$parts[0].$parts[1]", self::$secretKey, true));
 
         if ($validSignature === $signature) {
+            // add "_jwt_" field to $payload with the orignal token
+            $payload['_jwt_'] = $jwt;
             return $payload;
         } else {
             return false;
