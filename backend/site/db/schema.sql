@@ -44,15 +44,15 @@ INSERT INTO users_to_permissions (user_id, permission_id) SELECT u.ID, p.ID FROM
 
 
 -- URL Preview Cache
-CREATE TABLE url_metadata_cache (
-    url_hash   CHAR(32)  NOT NULL PRIMARY KEY,   -- md5($url)
-    url        TEXT      NOT NULL,               -- original URL (for reference/debug)
-    metadata   JSON      NOT NULL,               -- the JSON you already echo()
-    expires_at TIMESTAMP NOT NULL,               -- row-specific expiry
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-                           ON UPDATE CURRENT_TIMESTAMP,
-    INDEX      (expires_at)                      -- speeds up cleanup
+CREATE TABLE url_previewdata_cache (
+    url_hash    CHAR(32)  NOT NULL PRIMARY KEY,   -- MD5 hash of the URL
+    url         TEXT      NOT NULL,
+    previewdata JSON      NOT NULL,               -- the JSON you already echo()
+    expires_at  TIMESTAMP NOT NULL,               -- row-specific expiry
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                          ON UPDATE CURRENT_TIMESTAMP,
+    INDEX       (expires_at)
 );
 
 -- Make sure the event scheduler is enabled:
@@ -61,5 +61,5 @@ SET GLOBAL event_scheduler = ON;
 CREATE EVENT purge_expired_cache
     ON SCHEDULE EVERY 1 HOUR
     DO
-      DELETE FROM url_metadata_cache
+      DELETE FROM url_previewdata_cache
       WHERE expires_at < NOW();

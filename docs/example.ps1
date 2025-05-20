@@ -75,7 +75,6 @@ class axow {
         Write-Host $response
     }
 
-    # Add new method for refreshing token
     [void] refresh() {
         $url = "$($this.BaseUrl)/auth/refresh/index.php"
         $body = @{ refresh_token = $this.RefreshToken } | ConvertTo-Json -Compress
@@ -96,8 +95,53 @@ class axow {
             # Ignore parse errors or handle them if necessary
         }
     }
-}
 
-# $client = [axow]::new('http://localhost/proj/axow_se_two/backend/site')
-# $client.auth('single','admin','admin')
-# $client.validate()
+
+    [void] preview([string]$url) {
+        $this.preview($url, $false, $null)
+    }
+
+    [void] preview([string]$url, [bool]$client_user_agent) {
+         $this.preview($url, $client_user_agent, $null)
+    }
+
+    [void] preview([string]$url, [bool]$client_user_agent=$false, [Nullable[int]]$ttl=$null) {
+        if (-not $this.Token) {
+            Write-Host "No token available. Please authenticate first."
+            return
+        }
+
+        $queryString = "url=$([uri]::EscapeDataString($url))"
+
+        if ($client_user_agent) {
+            $queryString += "&client_user_agent"
+        }
+
+        # Only add cache-ttl if $ttl is not null
+        if ($ttl -ne $null) {
+            $queryString += "&cache-ttl=$ttl"
+        }
+
+        # Combine the base URL and the query string
+        $urlWithParams = "$($this.BaseUrl)/url_preview/index.php?$queryString"
+
+        # Build the arguments array for the curl command
+        $curlArgs = @(
+            "-s"
+            "-X"
+            "GET"
+            "-H"
+            "Authorization: Bearer $($this.Token)"
+            "-H"
+            "Content-Type: application/json"
+            $urlWithParams
+        )
+
+        # Execute the curl command
+        $response = curl @curlArgs 2>&1
+        Write-Host $response
+    }
+}
+$client = [axow]::new('http://localhost/proj/axow_se_two/backend/site')
+$client.auth('single','admin','admin')
+$client.preview('https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DjPJCYrxqyT8',$true,-1)

@@ -7,12 +7,16 @@ If a content wants to contain a multimedia file that are stored in /static it wi
 GET `api.axow.se/site/url_preview?url=<string:urlencoded>`
 ```json (Response)
 {
-    "type": "twitter"/"opengraph",
+    "status": "success"/"failed",
+    "msg": "<string:optional>",
+    "format": "twitter"/"opengraph",
     "title": "<optional:string>",
     "description": "<optional:string>",
     "image": "<optional:string>",
     "url": "<optional:string>",
-    "type": "<optional:string=type/card>"
+    "type": "<optional:string=type/card>",
+    "was_cached": <bool>,
+    "cache_expiry": <epoch>
 }
 ```
 <br><br>
