@@ -25,9 +25,9 @@ Content-Type: application/json
 {
     "status": "success"/"failed",
     "msg": "<string:optional>",
-    "token_type": "single",
-    "expires": <epoch>,
+    "token_type": "pair",
     "token": "<string:token>",
+    "expires": <epoch>,
     "refresh_token":  "<string:token>",
     "refresh_expires": <epoch>,
     "has_full_access": <bool>
