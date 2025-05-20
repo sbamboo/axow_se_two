@@ -3,23 +3,6 @@
 ## Assets
 If a content wants to contain a multimedia file that are stored in /static it will get included as base64.
 
-# URL Preview Fetcher
-GET `api.axow.se/site/url_preview?url=<string:urlencoded>`
-```json (Response)
-{
-    "status": "success"/"failed",
-    "msg": "<string:optional>",
-    "format": "twitter"/"opengraph",
-    "title": "<optional:string>",
-    "description": "<optional:string>",
-    "image": "<optional:string>",
-    "url": "<optional:string>",
-    "type": "<optional:string=type/card>",
-    "was_cached": <bool>,
-    "cache_expiry": <epoch>
-}
-```
-<br><br>
 
 # Auth
 ## Authorize
@@ -76,6 +59,24 @@ Authorization: <string:token>
     "status": "success"/"failed",
     "msg": "<string:optional>",
     "valid": <bool>
+}
+```
+<br><br>
+
+# URL Preview Fetcher
+GET `api.axow.se/site/url_preview?url=<string:urlencoded>` (Authed)
+```json (Response)
+{
+    "status": "success"/"failed",
+    "msg": "<string:optional>",
+    "format": "twitter"/"opengraph",
+    "title": "<optional:string>",
+    "description": "<optional:string>",
+    "image": "<optional:string>",
+    "url": "<optional:string>",
+    "type": "<optional:string=type/card>",
+    "was_cached": <bool>,
+    "cache_expiry": <epoch>
 }
 ```
 <br><br>
