@@ -14,3 +14,4 @@
 
 # Frontend
 - Make website
+- Define opengraph/twitter meta and SEO
