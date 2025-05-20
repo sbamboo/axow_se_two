@@ -7,6 +7,7 @@
 - Currently token type in Auth header is ignored and not checked, should we eother use "Bearier" or the token_type
 
 # Backend
+- As per the "Remember" move to secrets.php file
 - Implement endpoints
 - Validator for the refresh-token
 - Epoch -> Timestamp?
