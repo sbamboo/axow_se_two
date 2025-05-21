@@ -27,9 +27,8 @@
     
 */
 
-require_once("../_php_common_/db.php");
-
-$DEFAULT_TTL  = 86400; // 1 day 
+require_once("../_php_common_/secret_config.php");
+require_once("../_php_common_/db.php"); 
 
 #region Cache Actions
 // Function to clean expired cache entries
@@ -319,7 +318,7 @@ function fetch_url_preview($url, $user_agent, $ttl_seconds) {
 
 #region Responders
 function req_fetch_url_preview($req_data) {
-    global $DEFAULT_TTL;
+    global $SECRETS;
 
     $request_url = $req_data["url"] ?? null;
     if ($request_url === null) {
@@ -342,7 +341,7 @@ function req_fetch_url_preview($req_data) {
         $user_agent = $_SERVER["HTTP_USER_AGENT"];
     }
 
-    $ttl_seconds = $DEFAULT_TTL;
+    $ttl_seconds = $SECRETS["url_preview_default_ttl"];
     if (isset($req_data["cache-ttl"])) {
         $ttl_seconds = intval($req_data["cache-ttl"]);
     }

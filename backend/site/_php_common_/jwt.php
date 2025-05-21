@@ -4,11 +4,10 @@
  * @brief This file contains classes to handle JWTs. (JSON Web Tokens)
  */
 
+require_once("secret_config.php"); 
 require_once("permissions.php");
 
 class JwtToken {
-    protected static $secretKey = "your-secret-key";
-
     protected $usr;  // User ID
     protected $iat;  // Issued At time (timestamp)
     protected $exp;  // Expiration time (timestamp)
@@ -57,6 +56,8 @@ class JwtToken {
 
     // Encode the JWT using the header, payload, and signature
     protected function encodeJWT($payload) {
+        global $SECRETS;
+        
         // Header part
         $header = base64_encode(json_encode(["alg" => "HS256", "typ" => "JWT"]));
 
@@ -64,7 +65,7 @@ class JwtToken {
         $payload = base64_encode(json_encode($payload));
 
         // Signature part
-        $signature = hash_hmac("sha256", "$header.$payload", self::$secretKey, true);
+        $signature = hash_hmac("sha256", "$header.$payload", $SECRETS["jwt_signing_key"], true);
         $signature = base64_encode($signature);
 
         // Return the complete JWT token ("<header>.<payload>.<signature>")
@@ -73,6 +74,8 @@ class JwtToken {
 
     // Decode the JWT and verify signature
     protected static function decodeJWT($jwt) {
+        global $SECRETS;
+
         $parts = explode(".", $jwt);
 
         if (count($parts) !== 3) return false; // Invalid JWT format
@@ -84,7 +87,7 @@ class JwtToken {
         $payload = json_decode(base64_decode($payload), true);
 
         // Generate the expected signature and compare with the provided signature
-        $validSignature = base64_encode(hash_hmac("sha256", "$parts[0].$parts[1]", self::$secretKey, true));
+        $validSignature = base64_encode(hash_hmac("sha256", "$parts[0].$parts[1]", $SECRETS["jwt_signing_key"], true));
 
         if ($validSignature === $signature) {
             // add "_jwt_" field to $payload with the orignal token

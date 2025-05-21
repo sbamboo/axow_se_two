@@ -4,16 +4,11 @@
  * @brief This file contains functions needed for handling authentication.
  */
 
+require_once("secret_config.php");
 require_once("db.php");
 require_once("jwt.php");
 require_once("requests.php");
 require_once("permissions.php");
-
-//MARK: Token times
-$SINGLE_TOKEN_EXPIRATION = 3600; // 1h
-$SINGLE_USE_TOKEN_EXPIRATION = 3600; // 1h
-$PAIR_TOKEN_EXPIRATION = 300; // 5min
-$REFRESH_TOKEN_EXPIRATION = 86400; // 1d
 
 function get_secure_hash($password) {
     // Hash the password using a secure hashing algorithm
@@ -186,8 +181,8 @@ function get_new_token($token_type, $userid) {
      2  pair        Requires a refresh token to refresh.
      3  refresh     Used to refresh a pair token.
     */
-
-    global $SINGLE_TOKEN_EXPIRATION, $SINGLE_USE_TOKEN_EXPIRATION, $PAIR_TOKEN_EXPIRATION, $REFRESH_TOKEN_EXPIRATION;
+    
+    global $SECRETS;
 
     // Validate the token type input
     if (!isset($token_type)) {
@@ -215,7 +210,7 @@ function get_new_token($token_type, $userid) {
     if ($token_type_lower === "single") {
         // Configure
         $token = null;
-        $expires = time() + $SINGLE_TOKEN_EXPIRATION;
+        $expires = time() + $SECRETS["single_token_expiration"];
         $tokenObj = new Single_JwtToken($userid, $expires, $permissiondigit_string);
         $token = $tokenObj->issueToken();
 
@@ -242,7 +237,7 @@ function get_new_token($token_type, $userid) {
     } else if ($token_type_lower === "single-use") {
         // Configure
         $token = null;
-        $expires = time() + $SINGLE_USE_TOKEN_EXPIRATION;
+        $expires = time() + $SECRETS["single_use_token_expiration"];
         $tokenObj = new SingleUse_JwtToken($userid, $expires, $permissiondigit_string);
         $token = $tokenObj->issueToken();
 
@@ -268,12 +263,12 @@ function get_new_token($token_type, $userid) {
 
     } else if ($token_type_lower === "pair") {
         $pair_token = null;
-        $pair_expires = time() + $PAIR_TOKEN_EXPIRATION; // 5min
+        $pair_expires = time() + $SECRETS["pair_token_expiration"];
         $pair_tokenObj = new Pair_JwtToken($userid, $pair_expires, $permissiondigit_string);
         $pair_token = $pair_tokenObj->issueToken();
 
         $refresh_token = null;
-        $refresh_expires = time() + $REFRESH_TOKEN_EXPIRATION; // 1d
+        $refresh_expires = time() + $SECRETS["refresh_token_expiration"];
         $refresh_tokenObj = new Refresh_JwtToken($userid, $refresh_expires);
         $refresh_token = $refresh_tokenObj->issueToken();
 
