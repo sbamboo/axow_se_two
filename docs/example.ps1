@@ -138,18 +138,18 @@ class axow {
     }
 
     [void] preview([string]$url, [bool]$client_user_agent) {
-         $this.preview($url, $client_user_agent, $null, $false, $false)
+         $this.preview($url, $client_user_agent, $false, $false, $null)
     }
 
-    [void] preview([string]$url, [bool]$client_user_agent, [Nullable[int]]$ttl=$null) {
-         $this.preview($url, $client_user_agent, $ttl, $false, $false)
+    [void] preview([string]$url, [bool]$client_user_agent, [bool]$unescape) {
+         $this.preview($url, $client_user_agent, $unescape, $false, $null)
     }
 
-    [void] preview([string]$url, [bool]$client_user_agent, [Nullable[int]]$ttl=$null, [bool]$unescape) {
-         $this.preview($url, $client_user_agent, $ttl, $unescape, $false)
+    [void] preview([string]$url, [bool]$client_user_agent, [bool]$unescape, [bool]$unescaped_unicode) {
+         $this.preview($url, $client_user_agent, $unescape, $unescaped_unicode, $null)
     }
 
-    [void] preview([string]$url, [bool]$client_user_agent=$false, [Nullable[int]]$ttl=$null, [bool]$unescape=$false, [bool]$unescaped_unicode=$false) {
+    [void] preview([string]$url, [bool]$client_user_agent=$false, [bool]$unescape=$false, [bool]$unescaped_unicode=$false, [Nullable[int]]$ttl=$null) {
         if (-not $this.Token) {
             Write-Host "No token available. Please authenticate first."
             return
