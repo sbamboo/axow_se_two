@@ -5,7 +5,6 @@
 - Currently token type in Auth header is ignored and not checked, should we eother use "Bearier" or the token_type
 
 # Backend
-- Standardise on `format_json_response`
 - Decide endpoint methods and add to api.md, if ambiguies use `req_require_one_of_methods`
 - Implement endpoints
 - Validator for the refresh-token

@@ -11,10 +11,10 @@ require_once("user.php");
 // Function to send a JSON response and terminate the script
 function req_send($success, $msg, $http_code) {
     http_response_code($http_code);
-    echo json_encode([
+    echo format_json_response([
         "status" => $success ? "success" : "failed",
         "msg" => $msg,
-    ]);
+    ], isset($_REQUEST["escape_unicode"]) ? true : false);
     die(); //MARK: Should we exit instead?
 }
 
@@ -175,7 +175,7 @@ function req_get_new_token($token_type, $data, $is_refresh=false) {
     if ($is_refresh) {
         $token_data["msg"] = "Token refreshed successfully";
     }
-    echo json_encode($token_data);
+    echo format_json_response($token_data, isset($_REQUEST["escape_unicode"]) ? true : false);
     die(); //MARK: Should we exit instead?
 }
 
@@ -222,7 +222,7 @@ function req_refresh_pair_token($refresh_token) {
     http_response_code(200);
     $token_data["status"] = $success ? "success" : "failed";
     $token_data["msg"] = $msg;
-    echo json_encode($token_data);
+    echo format_json_response($token_data, isset($_REQUEST["escape_unicode"]) ? true : false);
     die(); //MARK: Should we exit instead?
 }
 
