@@ -414,10 +414,6 @@ function req_fetch_url_preview($req_data) {
     ] + $preview;
     http_response_code($http_code);
 
-    // echo json_encode($toret);
-    // echo json_encode($toret, JSON_UNESCAPED_SLASHES);
-    // echo json_encode($toret, JSON_UNESCAPED_UNICODE);
-    // echo json_encode($toret, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     $options = 0;
     if (!empty($unescape_json)) {
         $options |= JSON_UNESCAPED_SLASHES;

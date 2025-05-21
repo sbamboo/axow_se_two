@@ -4,26 +4,28 @@ class axow {
     [string]$RefreshToken = $null # Add property for refresh token
 
     axow([string]$baseUrl) {
-        $this.BaseUrl = $baseUrl.TrimEnd('/')
-
-        $PSNativeCommandEncoding   = [Text.Encoding]::UTF8
-        [Console]::InputEncoding  = [Text.Encoding]::UTF8
-        [Console]::OutputEncoding = [Text.Encoding]::UTF8
+        $this.BaseUrl = $baseUrl.TrimEnd("/")
     }
+    
 
     [void] auth([string]$token_type, [string]$username, [string]$password) {
         $url = "$($this.BaseUrl)/auth/index.php?token_type=$token_type&username=$username&password=$password"
         # Using curl with -s (silent), -X GET, and capturing stderr to allow JSON parsing
+        $origOutEnc = [Console]::OutputEncoding
+        $origPSNativeEnc = $global:PSNativeCommandEncoding
+        $global:PSNativeCommandEncoding = [System.Text.Encoding]::UTF8
         $response = curl -s -X GET $url 2>&1
         Write-Host $response
+        [Console]::OutputEncoding = $origOutEnc
+        $global:PSNativeCommandEncoding = $origPSNativeEnc
 
         try {
             $json = $response | ConvertFrom-Json
             if ($json.status -eq "success" -and $json.token) {
                 $this.Token = $json.token
             }
-            # Collect refresh_token if token_type is 'pair' and it exists
-            if ($token_type -eq 'pair' -and $json.refresh_token) {
+            # Collect refresh_token if token_type is "pair" and it exists
+            if ($token_type -eq "pair" -and $json.refresh_token) {
                 $this.RefreshToken = $json.refresh_token
             }
         } catch {
@@ -38,8 +40,14 @@ class axow {
         }
         $url = "$($this.BaseUrl)/auth/validate/index.php"
         # Using curl with -s (silent), -X GET, and -H for the Authorization header
+        $origOutEnc = [Console]::OutputEncoding
+        $origPSNativeEnc = $global:PSNativeCommandEncoding
+        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+        $global:PSNativeCommandEncoding = [System.Text.Encoding]::UTF8
         $response = curl -s -X GET -H "Authorization: Bearer $($this.Token)" $url 2>&1
         Write-Host $response
+        [Console]::OutputEncoding = $origOutEnc
+        $global:PSNativeCommandEncoding = $origPSNativeEnc
     }
 
     [void] unauth() {
@@ -49,8 +57,14 @@ class axow {
         }
         $url = "$($this.BaseUrl)/unauth/index.php"
         # Using curl with -s (silent), -X GET, and -H for the Authorization header
+        $origOutEnc = [Console]::OutputEncoding
+        $origPSNativeEnc = $global:PSNativeCommandEncoding
+        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+        $global:PSNativeCommandEncoding = [System.Text.Encoding]::UTF8
         $response = curl -s -X GET -H "Authorization: Bearer $($this.Token)" $url 2>&1
         Write-Host $response
+        [Console]::OutputEncoding = $origOutEnc
+        $global:PSNativeCommandEncoding = $origPSNativeEnc
     }
 
     [void] change_username([string]$new_username) {
@@ -62,8 +76,14 @@ class axow {
         $body = @{ new_username = $new_username } | ConvertTo-Json -Compress
         # Using curl with -s (silent), -X POST (assuming POST for change_username),
         # -H for Authorization and Content-Type, and -d for the body
+        $origOutEnc = [Console]::OutputEncoding
+        $origPSNativeEnc = $global:PSNativeCommandEncoding
+        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+        $global:PSNativeCommandEncoding = [System.Text.Encoding]::UTF8
         $response = curl -s -X POST -H "Authorization: Bearer $($this.Token)" -H "Content-Type: application/json" -d $body $url 2>&1
         Write-Host $response
+        [Console]::OutputEncoding = $origOutEnc
+        $global:PSNativeCommandEncoding = $origPSNativeEnc
     }
 
     [void] change_password([string]$old_password, [string]$new_password) {
@@ -75,16 +95,28 @@ class axow {
         $body = @{ old_password = $old_password; new_password = $new_password } | ConvertTo-Json -Compress
         # Using curl with -s (silent), -X POST (assuming POST for change_password),
         # -H for Authorization and Content-Type, and -d for the body
+        $origOutEnc = [Console]::OutputEncoding
+        $origPSNativeEnc = $global:PSNativeCommandEncoding
+        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+        $global:PSNativeCommandEncoding = [System.Text.Encoding]::UTF8
         $response = curl -s -X POST -H "Authorization: Bearer $($this.Token)" -H "Content-Type: application/json" -d $body $url 2>&1
         Write-Host $response
+        [Console]::OutputEncoding = $origOutEnc
+        $global:PSNativeCommandEncoding = $origPSNativeEnc
     }
 
     [void] refresh() {
         $url = "$($this.BaseUrl)/auth/refresh/index.php"
         $body = @{ refresh_token = $this.RefreshToken } | ConvertTo-Json -Compress
         # Using curl with -s (silent), -X POST, -H for Content-Type, and -d for the body
+        $origOutEnc = [Console]::OutputEncoding
+        $origPSNativeEnc = $global:PSNativeCommandEncoding
+        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+        $global:PSNativeCommandEncoding = [System.Text.Encoding]::UTF8
         $response = curl -s -X POST -H "Content-Type: application/json" -d $body $url 2>&1
         Write-Host $response
+        [Console]::OutputEncoding = $origOutEnc
+        $global:PSNativeCommandEncoding = $origPSNativeEnc
 
         try {
             $json = $response | ConvertFrom-Json
@@ -157,10 +189,21 @@ class axow {
         )
 
         # Execute the curl command
+        $origOutEnc = [Console]::OutputEncoding
+        $origPSNativeEnc = $global:PSNativeCommandEncoding
+        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+        $global:PSNativeCommandEncoding = [System.Text.Encoding]::UTF8
         $response = curl @curlArgs 2>&1
         Write-Host $response
+        [Console]::OutputEncoding = $origOutEnc
+        $global:PSNativeCommandEncoding = $origPSNativeEnc
     }
 }
-$client = [axow]::new('http://localhost/proj/axow_se_two/backend/site')
-$client.auth('single','admin','admin')
-$client.preview('https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DjPJCYrxqyT8',$true,-1)
+
+#$client = [axow]::new("http://localhost/proj/axow_se_two/backend/site")
+#$client.auth("single","username","password") # "single", "single_use" or "pair"
+#$client.validate()
+#$client.change_username("new_username")
+#$client.change_password("password","new_password")
+#$client.preview("https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DjPJCYrxqyT8",$true,-1)
+#$client.unauth()
