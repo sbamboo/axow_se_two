@@ -26,6 +26,15 @@ function req_require_method($method) {
     }
 }
 
+// Function to require one of a list of HTTP methods
+function req_require_one_of_methods($methods) {
+    $method = $_SERVER["REQUEST_METHOD"];
+    if (!in_array($method, $methods)) {
+        $endpoint_name = get_endpoint_name();
+        req_send(false, "The $endpoint_name endpoint is only available for " . implode(", ", $methods) . " requests", 405); // HTTP code 405 : Method Not Allowed
+    }
+}
+
 // Function to require a auth header
 function req_require_auth_header($type=null) {
     list($type, $token, $success, $msg, $http_code) = get_auth_header();

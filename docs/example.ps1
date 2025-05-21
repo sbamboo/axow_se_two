@@ -134,22 +134,22 @@ class axow {
 
 
     [void] preview([string]$url) {
-        $this.preview($url, $false, $null, $false, $false)
+        $this.preview($url, $false, $false, $null, $false)
     }
 
     [void] preview([string]$url, [bool]$client_user_agent) {
-         $this.preview($url, $client_user_agent, $false, $false, $null)
+         $this.preview($url, $client_user_agent, $false, $null, $false)
     }
 
-    [void] preview([string]$url, [bool]$client_user_agent, [bool]$unescape) {
-         $this.preview($url, $client_user_agent, $unescape, $false, $null)
+    [void] preview([string]$url, [bool]$client_user_agent, [bool]$unescaped_unicode) {
+         $this.preview($url, $client_user_agent, $unescaped_unicode, $null, $false)
     }
 
-    [void] preview([string]$url, [bool]$client_user_agent, [bool]$unescape, [bool]$unescaped_unicode) {
-         $this.preview($url, $client_user_agent, $unescape, $unescaped_unicode, $null)
+    [void] preview([string]$url, [bool]$client_user_agent, [bool]$unescaped_unicode, [Nullable[int]]$ttl=$null) {
+         $this.preview($url, $client_user_agent, $unescaped_unicode, $ttl, $false)
     }
 
-    [void] preview([string]$url, [bool]$client_user_agent=$false, [bool]$unescape=$false, [bool]$unescaped_unicode=$false, [Nullable[int]]$ttl=$null) {
+    [void] preview([string]$url, [bool]$client_user_agent=$false, [bool]$unescaped_unicode=$false, [Nullable[int]]$ttl=$null, [bool]$escape_slashes=$false) {
         if (-not $this.Token) {
             Write-Host "No token available. Please authenticate first."
             return
@@ -165,12 +165,12 @@ class axow {
             $queryString += "&cache-ttl=$ttl"
         }
 
-        if ($unescape -eq $true) {
-            $queryString += "&unescape"
-        }
-
         if ($unescaped_unicode -eq $true) {
             $queryString += "&unescaped_unicode"
+        }
+
+        if ($escape_slashes -eq $true) {
+            $queryString += "&escape_slashes"
         }
 
         # Combine the base URL and the query string

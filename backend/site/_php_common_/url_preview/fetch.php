@@ -29,6 +29,7 @@
 */
 
 require_once("../_php_common_/secret_config.php");
+require_once("../_php_common_/requests.php"); 
 require_once("../_php_common_/db.php"); 
 
 #region Cache Actions
@@ -397,16 +398,13 @@ function fetch_url_preview($url, $user_agent, $ttl_seconds) {
 function req_fetch_url_preview($req_data) {
     global $SECRETS;
 
-    $unescape_json = isset($req_data["unescape"]) ? true : false;
-    $unescaped_unicode_json = isset($req_data["unescaped_unicode"]) ? true : false;
-
     $request_url = $req_data["url"] ?? null;
     if ($request_url === null) {
         http_response_code(400); // HTTP code 400 : Bad Request
-        echo json_encode([
+        echo format_json_response([
             "status" => "failed",
             "msg" => "Invalid request, missing url"
-        ]);
+        ], isset($_REQUEST["escape_unicode"]) ? true : false);
         die(); //MARK: Should we exit instead?
     }
 
@@ -432,17 +430,7 @@ function req_fetch_url_preview($req_data) {
         "msg" => $success ? "Preview fetched successfully" : $error_message
     ] + $preview;
     http_response_code($http_code);
-
-    $options = 0;
-    if (!empty($unescape_json)) {
-        $options |= JSON_UNESCAPED_SLASHES;
-    }
-    if (!empty($unescaped_unicode_json)) {
-        $options |= JSON_UNESCAPED_UNICODE;
-    }
-
-    echo json_encode($toret, $options);
-
+    echo format_json_response($toret, isset($_REQUEST["escape_unicode"]) ? true : false);
     die(); //MARK: Should we exit instead?
 }
 #endregion

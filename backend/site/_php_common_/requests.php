@@ -100,3 +100,13 @@ function get_endpoint_name() {
         return "";
     }
 }
+
+// Function to give a response object as the appropriate JSON format
+function format_json_response($response, $escape_unicode=false) {
+    //return json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    $options = JSON_UNESCAPED_SLASHES;
+    if (!$escape_unicode) {
+        $options |= JSON_UNESCAPED_UNICODE;
+    }
+    return json_encode($response, $options);
+}
