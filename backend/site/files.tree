@@ -65,6 +65,7 @@ backend/
     │   └── remove/
     │       └── index.php      <- Endpoint
     ├── chibits/
+    │   └── index.php          <- Endpoint
     ├── profiles/
     │   ├── get/
     │   │   └── index.php      <- Endpoint
@@ -76,7 +77,7 @@ backend/
     │   │   └── index.php      <- Endpoint
     │   └── remove/
     │       └── index.php      <- Endpoint
-    ├── articles/
+    ├── wiki/
     │   ├── home/
     │   │   ├── update/
     │   │   │   └── index.php  <- Endpoint
