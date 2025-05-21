@@ -146,116 +146,174 @@ function parse_html_for_preview($html, $base_url) {
     $preview["type"] = null;
 
     // OpenGraph
-    $og_tags = $xpath->query("//meta[starts-with(@property, 'og:')]");
-    if ($og_tags && $og_tags->length > 0) {
-        $preview["format"] = "opengraph";
-        foreach ($og_tags as $tag) {
-            $prop = $tag->getAttribute("property");
-            $content = $tag->getAttribute("content");
-            if ($prop === "og:title") {
-                $preview["title"] = $content;
-            } else if ($prop === "og:description") {
-                $preview["description"] = $content;
-            } else if ($prop === "og:image") {
-                $preview["image"] = resolve_url($content, $base_url);
-            } else if ($prop === "og:url") {
-                $preview["url"] = $content;
-            } else if ($prop === "og:type") {
-                $preview["type"] = $content;
+    $meta_tags = $doc->getElementsByTagName("meta");
+    if ($meta_tags->length > 0) {
+        foreach ($meta_tags as $tag) {
+            if ($tag->hasAttribute("property")) {
+                $prop = $tag->getAttribute("property");
+                if (strpos($prop, "og:") === 0) {
+                    $preview["format"] = "opengraph";
+                    $content = $tag->getAttribute("content");
+                    if ($prop === "og:title") {
+                        $preview["title"] = $content;
+                    } else if ($prop === "og:description") {
+                        $preview["description"] = $content;
+                    } else if ($prop === "og:image") {
+                        $preview["image"] = resolve_url($content, $base_url);
+                    } else if ($prop === "og:url") {
+                        $preview["url"] = $content;
+                    } else if ($prop === "og:type") {
+                        $preview["type"] = $content;
+                    }
+                }
             }
         }
-        return $preview;
-    }
-
-    // Twitter Card
-    $tw_tags = $xpath->query("//meta[starts-with(@name, 'twitter:')]");
-    if ($tw_tags && $tw_tags->length > 0) {
-        $preview["format"] = "twitter";
-        foreach ($tw_tags as $tag) {
-            $name = $tag->getAttribute("name");
-            $content = $tag->getAttribute("content");
-            if ($name === "twitter:title") {
-                $preview["title"] = $content;
-            } else if ($name === "twitter:description") {
-                $preview["description"] = $content;
-            } else if ($name === "twitter:image") {
-                $preview["image"] = resolve_url($content, $base_url);
-            } else if ($name === "twitter:card") {
-                $preview["type"] = $content;
-            }
-        }
-        return $preview;
-    }
-
-    // oEmbed
-    $oembed_tags = $xpath->query("//link[@type='application/json+oembed' or @type='text/json+oembed']");
-    if ($oembed_tags && $oembed_tags->length > 0) {
-        $href = $oembed_tags[0]->getAttribute("href");
-        $json = file_get_contents($href);
-
-        if ($json !== false) {
-            $data = json_decode($json, true);
-            $preview["format"] = "oembed";
-
-            if (isset($data["title"])) {
-                $preview["title"] = $data["title"];
-            }
-
-            if (isset($data["description"])) {
-                $preview["description"] = $data["description"];
-            }
-
-            if (isset($data["thumbnail_url"])) {
-                $preview["image"] = resolve_url($data["thumbnail_url"], $base_url);
-            }
-
-            if (isset($data["type"])) {
-                $preview["type"] = $data["type"];
-            }
-
+        // If Open Graph data was found, return early
+        if ($preview["format"] === "opengraph") {
             return $preview;
         }
     }
 
-    // Fallbacks
-    $titles = $doc->getElementsByTagName("title");
-    if ($titles->length > 0) {
-        $preview["title"] = trim($titles[0]->textContent);
+    // Twitter Card
+    if ($meta_tags->length > 0) {
+        foreach ($meta_tags as $tag) {
+            if ($tag->hasAttribute("name")) {
+                $name = $tag->getAttribute("name");
+                if (strpos($name, "twitter:") === 0) {
+                        $preview["format"] = "twitter";
+                    $content = $tag->getAttribute("content");
+                    if ($name === "twitter:title") {
+                        $preview["title"] = $content;
+                    } else if ($name === "twitter:description") {
+                        $preview["description"] = $content;
+                    } else if ($name === "twitter:image") {
+                        $preview["image"] = resolve_url($content, $base_url);
+                    } else if ($name === "twitter:card") {
+                        $preview["type"] = $content;
+                    }
+                }
+            }
+        }
+        // If Twitter Card data was found, return early
+        if ($preview["format"] === "twitter") {
+            return $preview;
+        }
     }
 
-    $desc_preview = $xpath->query("//meta[@name='description']");
-    if ($desc_preview->length > 0) {
-        $preview["description"] = $desc_preview[0]->getAttribute("content");
-    }
+    // oEmbed (using getElementsByTagName and iterating)
+    $link_tags = $doc->getElementsByTagName("link");
+    if ($link_tags->length > 0) {
+        foreach ($link_tags as $tag) {
+            if ($tag->hasAttribute("type") && $tag->hasAttribute("href")) {
+                $type = $tag->getAttribute("type");
+                if ($type === 'application/json+oembed' || $type === 'text/json+oembed') {
+                    $href = $tag->getAttribute("href");
+                    $json = @file_get_contents($href); // Using @ to suppress file_get_contents warnings
 
-    // Further fallback for description: first <p>, <b>, <i>
-    if ($preview["description"] === null || empty($preview["description"])) {
-        $desc_fallback_nodes = $xpath->query("//p | //b | //i");
-        if ($desc_fallback_nodes->length > 0) {
-            foreach ($desc_fallback_nodes as $node) {
-                $text = trim($node->textContent);
-                if ($text !== '') {
-                    $preview["description"] = $text;
-                    break;  // Use the first non-empty found
+                    if ($json !== false) {
+                        $data = json_decode($json, true);
+                        // Check if JSON decoding was successful
+                        if ($data !== null) {
+                            $preview["format"] = "oembed";
+
+                            if (isset($data["title"])) {
+                                $preview["title"] = $data["title"];
+                            }
+
+                            if (isset($data["description"])) {
+                                $preview["description"] = $data["description"];
+                            }
+
+                            if (isset($data["thumbnail_url"])) {
+                                $preview["image"] = resolve_url($data["thumbnail_url"], $base_url);
+                            }
+
+                            if (isset($data["type"])) {
+                                $preview["type"] = $data["type"];
+                            }
+
+                            // Return after finding and processing oEmbed
+                            return $preview;
+                        }
+                    }
+                    // Stop after finding the first oEmbed link
+                    break; 
                 }
             }
         }
     }
 
+
+    // Fallbacks
+
+    // Title
+    $titles = $doc->getElementsByTagName("title");
+    if ($titles->length > 0) {
+        $preview["title"] = trim($titles[0]->textContent);
+    }
+
+    // Description Meta Tag
+    if ($meta_tags->length > 0) {
+        foreach ($meta_tags as $tag) {
+            if ($tag->hasAttribute("name") && $tag->getAttribute("name") === "description") {
+                $preview["description"] = $tag->getAttribute("content");
+                // Found the description meta tag, no need to continue
+                break;
+            }
+        }
+    }
+
+    // Further fallback for description: first <p>, <b>, <i> (requires recursive traversal)
+    if ($preview["description"] === null || empty($preview["description"])) {
+        $body = $doc->getElementsByTagName("body")->item(0);
+        if ($body) {
+            $nodes_to_check = ["p", "b", "i"];
+            foreach ($nodes_to_check as $tag_name) {
+                $elements = $body->getElementsByTagName($tag_name);
+                if ($elements->length > 0) {
+                    foreach ($elements as $element) {
+                        $text = trim($element->textContent);
+                        if ($text !== '') {
+                            $preview["description"] = $text;
+                            break 2; // Break out of both inner and outer loops
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    // First Image
     $images = $doc->getElementsByTagName("img");
     for ($i = 0; $i < $images->length; $i++) {
         $src = $images->item($i)->getAttribute("src");
         if (!empty($src)) {
             $preview["image"] = resolve_url($src, $base_url);
+            // Found the first image with a src, no need to continue
             break;
         }
     }
 
+    // Alternative Titles (h1, h2, p)
     if ($preview["title"] === null) {
-        $alts = $xpath->query("//h1 | //h2 | //p");
-        if ($alts->length > 0) {
-            $preview["title"] = trim($alts[0]->textContent);
-        }
+         $body = $doc->getElementsByTagName("body")->item(0);
+         if ($body) {
+             $nodes_to_check = ["h1", "h2", "p"];
+              foreach ($nodes_to_check as $tag_name) {
+                 $elements = $body->getElementsByTagName($tag_name);
+                 if ($elements->length > 0) {
+                      foreach ($elements as $element) {
+                         $text = trim($element->textContent);
+                         if ($text !== '') {
+                             $preview["title"] = $text;
+                             // Break out of both inner and outer loops
+                             break 2;
+                         }
+                     }
+                 }
+              }
+         }
     }
 
     return $preview;
@@ -360,15 +418,15 @@ function req_fetch_url_preview($req_data) {
     // echo json_encode($toret, JSON_UNESCAPED_SLASHES);
     // echo json_encode($toret, JSON_UNESCAPED_UNICODE);
     // echo json_encode($toret, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-    if ($unescape_json == true && $unescaped_unicode_json == true) {
-        echo json_encode($toret, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-    } else if ($unescape_json == true) {
-        echo json_encode($toret, JSON_UNESCAPED_SLASHES);
-    } else if ($unescaped_unicode_json == true) {
-        echo json_encode($toret, JSON_UNESCAPED_UNICODE);
-    } else {
-        echo json_encode($toret);
+    $options = 0;
+    if (!empty($unescape_json)) {
+        $options |= JSON_UNESCAPED_SLASHES;
     }
+    if (!empty($unescaped_unicode_json)) {
+        $options |= JSON_UNESCAPED_UNICODE;
+    }
+
+    echo json_encode($toret, $options);
 
     die(); //MARK: Should we exit instead?
 }

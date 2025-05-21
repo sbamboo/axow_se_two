@@ -5,6 +5,10 @@ class axow {
 
     axow([string]$baseUrl) {
         $this.BaseUrl = $baseUrl.TrimEnd('/')
+
+        $PSNativeCommandEncoding   = [Text.Encoding]::UTF8
+        [Console]::InputEncoding  = [Text.Encoding]::UTF8
+        [Console]::OutputEncoding = [Text.Encoding]::UTF8
     }
 
     [void] auth([string]$token_type, [string]$username, [string]$password) {
