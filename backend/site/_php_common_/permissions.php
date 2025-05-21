@@ -39,7 +39,7 @@ function get_user_permissions($userid) {
 // Function to get the "permission_digits" from an array of "permission_string"s
 function permission_array_to_digits($permissions) {
     // Start zeroed
-    $permissions_array = array_fill(0, 9, "0");
+    $permissions_array = array_fill(0, 11, "0");
 
     // Loop through the user permissions
     foreach ($permissions as $permission) {
@@ -187,7 +187,15 @@ function permission_array_to_digits($permissions) {
                 $permissions_array[6] = "7";
                 break;
 
-            // Profiles Permissions (Index 7)
+            // Wiki Home Permissions (Index 7)
+            case "wiki-home.*":
+                $permissions_array[6] = "1";
+                break;
+            case "wiki-home.update":
+                $permissions_array[6] = "2";
+                break;
+
+            // Profiles Permissions (Index 8)
             case "profiles.*":
                 $permissions_array[7] = "1";
                 break;
@@ -210,11 +218,19 @@ function permission_array_to_digits($permissions) {
                 $permissions_array[7] = "7";
                 break;
 
-            // Profile Restriction Permissions (Index 8)
+            // Profile Restriction Permissions (Index 9)
             case "all-profiles":
                 $permissions_array[8] = "1";
                 break;
             case "your-profile":
+                $permissions_array[8] = "2";
+                break;
+
+            // URL Preview Permissions (Index 10)
+            case "url-preview.*":
+                $permissions_array[8] = "1";
+                break;
+            case "url-preview.fetch":
                 $permissions_array[8] = "2";
                 break;
         }
@@ -226,8 +242,8 @@ function permission_array_to_digits($permissions) {
 
 // Function to get an array of "permission_string"s from a "permission_digits" string
 function permission_digits_to_array($digits) {
-    // Check if the $digits is a string of 9 digits
-    if (!is_string($digits) || strlen($digits) != 9) {
+    // Check if the $digits is a string of 11 digits
+    if (!is_string($digits) || strlen($digits) != 11) {
         return null;
     }
 
@@ -346,6 +362,13 @@ function permission_digits_to_array($digits) {
                 break;
             case 7:
                 if ($digits[$i] == "1") {
+                    $permissions[] = "wiki-home.*";
+                } elseif ($digits[$i] == "2") {
+                    $permissions[] = "wiki-home.update";
+                }
+                break;
+            case 8:
+                if ($digits[$i] == "1") {
                     $permissions[] = "profiles.*";
                 } elseif ($digits[$i] == "2") {
                     $permissions[] = "profiles.add";
@@ -361,11 +384,18 @@ function permission_digits_to_array($digits) {
                     $permissions[] = "profiles.remove-modify";
                 }
                 break;
-            case 8:
+            case 9:
                 if ($digits[$i] == "1") {
                     $permissions[] = "all-profiles";
                 } elseif ($digits[$i] == "2") {
                     $permissions[] = "your-profile";
+                }
+                break;
+            case 10:
+                if ($digits[$i] == "1") {
+                    $permissions[] = "url-preview.*";
+                } elseif ($digits[$i] == "2") {
+                    $permissions[] = "url-preview.update";
                 }
                 break;
         }

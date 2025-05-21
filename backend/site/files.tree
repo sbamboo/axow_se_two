@@ -1,34 +1,117 @@
 backend/
 └── site/
-    ├── _data_/...            <- Contains all data nodes
+    ├── _data_/...             <- Contains all data nodes
     ├── _php_common_/
     │   ├── url_preview/
-    │   │   └── fetch.php     <- contains logic for getting url previews
-    │   ├── auth.php          <- contains auth functions
-    │   ├── db.php            <- contains db functions
-    │   ├── env.php           <- set's up a PHP enviroment
-    │   ├── jwt.php           <- contains JwtToken classes
-    │   ├── permissions.php   <- contains helper functions for the digit-based permission system
-    │   ├── requests.php      <- contains helper functions for interacting as a rest api
-    │   └── responders.php    <- contains function wrappers that auto respond with JSON
-    │   └── secret_config.php <- contains configuration
-    │   └── user.php          <- contains user management functions
+    │   │   └── fetch.php      <- contains logic for getting url previews
+    │   ├── auth.php           <- contains auth functions
+    │   ├── db.php             <- contains db functions
+    │   ├── env.php            <- set's up a PHP enviroment
+    │   ├── jwt.php            <- contains JwtToken classes
+    │   ├── permissions.php    <- contains helper functions for the digit-based permission system
+    │   ├── requests.php       <- contains helper functions for interacting as a rest api
+    │   └── responders.php     <- contains function wrappers that auto respond with JSON
+    │   └── secret_config.php  <- contains configuration
+    │   └── user.php           <- contains user management functions
     ├── _db_/
-    │   ├── schema.sql        <- A schema/sql-setup describing the auth database
-    │   └── ...               <- Any other database equivilent files
+    │   ├── schema.sql         <- A schema/sql-setup describing the auth database
+    │   └── ...                <- Any other database equivilent files
     ├── auth/
-    │   ├── index.php         <- Endpoint, authenticate to the API
+    │   ├── index.php          <- Endpoint, authenticate to the API
     |   ├── validate/
-    |   |   └── index.php     <- Endpoint, validate a token
+    |   |   └── index.php      <- Endpoint, validate a token
     |   └── refresh/
-    |       └── index.php     <- Endpoint, refresh a 'pair' type token
+    |       └── index.php      <- Endpoint, refresh a 'pair' type token
     ├── unauth/
-    │   └── index.php         <- Endpoint, invalidate a token
+    │   └── index.php          <- Endpoint, invalidate a token
     ├── users/
     |   ├── change_username/
-    |   |   └── index.php     <- Endpoint
+    |   |   └── index.php      <- Endpoint
     |   └── change_password/
-    |       └── index.php     <- Endpoint
+    |       └── index.php      <- Endpoint
     ├── url_preview/
-    │   └── index.php         <- URL Preview Endpoint
-    └── index.php             <- Main API Endpoint
+    │   └── index.php          <- URL Preview Endpoint
+    ├── articles/
+    │   ├── categories/
+    │   │   ├── get/
+    │   │   │   └── index.php  <- Endpoint
+    │   │   ├── getAll/
+    │   │   │   └── index.php  <- Endpoint
+    │   │   ├── add/
+    │   │   │   └── index.php  <- Endpoint
+    │   │   ├── update/
+    │   │   │   └── index.php  <- Endpoint
+    │   │   └── remove/
+    │   │       └── index.php  <- Endpoint
+    │   ├── subcategories/
+    │   │   ├── get/
+    │   │   │   └── index.php  <- Endpoint
+    │   │   ├── getAll/
+    │   │   │   └── index.php  <- Endpoint
+    │   │   ├── add/
+    │   │   │   └── index.php  <- Endpoint
+    │   │   ├── update/
+    │   │   │   └── index.php  <- Endpoint
+    │   │   └── remove/
+    │   │       └── index.php  <- Endpoint
+    │   ├── get/
+    │   │   └── index.php      <- Endpoint
+    │   ├── getAll/
+    │   │   └── index.php      <- Endpoint
+    │   ├── add/
+    │   │   └── index.php      <- Endpoint
+    │   ├── update/
+    │   │   └── index.php      <- Endpoint
+    │   └── remove/
+    │       └── index.php      <- Endpoint
+    ├── chibits/
+    ├── profiles/
+    │   ├── get/
+    │   │   └── index.php      <- Endpoint
+    │   ├── getAll/
+    │   │   └── index.php      <- Endpoint
+    │   ├── add/
+    │   │   └── index.php      <- Endpoint
+    │   ├── update/
+    │   │   └── index.php      <- Endpoint
+    │   └── remove/
+    │       └── index.php      <- Endpoint
+    ├── articles/
+    │   ├── home/
+    │   │   ├── update/
+    │   │   │   └── index.php  <- Endpoint
+    │   │   └── index.php      <- Endpoint
+    │   ├── categories/
+    │   │   ├── get/
+    │   │   │   └── index.php  <- Endpoint
+    │   │   ├── getAll/
+    │   │   │   └── index.php  <- Endpoint
+    │   │   ├── add/
+    │   │   │   └── index.php  <- Endpoint
+    │   │   ├── update/
+    │   │   │   └── index.php  <- Endpoint
+    │   │   └── remove/
+    │   │       └── index.php  <- Endpoint
+    │   ├── subcategories/
+    │   │   ├── get/
+    │   │   │   └── index.php  <- Endpoint
+    │   │   ├── getAll/
+    │   │   │   └── index.php  <- Endpoint
+    │   │   ├── add/
+    │   │   │   └── index.php  <- Endpoint
+    │   │   ├── update/
+    │   │   │   └── index.php  <- Endpoint
+    │   │   └── remove/
+    │   │       └── index.php  <- Endpoint
+    │   └── articles/
+    │       ├── get/
+    │       │   └── index.php  <- Endpoint
+    │       ├── getAll/
+    │       │   └── index.php  <- Endpoint
+    │       ├── add/
+    │       │   └── index.php  <- Endpoint
+    │       ├── update/
+    │       │   └── index.php  <- Endpoint
+    │       └── remove/
+    │           └── index.php  <- Endpoint
+    └── index.php              <- Main API Endpoint

@@ -99,10 +99,10 @@ class JwtToken {
     }
 }
 
-// Token type `single` (extends JwtToken class)
-class Single_JwtToken extends JwtToken {
+// Token type `single-use` (extends JwtToken class)
+class SingleUse_JwtToken extends JwtToken {
     public function __construct($usr, $exp, $perm) {
-        parent::__construct($usr, $exp, 1, $perm); // tt = 1 for type `single`
+        parent::__construct($usr, $exp, 0, $perm); // tt = 0 for type `single-use`
     }
 
     public static function validateToken($token) {
@@ -110,10 +110,10 @@ class Single_JwtToken extends JwtToken {
     }
 }
 
-// Token type `single-use` (extends JwtToken class)
-class SingleUse_JwtToken extends JwtToken {
+// Token type `single` (extends JwtToken class)
+class Single_JwtToken extends JwtToken {
     public function __construct($usr, $exp, $perm) {
-        parent::__construct($usr, $exp, 0, $perm); // tt = 0 for type `single-use`
+        parent::__construct($usr, $exp, 1, $perm); // tt = 1 for type `single`
     }
 
     public static function validateToken($token) {

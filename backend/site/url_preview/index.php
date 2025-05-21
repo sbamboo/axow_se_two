@@ -11,6 +11,8 @@ req_require_one_of_methods(["GET", "POST"]);
 
 $req_data = get_request_body();
 
-req_require_token();
+$decoded_token = req_require_token();
+
+req_require_permission("url-preview.fetch", $decoded_token, $decoded_token["usr"]);
 
 req_fetch_url_preview($req_data);

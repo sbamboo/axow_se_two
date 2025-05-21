@@ -293,7 +293,7 @@ GET `api.axow.se/site/articles/getAll`
 ```
 
 ## Get a specific article
-GET `api.axow.se/site/article/get?id=<string:article_id>`
+GET `api.axow.se/site/articles/get?id=<string:article_id>`
 ```json (Response)
 {
     "status": "success"/"failed",
@@ -328,7 +328,7 @@ GET `api.axow.se/site/article/get?id=<string:article_id>`
 ```
 
 ## Add an article
-POST `api.axow.se/site/article/add` (Authed)
+POST `api.axow.se/site/articles/add` (Authed)
 ```Headers (Request)
 Content-Type: application/json
 Authorization: <string:token>
@@ -352,7 +352,7 @@ Authorization: <string:token>
 ```
 
 ## Modify an article
-POST `api.axow.se/site/article/update?id=<string:article_id>&action=<merge/remove>` (Authed)
+POST `api.axow.se/site/articles/update?id=<string:article_id>&action=<merge/remove>` (Authed)
 ```Headers (Request)
 Content-Type: application/json
 Authorization: <string:token>
@@ -383,7 +383,7 @@ Authorization: <string:token>
 ```
 
 ## Remove an article
-DELETE `api.axow.se/site/article/remove?id=<string:article_id>` (Authed)
+DELETE `api.axow.se/site/articles/remove?id=<string:article_id>` (Authed)
 ```Headers (Request)
 Content-Type: application/json
 Authorization: <string:token>
@@ -491,7 +491,7 @@ GET `api.axow.se/site/wiki/categories/getAll`
 ```
 
 ## Add category
-POST `api.axow.se/site/wiki/category/add` (Authed)
+POST `api.axow.se/site/wiki/categories/add` (Authed)
 ```Headers (Request)
 Content-Type: application/json
 Authorization: <string:token>
@@ -509,7 +509,7 @@ Authorization: <string:token>
 ```
 
 ## Rename category
-POST `api.axow.se/site/wiki/category/update?category=<string:category>` (Authed)
+POST `api.axow.se/site/wiki/categories/update?category=<string:category>` (Authed)
 ```Headers (Request)
 Content-Type: application/json
 Authorization: <string:token>
@@ -527,7 +527,7 @@ Authorization: <string:token>
 ```
 
 ## Remove category
-REMOVE `api.axow.se/site/wiki/category/remove?category=<string:category>` (Authed)
+REMOVE `api.axow.se/site/wiki/categories/remove?category=<string:category>` (Authed)
 ```Headers (Request)
 Content-Type: application/json
 Authorization: <string:token>
@@ -552,7 +552,7 @@ GET `api.axow.se/site/wiki/subcategories/getAll`
 ```
 
 ## Add subcategory
-POST `api.axow.se/site/wiki/subcategory/add` (Authed)
+POST `api.axow.se/site/wiki/subcategories/add` (Authed)
 ```Headers (Request)
 Content-Type: application/json
 Authorization: <string:token>
@@ -570,7 +570,7 @@ Authorization: <string:token>
 ```
 
 ## Modify subcategory
-POST `api.axow.se/site/wiki/subcategory/update?subcategory=<string:subcategory>` (Authed)
+POST `api.axow.se/site/wiki/subcategories/update?subcategory=<string:subcategory>` (Authed)
 ```Headers (Request)
 Content-Type: application/json
 Authorization: <string:token>
@@ -588,7 +588,7 @@ Authorization: <string:token>
 ```
 
 ## Remove subcategory
-REMOVE `api.axow.se/site/wiki/subcategory/remove?subcategory=<string:subcategory>` (Authed)
+REMOVE `api.axow.se/site/wiki/subcategories/remove?subcategory=<string:subcategory>` (Authed)
 ```Headers (Request)
 Content-Type: application/json
 Authorization: <string:token>
@@ -885,7 +885,7 @@ Authorization: <string:token>
 ```
 
 ## Modify a profile
-POST `api.axow.se/site/profiles/modify?id=<string:profile_id_with_@>&action=<merge/remove>` (Authed)
+POST `api.axow.se/site/profiles/update?id=<string:profile_id_with_@>&action=<merge/remove>` (Authed)
 ```Headers (Request)
 Content-Type: application/json
 Authorization: <string:token>
