@@ -134,22 +134,18 @@ class axow {
 
 
     [void] preview([string]$url) {
-        $this.preview($url, $false, $false, $null, $false)
+        $this.preview($url, $false, $null, $false)
     }
 
     [void] preview([string]$url, [bool]$client_user_agent) {
-         $this.preview($url, $client_user_agent, $false, $null, $false)
+         $this.preview($url, $client_user_agent, $null, $false)
     }
 
-    [void] preview([string]$url, [bool]$client_user_agent, [bool]$unescaped_unicode) {
-         $this.preview($url, $client_user_agent, $unescaped_unicode, $null, $false)
+    [void] preview([string]$url, [bool]$client_user_agent, [Nullable[int]]$ttl=$null) {
+         $this.preview($url, $client_user_agent, $ttl, $false)
     }
 
-    [void] preview([string]$url, [bool]$client_user_agent, [bool]$unescaped_unicode, [Nullable[int]]$ttl=$null) {
-         $this.preview($url, $client_user_agent, $unescaped_unicode, $ttl, $false)
-    }
-
-    [void] preview([string]$url, [bool]$client_user_agent=$false, [bool]$unescaped_unicode=$false, [Nullable[int]]$ttl=$null, [bool]$escape_slashes=$false) {
+    [void] preview([string]$url, [bool]$client_user_agent=$false, [Nullable[int]]$ttl=$null, [bool]$escape_unicode=$false) {
         if (-not $this.Token) {
             Write-Host "No token available. Please authenticate first."
             return
@@ -165,12 +161,8 @@ class axow {
             $queryString += "&cache-ttl=$ttl"
         }
 
-        if ($unescaped_unicode -eq $true) {
-            $queryString += "&unescaped_unicode"
-        }
-
-        if ($escape_slashes -eq $true) {
-            $queryString += "&escape_slashes"
+        if ($escape_unicode -eq $true) {
+            $queryString += "&escape_unicode"
         }
 
         # Combine the base URL and the query string
