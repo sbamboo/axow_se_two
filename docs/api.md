@@ -72,6 +72,7 @@ GET `api.axow.se/site/url_preview?url=<string:urlencoded>` (Authed)
     "format": "twitter"/"opengraph",
     "title": "<optional:string>",
     "description": "<optional:string>",
+    "favicon": "<optional:string>",
     "image": "<optional:string>",
     "url": "<optional:string>",
     "type": "<optional:string=type/card>",

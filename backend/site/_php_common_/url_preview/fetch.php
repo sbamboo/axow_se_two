@@ -11,6 +11,7 @@
         "format": "twitter"/"opengraph"/"oembed"/"none",
         "title": "<optional:string>",
         "description": "<optional:string>",
+        "favicon": "<optional:string>",
         "image": "<optional:string>",
         "url": "<optional:string>",
         "type": "<optional:string=type/card>"
@@ -124,25 +125,29 @@ function resolve_url($relative, $base) {
 }
 
 // Main HTML parser function
-function parse_html_for_preview($html, $base_url) {
-    libxml_use_internal_errors(true);
-    $doc = new DOMDocument();
-    $loaded = $doc->loadHTML($html, LIBXML_NOERROR | LIBXML_NOWARNING);
-    libxml_clear_errors();
-    libxml_use_internal_errors(false);
+function parse_html_for_preview($html, $url) {
+    libxml_use_internal_errors(true);                                   // Disable displaying errors from libxml (Used by DOMDocument)
+    $doc = new DOMDocument();                                           // Create a new DOMDocument object
+    $loaded = $doc->loadHTML($html, LIBXML_NOERROR | LIBXML_NOWARNING); // Parse the HTML into the DOMDocument, suppressing errors
+    libxml_clear_errors();                                              // Clear any errors that were generated during HTML parsing
+    libxml_use_internal_errors(false);                                  // Re-enable error reporting for libxml
 
+    // Get $base_url
+    $base_url = parse_url($url, PHP_URL_SCHEME) . "://" . parse_url($url, PHP_URL_HOST);
+    
+    // If the HTML could not be loaded, return null
     if (!$loaded) {
         return null;
     }
 
-    $xpath = new DOMXPath($doc);
-
+    // Define defaults
     $preview = [];
     $preview["format"] = "none";
-    $preview["title"] = null;
+    $preview["title"] = $url;
     $preview["description"] = null;
     $preview["image"] = null;
-    $preview["url"] = $base_url;
+    $preview["favicon"] = null;
+    $preview["url"] = $url;
     $preview["type"] = null;
 
     // OpenGraph
@@ -168,7 +173,7 @@ function parse_html_for_preview($html, $base_url) {
                 }
             }
         }
-        // If Open Graph data was found, return early
+        // If OpenGraph data was found, return early
         if ($preview["format"] === "opengraph") {
             return $preview;
         }
@@ -194,13 +199,13 @@ function parse_html_for_preview($html, $base_url) {
                 }
             }
         }
-        // If Twitter Card data was found, return early
+        // If TwitterCard data was found, return early
         if ($preview["format"] === "twitter") {
             return $preview;
         }
     }
 
-    // oEmbed (using getElementsByTagName and iterating)
+    // oEmbed
     $link_tags = $doc->getElementsByTagName("link");
     if ($link_tags->length > 0) {
         foreach ($link_tags as $tag) {
@@ -246,13 +251,34 @@ function parse_html_for_preview($html, $base_url) {
 
     // Fallbacks
 
-    // Title
+    //// Title
     $titles = $doc->getElementsByTagName("title");
     if ($titles->length > 0) {
         $preview["title"] = trim($titles[0]->textContent);
     }
 
-    // Description Meta Tag
+    //// Futher fallback for title (h1, h2, h3, h4, h5, h6)
+    if ($preview["title"] === null) {
+        $body = $doc->getElementsByTagName("body")->item(0);
+        if ($body) {
+            $nodes_to_check = ["h1", "h2", "h3", "h4", "h5", "h6"];
+            foreach ($nodes_to_check as $tag_name) {
+                $elements = $body->getElementsByTagName($tag_name);
+                if ($elements->length > 0) {
+                    foreach ($elements as $element) {
+                        $text = trim($element->textContent);
+                        if ($text !== '') {
+                            $preview["title"] = $text;
+                            // Break out of both inner and outer loops
+                            break 2;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    //// Description Meta Tag
     if ($meta_tags->length > 0) {
         foreach ($meta_tags as $tag) {
             if ($tag->hasAttribute("name") && $tag->getAttribute("name") === "description") {
@@ -263,7 +289,7 @@ function parse_html_for_preview($html, $base_url) {
         }
     }
 
-    // Further fallback for description: first <p>, <b>, <i> (requires recursive traversal)
+    //// Further fallback for description (p, b, i)
     if ($preview["description"] === null || empty($preview["description"])) {
         $body = $doc->getElementsByTagName("body")->item(0);
         if ($body) {
@@ -284,7 +310,7 @@ function parse_html_for_preview($html, $base_url) {
     }
 
 
-    // First Image
+    //// Image
     $images = $doc->getElementsByTagName("img");
     for ($i = 0; $i < $images->length; $i++) {
         $src = $images->item($i)->getAttribute("src");
@@ -295,27 +321,20 @@ function parse_html_for_preview($html, $base_url) {
         }
     }
 
-    // Alternative Titles (h1, h2, p)
-    if ($preview["title"] === null) {
-         $body = $doc->getElementsByTagName("body")->item(0);
-         if ($body) {
-             $nodes_to_check = ["h1", "h2", "p"];
-              foreach ($nodes_to_check as $tag_name) {
-                 $elements = $body->getElementsByTagName($tag_name);
-                 if ($elements->length > 0) {
-                      foreach ($elements as $element) {
-                         $text = trim($element->textContent);
-                         if ($text !== '') {
-                             $preview["title"] = $text;
-                             // Break out of both inner and outer loops
-                             break 2;
-                         }
-                     }
-                 }
-              }
-         }
+    //// Favicon
+    for ($i = 0; $i < $link_tags->length; $i++) {
+        $rel = $link_tags->item($i)->getAttribute("rel");
+        if (strpos($rel, "icon") !== false) {
+            $href = $link_tags->item($i)->getAttribute("href");
+            if (!empty($href)) {
+                $preview["favicon"] = resolve_url($href, $base_url);
+                // Found the first favicon link, no need to continue
+                break;
+            }
+        }
     }
 
+    // Return the preview data
     return $preview;
 }
 
