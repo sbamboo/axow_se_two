@@ -320,6 +320,9 @@ function fetch_url_preview($url, $user_agent, $ttl_seconds) {
 function req_fetch_url_preview($req_data) {
     global $SECRETS;
 
+    $unescape_json = $req_data["unescape"] ?? false;
+    $unescaped_unicode_json = $req_data["unescaped_unicode"] ?? false;
+
     $request_url = $req_data["url"] ?? null;
     if ($request_url === null) {
         http_response_code(400); // HTTP code 400 : Bad Request
@@ -352,7 +355,21 @@ function req_fetch_url_preview($req_data) {
         "msg" => $success ? "Preview fetched successfully" : $error_message
     ] + $preview;
     http_response_code($http_code);
-    echo json_encode($toret);
+    
+    // echo json_encode($toret);
+    // echo json_encode($toret, JSON_UNESCAPED_SLASHES);
+    // echo json_encode($toret, JSON_UNESCAPED_UNICODE);
+    // echo json_encode($toret, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    if ($unescape_json && $unescaped_unicode_json) {
+        echo json_encode($toret, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    } else if ($unescape_json) {
+        echo json_encode($toret, JSON_UNESCAPED_SLASHES);
+    } else if ($unescaped_unicode_json) {
+        echo json_encode($toret, JSON_UNESCAPED_UNICODE);
+    } else {
+        echo json_encode($toret);
+    }
+
     die(); //MARK: Should we exit instead?
 }
 #endregion
