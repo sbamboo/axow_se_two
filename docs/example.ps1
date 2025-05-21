@@ -105,12 +105,12 @@ class axow {
          $this.preview($url, $client_user_agent, $null, $false, $false)
     }
 
-    [void] preview([string]$url, [bool]$client_user_agent, [bool]$unescape) {
-         $this.preview($url, $client_user_agent, $null, $unescape, $false)
+    [void] preview([string]$url, [bool]$client_user_agent, [Nullable[int]]$ttl=$null) {
+         $this.preview($url, $client_user_agent, $ttl, $false, $false)
     }
 
-    [void] preview([string]$url, [bool]$client_user_agent, [bool]$unescape, [bool]$unescaped_unicode) {
-         $this.preview($url, $client_user_agent, $null, $unescape, $unescaped_unicode)
+    [void] preview([string]$url, [bool]$client_user_agent, [Nullable[int]]$ttl=$null, [bool]$unescape) {
+         $this.preview($url, $client_user_agent, $ttl, $unescape, $false)
     }
 
     [void] preview([string]$url, [bool]$client_user_agent=$false, [Nullable[int]]$ttl=$null, [bool]$unescape=$false, [bool]$unescaped_unicode=$false) {
@@ -129,11 +129,11 @@ class axow {
             $queryString += "&cache-ttl=$ttl"
         }
 
-        if ($unescape) {
+        if ($unescape -eq $true) {
             $queryString += "&unescape"
         }
 
-        if ($unescaped_unicode) {
+        if ($unescaped_unicode -eq $true) {
             $queryString += "&unescaped_unicode"
         }
 
