@@ -3,6 +3,8 @@
 ## Assets
 If a content wants to contain a multimedia file that are stored in /static it will get included as base64.
 
+## Requests
+All requests to the API, unless other is specified for that endpoint, takes the `URL-param`/`POST-field` `escape_unicode` which if given will yield responses with escaped unicode chars.
 
 # Auth
 ## Authorize
@@ -65,6 +67,28 @@ Authorization: <string:token>
 
 # URL Preview Fetcher
 GET `api.axow.se/site/url_preview?url=<string:urlencoded>` (Authed)
+```Headers (Request)
+Content-Type: application/json
+Authorization: <string:token>
+```
+Url params:
+- `&cache-ttl=<int>` : How long we want a cache for this url
+- `&client_user_agent` : Should the preview fetch use the clients user-agent
+
+<br>
+
+POST `api.axow.se/site/url_preview` (Authed)
+```Headers (Request)
+Content-Type: application/json
+Authorization: <string:token>
+```
+```json (Request)
+{
+    "url": "<string:url>",
+    "cache-ttl": <int>,
+    "client_user_agent": <optional:any>
+}
+```
 ```json (Response)
 {
     "status": "success"/"failed",
