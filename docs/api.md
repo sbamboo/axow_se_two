@@ -72,8 +72,10 @@ Content-Type: application/json
 Authorization: <string:token>
 ```
 Url params:
-- `&cache-ttl=<int>` : How long we want a cache for this url
+- `&cache-ttl=<int>`   : How long we want a cache for this url
 - `&client_user_agent` : Should the preview fetch use the clients user-agent
+- `&escape_unicode`    : Should unicode be escaped
+- `&oembed_url=<url>`  : A url to use for fetching oEmbed data if no meta tag is found in docs, "%" will be replaced with the content-url.
 
 <br>
 
@@ -86,7 +88,9 @@ Authorization: <string:token>
 {
     "url": "<string:url>",
     "cache-ttl": <int>,
-    "client_user_agent": <optional:any>
+    "client_user_agent": <optional:any>,
+    "escape_unicode": <optional:any>,
+    "oembed_url": "<optional:string:url>"
 }
 ```
 ```json (Response)
@@ -100,6 +104,7 @@ Authorization: <string:token>
     "image": "<optional:string>",
     "url": "<optional:string>",
     "type": "<optional:string=type/card>",
+    "oembed": <optional:json>,
     "was_cached": <bool>,
     "cache_expiry": <epoch>
 }

@@ -126,7 +126,8 @@ function resolve_url($relative, $base) {
 }
 
 // Main HTML parser function
-function parse_html_for_preview($html, $url) {
+function parse_html_for_preview($html, $url, ?string $oEmbed_url = null) {
+    global $SECRETS;
     libxml_use_internal_errors(true);                                   // Disable displaying errors from libxml (Used by DOMDocument)
     $doc = new DOMDocument();                                           // Create a new DOMDocument object
     $loaded = $doc->loadHTML($html, LIBXML_NOERROR | LIBXML_NOWARNING); // Parse the HTML into the DOMDocument, suppressing errors
@@ -150,6 +151,9 @@ function parse_html_for_preview($html, $url) {
     $preview["favicon"] = null;
     $preview["url"] = $url;
     $preview["type"] = null;
+    $preview["oembed"] = null;
+
+    $found_opengraph_or_twitter = false;
 
     // OpenGraph
     $meta_tags = $doc->getElementsByTagName("meta");
@@ -158,6 +162,7 @@ function parse_html_for_preview($html, $url) {
             if ($tag->hasAttribute("property")) {
                 $prop = $tag->getAttribute("property");
                 if (strpos($prop, "og:") === 0) {
+                    $found_opengraph_or_twitter = true;
                     $preview["format"] = "opengraph";
                     $content = $tag->getAttribute("content");
                     if ($prop === "og:title") {
@@ -174,10 +179,6 @@ function parse_html_for_preview($html, $url) {
                 }
             }
         }
-        // If OpenGraph data was found, return early
-        if ($preview["format"] === "opengraph") {
-            return $preview;
-        }
     }
 
     // Twitter Card
@@ -186,7 +187,8 @@ function parse_html_for_preview($html, $url) {
             if ($tag->hasAttribute("name")) {
                 $name = $tag->getAttribute("name");
                 if (strpos($name, "twitter:") === 0) {
-                        $preview["format"] = "twitter";
+                    $found_opengraph_or_twitter = true;
+                    $preview["format"] = "twitter";
                     $content = $tag->getAttribute("content");
                     if ($name === "twitter:title") {
                         $preview["title"] = $content;
@@ -200,50 +202,89 @@ function parse_html_for_preview($html, $url) {
                 }
             }
         }
-        // If TwitterCard data was found, return early
-        if ($preview["format"] === "twitter") {
-            return $preview;
-        }
     }
 
     // oEmbed
     $link_tags = $doc->getElementsByTagName("link");
+    $oEmbed_link = null;
     if ($link_tags->length > 0) {
         foreach ($link_tags as $tag) {
             if ($tag->hasAttribute("type") && $tag->hasAttribute("href")) {
                 $type = $tag->getAttribute("type");
                 if ($type === 'application/json+oembed' || $type === 'text/json+oembed') {
                     $href = $tag->getAttribute("href");
-                    $json = @file_get_contents($href); // Using @ to suppress file_get_contents warnings
-
-                    if ($json !== false) {
-                        $data = json_decode($json, true);
-                        // Check if JSON decoding was successful
-                        if ($data !== null) {
-                            $preview["format"] = "oembed";
-
-                            if (isset($data["title"])) {
-                                $preview["title"] = $data["title"];
-                            }
-
-                            if (isset($data["description"])) {
-                                $preview["description"] = $data["description"];
-                            }
-
-                            if (isset($data["thumbnail_url"])) {
-                                $preview["image"] = resolve_url($data["thumbnail_url"], $base_url);
-                            }
-
-                            if (isset($data["type"])) {
-                                $preview["type"] = $data["type"];
-                            }
-
-                            // Return after finding and processing oEmbed
-                            return $preview;
-                        }
-                    }
+                    $oEmbed_link = $href;
                     // Stop after finding the first oEmbed link
-                    break; 
+                    break;
+                }
+            }
+        }
+    }
+
+    $oembed_autofilled = false;
+    if ($oEmbed_link == null && $oEmbed_url !== null) {
+        if ($oEmbed_url === "auto") {
+            $oembed_autofilled = true;
+            // Guess the oEmbed URL based on the URL
+            $oEmbeds = $SECRETS["oembed_urls_per_provider"]; // "<provider>" => "<oembed_url>" (e.g. "youtube" => "https://www.youtube.com/oembed?url=%&format=json")
+            // if domain main is in the oEmbed list use that provider
+            $parsed_url = parse_url($url);
+            $domain = $parsed_url["host"] ?? null;
+            $domain_parts = explode(".", $domain);
+            // handle if subdomain is present or not
+            if (count($domain_parts) > 2) {
+                $domain = $domain_parts[count($domain_parts) - 2] . "." . $domain_parts[count($domain_parts) - 1];
+            } else {
+                $domain = $domain_parts[count($domain_parts) - 1];
+            }
+            $domain = strtolower($domain);
+            if (isset($oEmbeds[$domain])) {
+                $oEmbed_url = $oEmbeds[$domain];
+            } else {
+                // Fallback to generic oEmbed URL
+                $oEmbed_url = $SECRETS["oembed_generic_url"];
+            }
+        }
+        $oEmbed_link = str_replace('%', rawurlencode($url), $oEmbed_url);
+    }
+
+    if ($oEmbed_link !== null && !empty($oEmbed_link)) {
+            
+        $json = @file_get_contents($oEmbed_link); // Using @ to suppress file_get_contents warnings
+
+        if ($json !== false) {
+            $data = json_decode($json, true);
+            // Check if JSON decoding was successful
+            if ($data !== null) {
+                // Only if we haven't found OpenGraph or TwitterCard data before we map it from the oEmbed
+                if ($found_opengraph_or_twitter === false) {
+                    if ($oembed_autofilled !== true) {
+                        $preview["format"] = "oembed";
+                    }
+
+                    if (isset($data["title"])) {
+                        $preview["title"] = $data["title"];
+                    }
+
+                    if (isset($data["description"])) {
+                        $preview["description"] = $data["description"];
+                    }
+
+                    if (isset($data["thumbnail_url"])) {
+                        $preview["image"] = resolve_url($data["thumbnail_url"], $base_url);
+                    }
+
+                    if (isset($data["type"])) {
+                        $preview["type"] = $data["type"];
+                    }
+                }
+
+                // Save oEmbed payload
+                $preview["oembed_provider"] = $oEmbed_link;
+                $used_keys = ["title", "description", "thumbnail_url", "type"];
+                $oembed_remaining = array_diff_key($data, array_flip($used_keys));
+                if (!empty($oembed_remaining)) {
+                    $preview["oembed"] = $oembed_remaining;
                 }
             }
         }
@@ -253,25 +294,27 @@ function parse_html_for_preview($html, $url) {
     // Fallbacks
 
     //// Title
-    $titles = $doc->getElementsByTagName("title");
-    if ($titles->length > 0) {
-        $preview["title"] = trim($titles[0]->textContent);
-    }
-
-    //// Futher fallback for title (h1, h2, h3, h4, h5, h6)
     if ($preview["title"] === null) {
-        $body = $doc->getElementsByTagName("body")->item(0);
-        if ($body) {
-            $nodes_to_check = ["h1", "h2", "h3", "h4", "h5", "h6"];
-            foreach ($nodes_to_check as $tag_name) {
-                $elements = $body->getElementsByTagName($tag_name);
-                if ($elements->length > 0) {
-                    foreach ($elements as $element) {
-                        $text = trim($element->textContent);
-                        if ($text !== '') {
-                            $preview["title"] = $text;
-                            // Break out of both inner and outer loops
-                            break 2;
+        $titles = $doc->getElementsByTagName("title");
+        if ($titles->length > 0) {
+            $preview["title"] = trim($titles[0]->textContent);
+        }
+
+        //// Futher fallback for title (h1, h2, h3, h4, h5, h6)
+        if ($preview["title"] === null) {
+            $body = $doc->getElementsByTagName("body")->item(0);
+            if ($body) {
+                $nodes_to_check = ["h1", "h2", "h3", "h4", "h5", "h6"];
+                foreach ($nodes_to_check as $tag_name) {
+                    $elements = $body->getElementsByTagName($tag_name);
+                    if ($elements->length > 0) {
+                        foreach ($elements as $element) {
+                            $text = trim($element->textContent);
+                            if ($text !== '') {
+                                $preview["title"] = $text;
+                                // Break out of both inner and outer loops
+                                break 2;
+                            }
                         }
                     }
                 }
@@ -280,29 +323,31 @@ function parse_html_for_preview($html, $url) {
     }
 
     //// Description Meta Tag
-    if ($meta_tags->length > 0) {
-        foreach ($meta_tags as $tag) {
-            if ($tag->hasAttribute("name") && $tag->getAttribute("name") === "description") {
-                $preview["description"] = $tag->getAttribute("content");
-                // Found the description meta tag, no need to continue
-                break;
+    if ($preview["description"] === null) {
+        if ($meta_tags->length > 0) {
+            foreach ($meta_tags as $tag) {
+                if ($tag->hasAttribute("name") && $tag->getAttribute("name") === "description") {
+                    $preview["description"] = $tag->getAttribute("content");
+                    // Found the description meta tag, no need to continue
+                    break;
+                }
             }
         }
-    }
 
-    //// Further fallback for description (p, b, i)
-    if ($preview["description"] === null || empty($preview["description"])) {
-        $body = $doc->getElementsByTagName("body")->item(0);
-        if ($body) {
-            $nodes_to_check = ["p", "b", "i"];
-            foreach ($nodes_to_check as $tag_name) {
-                $elements = $body->getElementsByTagName($tag_name);
-                if ($elements->length > 0) {
-                    foreach ($elements as $element) {
-                        $text = trim($element->textContent);
-                        if ($text !== '') {
-                            $preview["description"] = $text;
-                            break 2; // Break out of both inner and outer loops
+        //// Further fallback for description (p, b, i)
+        if ($preview["description"] === null || empty($preview["description"])) {
+            $body = $doc->getElementsByTagName("body")->item(0);
+            if ($body) {
+                $nodes_to_check = ["p", "b", "i"];
+                foreach ($nodes_to_check as $tag_name) {
+                    $elements = $body->getElementsByTagName($tag_name);
+                    if ($elements->length > 0) {
+                        foreach ($elements as $element) {
+                            $text = trim($element->textContent);
+                            if ($text !== '') {
+                                $preview["description"] = $text;
+                                break 2; // Break out of both inner and outer loops
+                            }
                         }
                     }
                 }
@@ -312,25 +357,29 @@ function parse_html_for_preview($html, $url) {
 
 
     //// Image
-    $images = $doc->getElementsByTagName("img");
-    for ($i = 0; $i < $images->length; $i++) {
-        $src = $images->item($i)->getAttribute("src");
-        if (!empty($src)) {
-            $preview["image"] = resolve_url($src, $base_url);
-            // Found the first image with a src, no need to continue
-            break;
+    if ($preview["image"] === null) {
+        $images = $doc->getElementsByTagName("img");
+        for ($i = 0; $i < $images->length; $i++) {
+            $src = $images->item($i)->getAttribute("src");
+            if (!empty($src)) {
+                $preview["image"] = resolve_url($src, $base_url);
+                // Found the first image with a src, no need to continue
+                break;
+            }
         }
     }
 
     //// Favicon
-    for ($i = 0; $i < $link_tags->length; $i++) {
-        $rel = $link_tags->item($i)->getAttribute("rel");
-        if (strpos($rel, "icon") !== false) {
-            $href = $link_tags->item($i)->getAttribute("href");
-            if (!empty($href)) {
-                $preview["favicon"] = resolve_url($href, $base_url);
-                // Found the first favicon link, no need to continue
-                break;
+    if ($preview["favicon"] === null) {
+        for ($i = 0; $i < $link_tags->length; $i++) {
+            $rel = $link_tags->item($i)->getAttribute("rel");
+            if (strpos($rel, "icon") !== false) {
+                $href = $link_tags->item($i)->getAttribute("href");
+                if (!empty($href)) {
+                    $preview["favicon"] = resolve_url($href, $base_url);
+                    // Found the first favicon link, no need to continue
+                    break;
+                }
             }
         }
     }
@@ -340,7 +389,7 @@ function parse_html_for_preview($html, $url) {
 }
 
 // Function to get the url preview data
-function fetch_url_preview($url, $user_agent, $ttl_seconds) {
+function fetch_url_preview($url, $user_agent, $ttl_seconds, ?string $oEmbed_url = null) {
     list($db, $success, $error_message, $http_code) = get_db();
     if (!$success) {
         return [null, $success, $error_message, $http_code];
@@ -374,7 +423,7 @@ function fetch_url_preview($url, $user_agent, $ttl_seconds) {
         return [null, false, $e->getMessage(), 500]; // HTTP code 500 : Internal Server Error
     }
 
-    $preview = parse_html_for_preview($html, $url);
+    $preview = parse_html_for_preview($html, $url, $oEmbed_url);
     if ($preview === null) {
         return [null, false, "Failed to parse preview from content", 500]; // HTTP code 500 : Internal Server Error
     }
@@ -408,9 +457,17 @@ function req_fetch_url_preview($req_data) {
         die(); //MARK: Should we exit instead?
     }
 
-    // if method is GET ensure url is not url-encoded
+    $oEmbed_url = null;
+    if (isset($req_data["oembed_url"])) {
+        $oEmbed_url = $req_data["oembed_url"];
+    }
+
+    // if method is GET ensure urls are not url-encoded
     if ($_SERVER["REQUEST_METHOD"] === "GET") {
         $request_url = urldecode($request_url);
+        if ($oEmbed_url !== null) {
+            $oEmbed_url = urldecode($oEmbed_url);
+        }
     }
 
     $use_client_user_agent = $req_data["client-user-agent"] ?? false;
@@ -423,7 +480,8 @@ function req_fetch_url_preview($req_data) {
     if (isset($req_data["cache-ttl"])) {
         $ttl_seconds = intval($req_data["cache-ttl"]);
     }
-    list($preview, $success, $error_message, $http_code) = fetch_url_preview($request_url, $user_agent, $ttl_seconds);
+
+    list($preview, $success, $error_message, $http_code) = fetch_url_preview($request_url, $user_agent, $ttl_seconds, $oEmbed_url);
     
     $toret = [
         "status" => $success ? "success" : "failed",

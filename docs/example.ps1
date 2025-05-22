@@ -134,18 +134,22 @@ class axow {
 
 
     [void] preview([string]$url) {
-        $this.preview($url, $false, $null, $false)
+        $this.preview($url, $false, $null, $false, $null)
     }
 
     [void] preview([string]$url, [bool]$client_user_agent) {
-         $this.preview($url, $client_user_agent, $null, $false)
+         $this.preview($url, $client_user_agent, $null, $false, $null)
     }
 
     [void] preview([string]$url, [bool]$client_user_agent, [Nullable[int]]$ttl=$null) {
-         $this.preview($url, $client_user_agent, $ttl, $false)
+         $this.preview($url, $client_user_agent, $ttl, $false, $null)
     }
 
-    [void] preview([string]$url, [bool]$client_user_agent=$false, [Nullable[int]]$ttl=$null, [bool]$escape_unicode=$false) {
+    [void] preview([string]$url, [bool]$client_user_agent, [Nullable[int]]$ttl=$null, [bool]$escape_unicode=$false) {
+         $this.preview($url, $client_user_agent, $ttl, $escape_unicode, $null)
+    }
+
+    [void] preview([string]$url, [bool]$client_user_agent=$false, [Nullable[int]]$ttl=$null, [bool]$escape_unicode=$false, [string]$oEmbed_url=$null) {
         if (-not $this.Token) {
             Write-Host "No token available. Please authenticate first."
             return
@@ -163,6 +167,10 @@ class axow {
 
         if ($escape_unicode -eq $true) {
             $queryString += "&escape_unicode"
+        }
+
+        if ($oEmbed_url -ne $null) {
+            $queryString += "&oembed_url=$([uri]::EscapeDataString($oEmbed_url))"
         }
 
         # Combine the base URL and the query string
