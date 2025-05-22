@@ -5,8 +5,6 @@
 - Currently token type in Auth header is ignored and not checked, should we eother use "Bearier" or the token_type
 
 # Backend
-- url preview oembed additional fields if exists
-- Make permissiondigits based on DB, `get_permissiondigits_length()` (based on number of unique indexes found in the DB), Add fields `index` `digit` to each permission.
 - Implement endpoints
 - Validator for the refresh-token
 - Epoch -> Timestamp? (Y2K38; 2038 32bit epoch overflow)
