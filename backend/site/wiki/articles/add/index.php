@@ -8,4 +8,4 @@ req_require_method("POST");
 
 $decoded_token = req_require_token();
 
-req_require_permission("articles.add", $decoded_token, $decoded_token["usr"]);
+req_require_permission("wiki.add", $decoded_token, $decoded_token["usr"]);
