@@ -8,7 +8,8 @@ static $SECRETS = [
     "refresh_token_expiration" => 86400, // 1 day
 
     "url_preview_default_ttl" => 86400, // 1 day
-
+    "url_preview_max_ttl" => 604800, // 7 days
+    "url_preview_multi_delim" => ";",
 
     "oembed_urls_per_provider" => [
         "youtube"       => "https://www.youtube.com/oembed?url=%s&format=json",

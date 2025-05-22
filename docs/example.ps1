@@ -155,7 +155,7 @@ class axow {
             return
         }
 
-        $queryString = "url=$([uri]::EscapeDataString($url))"
+        $queryString = "urls=$([uri]::EscapeDataString($url))"
 
         if ($client_user_agent) {
             $queryString += "&client_user_agent"

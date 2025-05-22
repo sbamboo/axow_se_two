@@ -447,16 +447,6 @@ function fetch_url_preview($url, $user_agent, $ttl_seconds, ?string $oEmbed_url 
 function req_fetch_url_preview($req_data) {
     global $SECRETS;
 
-    $request_url = $req_data["url"] ?? null;
-    if ($request_url === null) {
-        http_response_code(400); // HTTP code 400 : Bad Request
-        echo format_json_response([
-            "status" => "failed",
-            "msg" => "Invalid request, missing url"
-        ], isset($_REQUEST["escape_unicode"]) ? true : false);
-        die(); //MARK: Should we exit instead?
-    }
-
     $oEmbed_url = null;
     if (isset($req_data["oembed_url"])) {
         $oEmbed_url = $req_data["oembed_url"];
@@ -464,7 +454,12 @@ function req_fetch_url_preview($req_data) {
 
     // if method is GET ensure urls are not url-encoded
     if ($_SERVER["REQUEST_METHOD"] === "GET") {
-        $request_url = urldecode($request_url);
+        if (isset($req_data["url"])) {
+            $req_data["url"] = urldecode($req_data["url"]);
+        }
+        if (isset($req_data["urls"])) {
+            $req_data["urls"] = urldecode($req_data["urls"]);
+        }
         if ($oEmbed_url !== null) {
             $oEmbed_url = urldecode($oEmbed_url);
         }
@@ -481,14 +476,56 @@ function req_fetch_url_preview($req_data) {
         $ttl_seconds = intval($req_data["cache-ttl"]);
     }
 
-    list($preview, $success, $error_message, $http_code) = fetch_url_preview($request_url, $user_agent, $ttl_seconds, $oEmbed_url);
-    
-    $toret = [
-        "status" => $success ? "success" : "failed",
-        "msg" => $success ? "Preview fetched successfully" : $error_message
-    ] + $preview;
+    $request_urls = [];
+    if (isset($req_data["url"])) {
+        $request_urls = [$req_data["url"]];
+    } else if (isset($req_data["urls"])) {
+        $request_urls = explode($SECRETS["url_preview_multi_delim"], $req_data["urls"]);
+    }
+
+    $toret_final = [
+        "status" => "success",
+        "msg" => "",
+        "previews" => []
+    ];
+
+    // Foreach $request_url in $request_urls
+    foreach ($request_urls as $request_url) {
+        $request_url = trim($request_url);
+
+        if ($request_url === null) {
+            http_response_code(400); // HTTP code 400 : Bad Request
+            $toret_final["previews"][] = [
+                "status" => "failed",
+                "msg" => "Invalid request, missing url"
+            ];
+            continue;
+        }
+
+        if ($ttl_seconds > $SECRETS["url_preview_max_ttl"]) {
+            $ttl_seconds = $SECRETS["url_preview_max_ttl"];
+        }
+
+        list($preview, $success, $error_message, $http_code) = fetch_url_preview($request_url, $user_agent, $ttl_seconds, $oEmbed_url);
+        
+        $toret_final["previews"][] = [
+            "status" => $success ? "success" : "failed",
+            "msg" => $success ? "Preview fetched successfully" : $error_message
+        ] + ($preview ?? []);
+        continue;
+    }
+
+    if (count($toret_final["previews"]) === 0) {
+        $toret_final = [
+            "status" => "failed",
+            "msg" => "No previews found"
+        ];
+    } else if (count($toret_final["previews"]) === 1) {
+        $toret_final = $toret_final["previews"][0];
+    }
+
     http_response_code($http_code);
-    echo format_json_response($toret, isset($_REQUEST["escape_unicode"]) ? true : false);
+    echo format_json_response($toret_final, isset($_REQUEST["escape_unicode"]) ? true : false);
     die(); //MARK: Should we exit instead?
 }
 #endregion
