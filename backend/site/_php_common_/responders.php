@@ -94,7 +94,12 @@ function req_require_token($type=null) {
     }
 
     // Validate if the token is assigned to a user and that the tokens "usr" field matches
-    list($user, $success, $msg, $http_code) = validate_token_ownership($decoded_token);
+    list($user, $success, $msg, $http_code) = [null, null, null, null];
+    if ($type == "refresh" && $decoded_token["tt"] == 0) {
+        list($user, $success, $msg, $http_code) = validate_refresh_token_ownership($decoded_token);
+    } else {
+        list($user, $success, $msg, $http_code) = validate_token_ownership($decoded_token);
+    }
     if (!$success) {
         req_send(false, $msg, $http_code);
     }

@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS user_permissions (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     string VARCHAR(255) NOT NULL UNIQUE, -- e.g., 'articles.add'
-    index INT NOT NULL,
+    digit_index INT NOT NULL,
     digit INT NOT NULL
 );
 

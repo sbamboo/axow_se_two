@@ -43,14 +43,14 @@ function get_permissiondigits_length() {
         return [false, $db_msg, $db_http_code];
     }
 
-    $query = "SELECT MAX(`index`) AS max_index FROM user_permissions";
+    $query = "SELECT MAX(`digit_index`) AS max_index FROM user_permissions";
     $result = $db->query($query);
     if (!$result) {
         return [false, "DB query failed", 500];
     }
 
     $row = $result->fetch_assoc();
-    $max_index = isset($row['max_index']) ? (int)$row['max_index'] : 0;
+    $max_index = isset($row["max_index"]) ? (int)$row["max_index"] : 0;
 
     return [$max_index + 1, null, null];
 }
@@ -62,7 +62,7 @@ function load_permissions_mapping() {
         return [false, $db_msg, $db_http_code];
     }
 
-    $query = "SELECT `string`, `index`, `digit` FROM user_permissions";
+    $query = "SELECT `string`, `digit_index`, `digit` FROM user_permissions";
     $result = $db->query($query);
     if (!$result) {
         return [false, "DB query failed", 500];
@@ -72,11 +72,11 @@ function load_permissions_mapping() {
     $index_digit_to_string = [];
 
     while ($row = $result->fetch_assoc()) {
-        $str = $row['string'];
-        $idx = (int)$row['index'];
-        $dig = (int)$row['digit'];
+        $str = $row["string"];
+        $idx = (int)$row["digit_index"];
+        $dig = (int)$row["digit"];
 
-        $string_to_index_digit[$str] = ['index' => $idx, 'digit' => $dig];
+        $string_to_index_digit[$str] = ["digit_index" => $idx, "digit" => $dig];
         $index_digit_to_string[$idx][$dig] = $str;
     }
 
@@ -100,8 +100,8 @@ function permission_array_to_digits($permissions) {
 
     foreach ($permissions as $perm_str) {
         if (isset($string_to_index_digit[$perm_str])) {
-            $idx = $string_to_index_digit[$perm_str]['index'];
-            $dig = $string_to_index_digit[$perm_str]['digit'];
+            $idx = $string_to_index_digit[$perm_str]["digit_index"];
+            $dig = $string_to_index_digit[$perm_str]["digit"];
             $permissions_array[$idx] = (string)$dig;
         }
     }

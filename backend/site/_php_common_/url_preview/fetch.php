@@ -48,7 +48,7 @@ function cache_clean_expired($db) {
 function cache_check($db, $url) {
     $url_hash = md5($url);
     $stmt = $db->prepare("SELECT previewdata,expires_at FROM url_previewdata_cache WHERE url_hash = ? AND expires_at > NOW()");
-    $stmt->bind_param('s', $url_hash);
+    $stmt->bind_param("s", $url_hash);
     $stmt->execute();
     $stmt->bind_result($previewdata_json, $expires_at);
     $stmt->fetch();
@@ -64,7 +64,7 @@ function cache_check($db, $url) {
 // Function to store previewdata for a URL in the cache with a specified TTL
 function cache_store($db, $url, $previewdata, $ttl_seconds) {
     $url_hash = md5($url);
-    $expires_at = gmdate('Y-m-d H:i:s', time() + $ttl_seconds);
+    $expires_at = gmdate("Y-m-d H:i:s", time() + $ttl_seconds);
     $stmt = $db->prepare(
         "INSERT INTO url_previewdata_cache (url_hash, url, previewdata, expires_at)
          VALUES (?, ?, ?, ?)
@@ -77,7 +77,7 @@ function cache_store($db, $url, $previewdata, $ttl_seconds) {
         return false;
     }
     $previewdata_json = json_encode($previewdata);
-    $stmt->bind_param('ssss', $url_hash, $url, $previewdata_json, $expires_at);
+    $stmt->bind_param("ssss", $url_hash, $url, $previewdata_json, $expires_at);
     $stmt->execute();
     $stmt->close();
     return true;
@@ -102,7 +102,7 @@ function fetch_html($url, $user_agent) {
     if ($html === false) {
         $error = error_get_last();
         if ($error !== null) {
-            return [null, rtrim(preg_replace('/^file_get_contents\(.*?\):\s*/', '', $error["message"] ?? "Unknown error"), "\r\n")];
+            return [null, rtrim(preg_replace('/^file_get_contents\(.*?\):\s*/', "", $error["message"] ?? "Unknown error"), "\r\n")];
         } else {
             return [null, "Unknown error occurred while fetching the URL"];
         }
@@ -211,7 +211,7 @@ function parse_html_for_preview($html, $url, ?string $oEmbed_url = null) {
         foreach ($link_tags as $tag) {
             if ($tag->hasAttribute("type") && $tag->hasAttribute("href")) {
                 $type = $tag->getAttribute("type");
-                if ($type === 'application/json+oembed' || $type === 'text/json+oembed') {
+                if ($type === "application/json+oembed" || $type === "text/json+oembed") {
                     $href = $tag->getAttribute("href");
                     $oEmbed_link = $href;
                     // Stop after finding the first oEmbed link
@@ -245,7 +245,7 @@ function parse_html_for_preview($html, $url, ?string $oEmbed_url = null) {
                 $oEmbed_url = $SECRETS["oembed_generic_url"];
             }
         }
-        $oEmbed_link = str_replace('%', rawurlencode($url), $oEmbed_url);
+        $oEmbed_link = str_replace("%", rawurlencode($url), $oEmbed_url);
     }
 
     if ($oEmbed_link !== null && !empty($oEmbed_link)) {
@@ -310,7 +310,7 @@ function parse_html_for_preview($html, $url, ?string $oEmbed_url = null) {
                     if ($elements->length > 0) {
                         foreach ($elements as $element) {
                             $text = trim($element->textContent);
-                            if ($text !== '') {
+                            if ($text !== "") {
                                 $preview["title"] = $text;
                                 // Break out of both inner and outer loops
                                 break 2;
@@ -344,7 +344,7 @@ function parse_html_for_preview($html, $url, ?string $oEmbed_url = null) {
                     if ($elements->length > 0) {
                         foreach ($elements as $element) {
                             $text = trim($element->textContent);
-                            if ($text !== '') {
+                            if ($text !== "") {
                                 $preview["description"] = $text;
                                 break 2; // Break out of both inner and outer loops
                             }
