@@ -23,5 +23,5 @@ static $SECRETS = [
         "imgur"         => "https://api.imgur.com/oembed?url=%s"
     ],
 
-    "oembed_generic_url" => "https://noembed.com/embed?url=%s",
+    "oembed_generic_url" => "https://noembed.com/embed?url=%s"
 ];

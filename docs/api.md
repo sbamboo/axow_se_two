@@ -438,20 +438,6 @@ GET `api.axow.se/site/projects/axo77_server`
 
 # Chibit storage
 ## Get repository
-GET `api.axow.se/site/chibits/?repo=<string:repo>&cat_filter=<string:optional>`
-```json (Response)
-{
-    "status": "success"/"failed",
-    "msg": "<string:optional>",
-    "<string:repo>": {
-        "<string:group>": {
-            "<string:chibit_uuid>": "<string:chibit_entry_url>",
-            ...
-        }
-        ...
-    }
-}
-```
 GET `api.axow.se/site/chibits/?repo=<string:repo>&category=<string:category>`
 ```json (Response)
 {
