@@ -71,5 +71,5 @@ if ($include_entries === false) {
 
     http_response_code(200);
     echo format_json_response($chibits);
-    die();
+    die(); //MARK: Should we exit instead?
 }

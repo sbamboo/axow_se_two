@@ -1,0 +1,130 @@
+{
+    "history": {
+        /*
+        "Ca 2015": {
+            "title": "Server Origins",
+            "description": "The first iteration of the server started as a small vanilla server for friends."
+        },
+        "Early 2018": {
+            "title": "Community Growth",
+            "description": "Server expanded to include more players and basic plugins for protection and economy."
+        },
+        "Late 2019": {
+            "title": "Major Upgrade",
+            "description": "Implemented custom plugins and started using dedicated hosting for better performance."
+        },
+        "17 Jan 2022": {
+            "title": "Technical Overhaul",
+            "description": "Migrated to Paper and implemented various optimization techniques for improved stability."
+        },
+        "5 Jul 2024": {
+            "title": "Fabric Migration",
+            "description": "Switched to Fabric for better performance and vanilla-like redstone behavior. New hosting provider for enhanced reliability."
+        },
+        "1 Dec 2024": {
+            "title": "New Host",
+            "description": "Updated to 1.21.3 with new features and improvements. Server is now hosted by @PigiBlossom with enhanced stability."
+        }
+        */
+    
+        "unknown1": {
+            "title": "The Redstonia Period",
+            "description": ""
+        },
+        "unknown2": {
+            "title": "Gamla Centrum Days",
+            "description": ""
+        },
+        "unknown3": {
+            "title": "Freelands Tiden",
+            "description": ""
+        },
+        "unknown4": {
+            "title": "Nyare Gamla Centrum Days",
+            "description": ""
+        },
+        "unknown5": {
+            "title": "Kayo Beach Start",
+            "description": ""
+        },
+        "unknown6": {
+            "title": "Kayo Beach Golden Days",
+            "description": ""
+        },
+        "unknown7": {
+            "title": "Skånska Året",
+            "description": ""
+        },
+        "unknown8": {
+            "title": "The Middleages",
+            "description": ""
+        },
+        "unknown9": {
+            "title": "A Taste Of KorvCraft",
+            "description": ""
+        },
+        "unknown10": {
+            "title": "Bits and Bobs",
+            "description": ""
+        },
+        "unknown11": {
+            "title": "The Spawn Move",
+            "description": ""
+        },
+        "unknown12": {
+            "title": "Vicy Islands Founding",
+            "description": ""
+        },
+        "unknown13": {
+            "title": "Vicy Islands Golden Days",
+            "description": ""
+        },
+        "unknown14": {
+            "title": "A Storm Arrives",
+            "description": ""
+        },
+        "unknown15": {
+            "title": "Youtube Time",
+            "description": ""
+        },
+        "unknown16": {
+            "title": "Some New Life",
+            "description": ""
+        },
+        "unknown17": {
+            "title": "The Arrival Of Athians",
+            "description": ""
+        }
+    },
+    
+    "media": {
+        "carusell": [
+            {
+                "type": "wiki",
+                "category": "pois",
+                "page": "tree_of_life",
+                "media": "$pois/tree_of_life/banner.png",
+                "description": "%meta.title%"
+            },
+            {
+                "type": "wiki",
+                "category": "pois",
+                "page": "lithil_campfire",
+                "media": "$pois/lithil_campfire/banner.png",
+                "description": "%meta.title%"
+            },
+            {
+                "type": "wiki",
+                "category": "pois",
+                "page": "oldc_towncenter",
+                "media": "$pois/oldc_towncenter/banner.png",
+                "description": "%meta.title%"
+            },
+            {
+                "type": "image",
+                "media": "https://sbamboo.github.io/theaxolot77/assets/articles/banners/mc_server_1.21.png",
+                "description": "A trial chamber ¯\\_(ツ)_/¯"
+            }
+        ]
+    }
+}

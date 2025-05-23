@@ -4,8 +4,8 @@
  * @brief This file contains functions to handle the data nodes.
  */
 
-require_once("../_php_common_/secret_config.php");
-require_once("../_php_common_/libs/php-json-comment.php");
+require_once("secret_config.php");
+require_once("libs/php-json-comment.php");
 
 // Function to normalize a path to "<api_root>/" for "./"
 function normalize_path_to_api_root($path) {
