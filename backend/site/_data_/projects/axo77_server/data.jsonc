@@ -1,101 +1,153 @@
 {
-    "history": {
+    "history": [
         /*
-        "Ca 2015": {
+        {
+            "date": "Ca 2015",
+            "date_format": "text",
             "title": "Server Origins",
             "description": "The first iteration of the server started as a small vanilla server for friends."
         },
-        "Early 2018": {
+        {
+            "date": "Early 2018",
+            "date_format": "text",
             "title": "Community Growth",
             "description": "Server expanded to include more players and basic plugins for protection and economy."
         },
-        "Late 2019": {
+        {
+            "date": "Late 2019",
+            "date_format": "text",
             "title": "Major Upgrade",
             "description": "Implemented custom plugins and started using dedicated hosting for better performance."
         },
-        "17 Jan 2022": {
+        {
+            "date": "17 Jan 2022",
+            "date_format": "text",
             "title": "Technical Overhaul",
             "description": "Migrated to Paper and implemented various optimization techniques for improved stability."
         },
-        "5 Jul 2024": {
+        {
+            "date": "5 Jul 2024",
+            "date_format": "text",
             "title": "Fabric Migration",
             "description": "Switched to Fabric for better performance and vanilla-like redstone behavior. New hosting provider for enhanced reliability."
         },
-        "1 Dec 2024": {
+        {
+            "date": "1 Dec 2024",
+            "date_format": "text",
             "title": "New Host",
             "description": "Updated to 1.21.3 with new features and improvements. Server is now hosted by @PigiBlossom with enhanced stability."
         }
         */
-    
-        "unknown1": {
+
+        {
+            "date": "unknown1",
+            "date_format": "text",
             "title": "The Redstonia Period",
             "description": ""
         },
-        "unknown2": {
+        {
+            "date": "unknown2",
+            "date_format": "text",
             "title": "Gamla Centrum Days",
             "description": ""
         },
-        "unknown3": {
+        {
+            "date": "unknown3",
+            "date_format": "text",
             "title": "Freelands Tiden",
             "description": ""
         },
-        "unknown4": {
+        {
+            "date": "unknown4",
+            "date_format": "text",
             "title": "Nyare Gamla Centrum Days",
             "description": ""
         },
-        "unknown5": {
+        {
+            "date": "unknown5",
+            "date_format": "text",
             "title": "Kayo Beach Start",
             "description": ""
         },
-        "unknown6": {
+        {
+            "date": "unknown6",
+            "date_format": "text",
             "title": "Kayo Beach Golden Days",
             "description": ""
         },
-        "unknown7": {
+        {
+            "date": "unknown7",
+            "date_format": "text",
             "title": "Skånska Året",
             "description": ""
         },
-        "unknown8": {
+        {
+            "date": "unknown8",
+            "date_format": "text",
             "title": "The Middleages",
             "description": ""
         },
-        "unknown9": {
+        {
+            "date": "unknown9",
+            "date_format": "text",
             "title": "A Taste Of KorvCraft",
             "description": ""
         },
-        "unknown10": {
+        {
+            "date": "unknown10",
+            "date_format": "text",
             "title": "Bits and Bobs",
             "description": ""
         },
-        "unknown11": {
+        {
+            "date": "unknown11",
+            "date_format": "text",
             "title": "The Spawn Move",
             "description": ""
         },
-        "unknown12": {
+        {
+            "date": "unknown12",
+            "date_format": "text",
             "title": "Vicy Islands Founding",
             "description": ""
         },
-        "unknown13": {
+        {
+            "date": "unknown13",
+            "date_format": "text",
             "title": "Vicy Islands Golden Days",
             "description": ""
         },
-        "unknown14": {
+        {
+            "date": "unknown14",
+            "date_format": "text",
             "title": "A Storm Arrives",
             "description": ""
         },
-        "unknown15": {
+        {
+            "date": "unknown15",
+            "date_format": "text",
             "title": "Youtube Time",
             "description": ""
         },
-        "unknown16": {
+        {
+            "date": "unknown16",
+            "date_format": "text",
             "title": "Some New Life",
             "description": ""
         },
-        "unknown17": {
+        {
+            "date": "unknown17",
+            "date_format": "text",
             "title": "The Arrival Of Athians",
             "description": ""
+        },
+        {
+            "date": "unknown18",
+            "date_format": "text",
+            "title": "The first kingdome",
+            "description": "The founding of The Kingdom of Uluf, by @cheesenodels and @jabbadagay."
         }
-    },
+    ],
     
     "media": {
         "carusell": [

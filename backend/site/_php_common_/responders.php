@@ -9,12 +9,26 @@ require_once("requests.php");
 require_once("user.php");
 
 // Function to send a JSON response and terminate the script
-function req_send($success, $msg, $http_code) {
+function req_send($success, $msg, $http_code, $data=null) {
+    // If incomming $data is not null and is of type "string" json_decode
+    if ($data !== null && is_string($data)) {
+        $decoded_data = json_decode($data, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $msg = "JSON error in response creation: " . json_last_error_msg();
+            $success = false;
+            $http_code = 500; // HTTP code 500 : Internal Server Error
+            $data = null;
+        } else {
+            $data = $decoded_data;
+        }
+    }
+
     http_response_code($http_code);
-    echo format_json_response([
+    $data = array_merge([
         "status" => $success ? "success" : "failed",
         "msg" => $msg,
-    ], isset($_REQUEST["escape_unicode"]) ? true : false);
+    ], $data ?? []);
+    echo format_json_response($data, isset($_REQUEST["escape_unicode"]) ? true : false);
     die(); //MARK: Should we exit instead?
 }
 
@@ -174,14 +188,7 @@ function req_get_new_token($token_type, $data, $is_refresh=false) {
         req_send(false, $msg, $http_code);
     }
 
-    http_response_code(200);
-    $token_data["status"] = $success ? "success" : "failed";
-    $token_data["msg"] = $msg;
-    if ($is_refresh) {
-        $token_data["msg"] = "Token refreshed successfully";
-    }
-    echo format_json_response($token_data, isset($_REQUEST["escape_unicode"]) ? true : false);
-    die(); //MARK: Should we exit instead?
+    req_send($success, $msg, 200, $token_data);
 }
 
 // Function to invalidate a token
@@ -224,11 +231,7 @@ function req_refresh_pair_token($refresh_token) {
     }
 
     // Return the new tokens to the user
-    http_response_code(200);
-    $token_data["status"] = $success ? "success" : "failed";
-    $token_data["msg"] = $msg;
-    echo format_json_response($token_data, isset($_REQUEST["escape_unicode"]) ? true : false);
-    die(); //MARK: Should we exit instead?
+    req_send($success, $msg, 200, $token_data);
 }
 
 // Function to change a user username

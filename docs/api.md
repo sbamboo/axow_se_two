@@ -408,9 +408,9 @@ GET `api.axow.se/site/projects/axo77_server`
 {
     "status": "success"/"failed",
     "msg": "<string:optional>",
-    "timeline": [
+    "history": [
         {
-            "date": <epoch>,
+            "date": <epoch>/"<string>",
             "date_format": "<string:date_format>",
             "title": "<string>",
             "description": "<string>"
@@ -438,6 +438,20 @@ GET `api.axow.se/site/projects/axo77_server`
 
 # Chibit storage
 ## Get repository
+GET `api.axow.se/site/chibits/?repo=<string:repo>`
+```json (Response)
+{
+    "status": "success"/"failed",
+    "msg": "<string:optional>",
+    "<string:repo>": {
+        "<string:category>": {
+            "<string:chibit_uuid>": "<string:chibit_entry_url>",
+            ...
+        },
+        ...
+    }
+}
+```
 GET `api.axow.se/site/chibits/?repo=<string:repo>&category=<string:category>`
 ```json (Response)
 {
@@ -457,12 +471,10 @@ GET `api.axow.se/site/chibits/?repo=<string:repo>&include_entries=true`
     "status": "success"/"failed",
     "msg": "<string:optional>",
     "<string:repo>": {
-        "group": "axo77",
-        "entries": {
+        "<string:category>": {
             "<string:chibit_uuid>": {...chibit_entry_data...},
             ...
-        },
-        ...
+        }
     }
 }
 ```

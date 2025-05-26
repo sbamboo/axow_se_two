@@ -56,9 +56,7 @@ if ($node_config["repos"][$repo]["version"] == "v2") {
 
 // If $include_entries is true, fetch the data for each chibit in the repo_data else just return the repo_data
 if ($include_entries === false) {
-    http_response_code(200);
-    echo format_json_response($repo_data);
-    die(); //MARK: Should we exit instead?   
+    req_send(true, "", 200, [$repo => $repo_data]); // HTTP code 200 : OK
 } else {
     $chibits = [];
     foreach ($repo_data as $chibit_uuid => $chibit_json_entry_url) {
@@ -69,7 +67,5 @@ if ($include_entries === false) {
         $chibits[$chibit_uuid] = $chibit_data;
     }
 
-    http_response_code(200);
-    echo format_json_response($chibits);
-    die(); //MARK: Should we exit instead?
+    req_send(true, "", 200, [$repo => $chibits]); // HTTP code 200 : OK
 }
