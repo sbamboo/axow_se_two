@@ -443,39 +443,76 @@ GET `api.axow.se/site/chibits/?repo=<string:repo>`
 {
     "status": "success"/"failed",
     "msg": "<string:optional>",
-    "<string:repo>": {
-        "<string:category>": {
-            "<string:chibit_uuid>": "<string:chibit_entry_url>",
+    "repos": {
+        "<string:repo>": {
+            "<string:category>": {
+                "<string:chibit_uuid>": "<string:chibit_entry_url>",
+                ...
+            },
             ...
-        },
-        ...
+        }
     }
 }
 ```
+## Get repository, filtered for a specific category
 GET `api.axow.se/site/chibits/?repo=<string:repo>&category=<string:category>`
 ```json (Response)
 {
     "status": "success"/"failed",
     "msg": "<string:optional>",
-    "<string:repo>": {
-        "<string:category>": {
-            "<string:chibit_uuid>": "<string:chibit_entry_url>",
-            ...
+    "repos": {
+        "<string:repo>": {
+            "<string:category>": {
+                "<string:chibit_uuid>": "<string:chibit_entry_url>",
+                ...
+            }
         }
     }
 }
 ```
+## Get repository, with all the entries included
 GET `api.axow.se/site/chibits/?repo=<string:repo>&include_entries=true`
 ```json (Response)
 {
     "status": "success"/"failed",
     "msg": "<string:optional>",
-    "<string:repo>": {
-        "<string:category>": {
-            "<string:chibit_uuid>": {...chibit_entry_data...},
+    "repos": {
+        "<string:repo>": {
+            "<string:category>": {
+                "<string:chibit_uuid>": {...chibit_entry_data...},
+                ...
+            }
+        }
+    }
+}
+```
+## Get repository, filtered for a specific entry
+GET `api.axow.se/site/chibits/?repo=<string:repo>&entry=<string:chibit_uuid>`
+```json (Response)
+{
+    "status": "success"/"failed",
+    "msg": "<string:optional>",
+    "repos": {
+        "<string:repo>": {
+            "<string:category>": {
+                "<string:chibit_uuid>": {...chibit_entry_data...}
+            },
             ...
         }
     }
+}
+```
+## List all repositories and their type and optionally categories
+GET `api.axow.se/site/chibits/repos`
+```json (Response)
+{
+    "status": "success"/"failed",
+    "msg": "<string:optional>",
+    "<string:repo>": {
+        "version": "v1"/"v2",
+        "categories": ["<string:category>",...]
+    },
+    ...
 }
 ```
 <br><br>
@@ -837,6 +874,19 @@ GET `api.axow.se/site/profiles/get?id=<string:profile_id_with_@>`
             "<string:context>": "<string>"
             ...
         }
+    }
+}
+```
+
+## Resolve profile names
+GET `api.axow.se/site/profiles/resolve?ids=<string:profile_id_with_@_sepparated_by_commas>`
+```json (Response)
+{
+    "status": "success"/"failed",
+    "msg": "<string:optional>",
+    "profiles": {
+        "<string:profile_id_with_@>": "<string:name>",
+        ...
     }
 }
 ```

@@ -6,6 +6,8 @@
 - Replace ' with "
 
 # Backend
+- wiki shorthands for $<cat>/<article> and property %<prop>% handled in frontend probably? but needs backend support (prob use $<wiki>:<cat>/<article>)
+- urlpreviews /Projects/axo for media based on media types
 - Implement endpoints
 - Epoch -> ? (Y2K38; 2038 32bit epoch overflow)
 

@@ -1,6 +1,10 @@
 backend/
 └── site/
-    ├── _data_/...             <- Contains all data nodes
+    ├── _data_/                <- Contains all data nodes
+    │   └── .../
+    │       ├── data/...       <- Contains a data nodes data-files
+    │       ├── data.jsonc     <- (Optional) Contains JSON data/indexing for a data-node
+    │       └── config.jsonc   <- (Optional) Contains JSON config information for a data-node
     ├── _php_common_/
     │   ├── url_preview/
     │   │   └── fetch.php      <- contains logic for getting url previews
@@ -10,8 +14,8 @@ backend/
     │   ├── jwt.php            <- contains JwtToken classes
     │   ├── permissions.php    <- contains helper functions for the digit-based permission system
     │   ├── requests.php       <- contains helper functions for interacting as a rest api
-    │   └── responders.php     <- contains function wrappers that auto respond with JSON
-    │   └── secret_config.php  <- contains configuration
+    │   ├── responders.php     <- contains function wrappers that auto respond with JSON
+    │   ├── secret_config.php  <- contains configuration
     │   └── user.php           <- contains user management functions
     ├── _db_/
     │   ├── schema.sql         <- A schema/sql-setup describing the auth database
@@ -30,7 +34,7 @@ backend/
     |   └── change_password/
     |       └── index.php      <- Endpoint
     ├── url_preview/
-    │   └── index.php          <- URL Preview Endpoint
+    │   └── index.php          <- Endpoint
     ├── articles/
     │   ├── categories/
     │   │   ├── get/
@@ -65,11 +69,15 @@ backend/
     │   └── remove/
     │       └── index.php      <- Endpoint
     ├── chibits/
+    │   ├── repos/
+    │   │   └── index.php      <- Endpoint
     │   └── index.php          <- Endpoint
     ├── profiles/
     │   ├── get/
     │   │   └── index.php      <- Endpoint
     │   ├── getAll/
+    │   │   └── index.php      <- Endpoint
+    │   ├── resolve/
     │   │   └── index.php      <- Endpoint
     │   ├── add/
     │   │   └── index.php      <- Endpoint

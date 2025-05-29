@@ -1,9 +1,9 @@
 <?php
 header("Content-Type: application/json; charset=utf-8");
 
-require_once("../../_php_common_/env.php");
-require_once("../../_php_common_/responders.php");
-require_once("../../_php_common_/data_nodes.php");
+require_once(__DIR__ . "/../../_php_common_/env.php");
+require_once(__DIR__ . "/../../_php_common_/responders.php");
+require_once(__DIR__ . "/../../_php_common_/data_nodes.php");
 
 req_require_method("GET");
 
@@ -13,15 +13,10 @@ if ($profiles === null) {
     req_send(false, $msg, 500); // HTTP code 500 : Internal Server Error
 }
 
-// Filter for .json / .jsonc / .json5 files only
-$filtered_profiles = array_filter($profiles, function($file) {
-    return preg_match('/\.(json|jsonc|json5)$/', $file);
-});
-
 // Return the name of each profile file prepended with the "@" prefix
 $profile_names = array_map(function($file) {
     return "@" . basename($file, "." . pathinfo($file, PATHINFO_EXTENSION));
-}, $filtered_profiles);
+}, $profiles);
 
 // Get only values of the above
 $profile_names = array_values($profile_names);

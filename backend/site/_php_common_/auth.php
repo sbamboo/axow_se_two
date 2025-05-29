@@ -143,7 +143,7 @@ function validate_token_user($decoded_token) {
 function validate_user_credentials($data) {
     // Validate the username and password are not empty or null
     if (!isset($data["username"]) || !isset($data["password"])) {
-        return [null, false, "Missing username or password", 400]; // HTTP code 400 : Bad Request
+        return [null, false, "Missing username or password", 401]; // HTTP code 401 : Unauthorized
     }
 
     // Get the DB
@@ -186,7 +186,7 @@ function get_new_token($token_type, $userid) {
 
     // Validate the token type input
     if (!isset($token_type)) {
-        return [false, "Missing token-type", 400]; // HTTP code 400 : Bad Request
+        return [false, "Missing token-type", 401]; // HTTP code 401 : Unauthorized
     }
     $token_type_lower = strtolower($token_type);
 
@@ -299,7 +299,7 @@ function get_new_token($token_type, $userid) {
 
     } else {
         $db->close();
-        return [null, false, "Invalid token type", 400]; // HTTP code 400 : Bad Request
+        return [null, false, "Invalid token type", 401]; // HTTP code 401 : Unauthorized
     }
 }
 
@@ -352,7 +352,7 @@ function invalidate_token($token, $invalidate_all=false) {
 
         return [true, "Token invalidated", 200]; // HTTP code 200 : OK
     } else {
-        return [false, "Invalid token type", 400]; // HTTP code 400 : Bad Request
+        return [false, "Invalid token type", 401]; // HTTP code 401 : Unauthorized
     }
 }
 

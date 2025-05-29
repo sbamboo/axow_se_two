@@ -58,7 +58,7 @@ function req_require_auth_header($type=null) {
     }
 
     if ($type !== $type) {
-        req_send(false, "Invalid token type, $type required.", 400); // HTTP code 400 : Bad Request
+        req_send(false, "Invalid token type, $type required.", 401); // HTTP code 401 : Unauthorized
     }
 
     return [$token, $type];

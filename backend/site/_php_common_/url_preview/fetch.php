@@ -28,9 +28,9 @@
     
 */
 
-require_once("../_php_common_/secret_config.php");
-require_once("../_php_common_/requests.php"); 
-require_once("../_php_common_/db.php"); 
+require_once(__DIR__ . "/../secret_config.php");
+require_once(__DIR__ . "/../requests.php"); 
+require_once(__DIR__ . "/../db.php"); 
 
 #region Cache Actions
 // Function to clean expired cache entries

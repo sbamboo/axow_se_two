@@ -53,7 +53,7 @@ function get_auth_header() {
     $auth_header = $headers["Authorization"] ?? "";
     
     if (empty($auth_header)) {
-        return [null, null, false, "Authorization header not found", 400]; // HTTP code 400 : Bad Request
+        return [null, null, false, "Authorization header not found", 401]; // HTTP code 401 : Unauthorized
     }
     
     // if " " in the token, split it
