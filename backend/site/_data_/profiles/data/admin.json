@@ -1,0 +1,22 @@
+{
+    "name": "Admin",
+    "image": "profile.png",
+    "description": "Site admin",
+    "title": "Admin",
+    "socials": {
+        "github":  "",
+        "discord": "",
+        "discord-server": "",
+        "twitch": "",
+        "youtube": "",
+        "bluesky": "",
+        "twitter": "",
+        "instagram": "",
+        "pinterest": "",
+        "email": "",
+        "domain": ""
+    },
+    "sections": {
+        "wiki": "Wiki admin"
+    }
+}

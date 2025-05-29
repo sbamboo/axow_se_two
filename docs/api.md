@@ -810,7 +810,7 @@ GET `api.axow.se/site/profiles/getAll`
 ```
 
 ## Get a profile
-GET `api.axow.se/site/profiles/get?id=<string:profile_id_with_@>&contexts=<string:optional:comma_list>&social_filters=<string:optional:comma_list>`
+GET `api.axow.se/site/profiles/get?id=<string:profile_id_with_@>`
 ```json (Response)
 {
     "status": "success"/"failed",
@@ -837,17 +837,6 @@ GET `api.axow.se/site/profiles/get?id=<string:profile_id_with_@>&contexts=<strin
             "<string:context>": "<string>"
             ...
         }
-    },
-    "url_previews": {
-        "<string:url>": {
-            "type": "twitter"/"opengraph",
-            "title": "<string>",
-            "description": "<string>",
-            "image": "<string>",
-            "url": "<string>",
-            "type": "<string=type/card>"
-        },
-        ...
     }
 }
 ```

@@ -20,8 +20,11 @@ $filtered_profiles = array_filter($profiles, function($file) {
 
 // Return the name of each profile file prepended with the "@" prefix
 $profile_names = array_map(function($file) {
-    return "@" . basename($file, pathinfo($file, PATHINFO_EXTENSION));
+    return "@" . basename($file, "." . pathinfo($file, PATHINFO_EXTENSION));
 }, $filtered_profiles);
+
+// Get only values of the above
+$profile_names = array_values($profile_names);
 
 // Respond with the list of profile names
 req_send(true, "Successfully retrieved profile names", 200, ["profiles" => $profile_names]); // HTTP code 200 : OK

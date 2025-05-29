@@ -444,13 +444,32 @@ function fetch_url_preview($url, $user_agent, $ttl_seconds, ?string $oEmbed_url 
 #endregion
 
 #region Responders
-function req_fetch_url_preview($req_data) {
+function extract_url_params_for_url_preview($req_data) {
     global $SECRETS;
+    
+    $use_client_user_agent = $req_data["client-user-agent"] ?? false;
+    $user_agent = "MetadataFetcher/1.0";
+    if ($use_client_user_agent && isset($_SERVER["HTTP_USER_AGENT"])) {
+        $user_agent = $_SERVER["HTTP_USER_AGENT"];
+    }
+
+    $ttl_seconds = $SECRETS["url_preview_default_ttl"];
+    if (isset($req_data["cache-ttl"])) {
+        $ttl_seconds = intval($req_data["cache-ttl"]);
+    }
 
     $oEmbed_url = null;
     if (isset($req_data["oembed_url"])) {
         $oEmbed_url = $req_data["oembed_url"];
     }
+
+    return [$user_agent, $ttl_seconds, $oEmbed_url];
+}
+
+function req_fetch_url_preview($req_data) {
+    global $SECRETS;
+
+    list($user_agent, $ttl_seconds, $oEmbed_url) = extract_url_params_for_url_preview($req_data);
 
     // if method is GET ensure urls are not url-encoded
     if ($_SERVER["REQUEST_METHOD"] === "GET") {
@@ -463,17 +482,6 @@ function req_fetch_url_preview($req_data) {
         if ($oEmbed_url !== null) {
             $oEmbed_url = urldecode($oEmbed_url);
         }
-    }
-
-    $use_client_user_agent = $req_data["client-user-agent"] ?? false;
-    $user_agent = "MetadataFetcher/1.0";
-    if ($use_client_user_agent && isset($_SERVER["HTTP_USER_AGENT"])) {
-        $user_agent = $_SERVER["HTTP_USER_AGENT"];
-    }
-
-    $ttl_seconds = $SECRETS["url_preview_default_ttl"];
-    if (isset($req_data["cache-ttl"])) {
-        $ttl_seconds = intval($req_data["cache-ttl"]);
     }
 
     $request_urls = [];
