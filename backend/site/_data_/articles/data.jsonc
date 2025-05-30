@@ -1,5 +1,33 @@
 {
-    "articles": {
-        
-    }
+    "articles": [
+        {
+            "id": "minecraft/axo/client/c/1.21.5",
+            "name": "1.21.5 Client Pre-Release",
+            "author": "@TheAxolot77",
+            "author_title": "Author/Owner",
+            "published": "2025-04-21",
+            "last_changed": "2025-04-21",
+            "tags": ["news", "changelog", "minecraft", "mc", "axo", "client", "community", "mooare"],
+            "category": "minecraft",
+            "subcategory": "axo/client/c",
+            "favicon": "favicon.png",
+            "banner": "banner.png",
+            "card_background": "banner.png"
+        },
+
+        {
+            "id": "minecraft/axo/server/1.21.5",
+            "name": "1.21.5 Server Update",
+            "author": "@TheAxolot77",
+            "author_title": "Author/Owner",
+            "published": "2025-04-21",
+            "last_changed": "2025-04-21",
+            "tags": ["news", "changelog", "minecraft", "mc", "axo", "server", "resourcepack"],
+            "category": "minecraft",
+            "subcategory": "axo/server",
+            "favicon": "favicon.png",
+            "banner": "banner.png",
+            "card_background": "banner.png"
+        }
+    ]
 }

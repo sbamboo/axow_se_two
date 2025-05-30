@@ -39,8 +39,14 @@ if ($data === null) {
                 }
             }
         }
-        // Check media/carusell/{i}/media
-        //MARK: TODO
+        // Check media/carusell/{i}/media if type is "link" url is "href" field
+        if (isset($data["media"]) && isset($data["media"]["carusell"]) && is_array($data["media"]["carusell"])) {
+            foreach ($data["media"]["carusell"] as $i => $entry) {
+                if (isset($entry["type"]) && $entry["type"] === "link" && isset($entry["href"]) && filter_var($entry["href"], FILTER_VALIDATE_URL)) {
+                    list($url_previews["media/carusell/" . strval($i) . "/media"], $msg) = fetch_url_preview($entry["href"], $url_preview_user_agent, $url_preview_ttl_seconds, $url_preview_oembed_url);
+                }
+            }
+        }
 
         // Check media/carusell/{i}/description contains URLs, extract them and fetch previews
         if (isset($data["media"]) && isset($data["media"]["carusell"]) && is_array($data["media"]["carusell"])) {
@@ -49,7 +55,7 @@ if ($data === null) {
                     // Extract URLs from the description
                     preg_match_all('/https?:\/\/[^\s]+/', $entry["description"], $matches);
                     foreach ($matches[0] as $url) {
-                        list($url_previews["media/carusell/" . strval($i)], $msg) = fetch_url_preview($url, $url_preview_user_agent, $url_preview_ttl_seconds, $url_preview_oembed_url);
+                        list($url_previews["media/carusell/" . strval($i) . "/description"], $msg) = fetch_url_preview($url, $url_preview_user_agent, $url_preview_ttl_seconds, $url_preview_oembed_url);
                     }
                 }
             }

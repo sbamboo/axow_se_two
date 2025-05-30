@@ -1,15 +1,3 @@
-<p hidden meta>
-Title: 1.21.5 Server Update
-Author: @TheAxolot77
-AuthorTitle: Author/Owner
-Banner: banner.png
-Favicon: favicon.png
-CardBackground: banner.png
-Tags: news,changelog,minecraft,mc,axo,server,resourcepack
-CreationDate: 2025-04-21
-UpdatedDate: 2025-04-21
-</p>
-
 **After a week of work and a happy easter the server is finally updated! 🐣**
 <br><br>
 

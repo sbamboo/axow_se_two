@@ -39,7 +39,7 @@ if (isset($profile_data["image"]) && !filter_var($profile_data["image"], FILTER_
     $exists = check_data_node_file_exists("profiles", "data/" . $profile_id . "/" . $profile_data["image"]);
     if ($exists) {
         // Load the file and set the value to base64
-        [$image, $msg] = read_data_node_file("profiles", "data/" . $profile_id . "/" . $profile_data["image"]);
+        list($image, $msg) = read_data_node_file("profiles", "data/" . $profile_id . "/" . $profile_data["image"]);
         if ($image === null) {
             req_send(false, "Failed to read profile image: " . $msg, 500); // HTTP code 500 : Internal Server Error
         }

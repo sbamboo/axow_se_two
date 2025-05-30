@@ -1,15 +1,3 @@
-<p hidden meta>
-Title: 1.21.5 Client Pre-Release
-Author: @TheAxolot77
-AuthorTitle: Author/Owner
-Banner: banner.png
-Favicon: favicon.png
-CardBackground: banner.png
-Tags: news,changelog,minecraft,mc,axo,client,community,mooare
-CreationDate: 2025-04-21
-UpdatedDate: 2025-04-21
-</p>
-
 ## Standard Community Clients
 The standard clients are more like the previous *1.21.4 Community Clients*, but with some skipped or missing mods.
 They contain additional QoL features compared to the *Lite* clients.

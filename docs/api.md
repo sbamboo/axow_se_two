@@ -153,7 +153,7 @@ Authorization: <string:token>
 # Articles
 
 ## Get all categories
-GET `api.axow.se/site/articles/categories/getAll`
+GET `api.axow.se/site/articles/categories/get_all`
 ```json (Response)
 {
     "status": "success"/"failed",
@@ -214,7 +214,7 @@ Authorization: <string:token>
 ```
 
 ## Get all subcategories
-GET `api.axow.se/site/articles/subcategories/getAll`
+GET `api.axow.se/site/articles/subcategories/get_all`
 ```json (Response)
 {
     "status": "success"/"failed",
@@ -275,7 +275,7 @@ Authorization: <string:token>
 ```
 
 ## Get all articles
-GET `api.axow.se/site/articles/getAll`
+GET `api.axow.se/site/articles/get_all`
 ```json (Response)
 {
     "status": "success"/"failed",
@@ -285,17 +285,18 @@ GET `api.axow.se/site/articles/getAll`
             "id": "<string:article_id>",
             "name": "<string>",
             "author": "<string:profile_id_with_@>",
-            "published": <epoch>,
-            "last_changed": <epoch>,
+            "published": "<date:yyyy-mm-dd>",
+            "last_changed":"<date:yyyy-mm-dd>",
             "tags": ["<string>"],
             "category": "<string:category>",
             "subcategory": "<string:subcategory>",
             "favicon": "<string:optional:url_or_base_url>",
-            "banner": "<string:optional:url_or_base_url>"
+            "card_background": "<string:optional:url_or_base_url>"
         }
     ]
 }
 ```
+(Note that the `banner` field is not sent on `get_all`)
 
 ## Get a specific article
 GET `api.axow.se/site/articles/get?id=<string:article_id>`
@@ -308,13 +309,14 @@ GET `api.axow.se/site/articles/get?id=<string:article_id>`
             "id": "<string:article_id>",
             "name": "<string>",
             "author": "<string:profile_id_with_@>",
-            "published": <epoch>,
-            "last_changed": <epoch>,
+            "published": "<date:yyyy-mm-dd>",
+            "last_changed": "<date:yyyy-mm-dd>",
             "tags": ["<string>"],
             "category": "<string:category>",
             "subcategory": "<string:subcategory>",
             "favicon": "<string:optional:url_or_base_url>",
-            "banner": "<string:optional:url_or_base_url>"
+            "banner": "<string:optional:url_or_base_url>",
+            "card_background": "<string:optional:url_or_base_url>"
         },
         "content": "<markdown>",
         "url_previews": {
@@ -344,13 +346,14 @@ Authorization: <string:token>
         "id": "<string:article_id>",
         "name": "<string>",
         "author": "<string:profile_id_with_@>",
-        "published": <epoch>,
-        "last_changed": <epoch>,
+        "published": "<date:yyyy-mm-dd>",
+        "last_changed": "<date:yyyy-mm-dd>",
         "tags": ["<string>"],
         "category": "<string:category>",
         "subcategory": "<string:subcategory>",
         "favicon": "<string:optional:url_or_base_url>",
-        "banner": "<string:optional:url_or_base_url>"
+        "banner": "<string:optional:url_or_base_url>",
+            "card_background": "<string:optional:url_or_base_url>"
     },
     "content": "<markdown:if-action=merge>"
 }
@@ -368,13 +371,14 @@ Authorization: <string:token>
         "id": "<string:article_id>",
         "name": "<string>",
         "author": "<string:profile_id_with_@>",
-        "published": <epoch>,
-        "last_changed": <epoch>,
+        "published": "<date:yyyy-mm-dd>",
+        "last_changed": "<date:yyyy-mm-dd>",
         "tags": ["<string>"],
         "category": "<string:category>",
         "subcategory": "<string:subcategory>",
         "favicon": "<string:optional:url_or_base_url>",
-        "banner": "<string:optional:url_or_base_url>"
+        "banner": "<string:optional:url_or_base_url>",
+        "card_background": "<string:optional:url_or_base_url>"
     },
     "content": "<markdown:if-action=merge>"
 }
@@ -519,7 +523,7 @@ GET `api.axow.se/site/chibits/repos`
 
 # Wiki
 ## Get all categories
-GET `api.axow.se/site/wiki/categories/getAll`
+GET `api.axow.se/site/wiki/categories/get_all`
 ```json (Response)
 {
     "status": "success"/"failed",
@@ -580,7 +584,7 @@ Authorization: <string:token>
 ```
 
 ## Get all subcategories
-GET `api.axow.se/site/wiki/subcategories/getAll`
+GET `api.axow.se/site/wiki/subcategories/get_all`
 ```json (Response)
 {
     "status": "success"/"failed",
@@ -719,7 +723,7 @@ Authorization: <string:token>
 ```
 
 ## Get wiki articles
-GET `api.axow.se/site/wiki/articles/getAll?cat_filter=<string:optional>&subcat_filter=<string:optional>`
+GET `api.axow.se/site/wiki/articles/get_all?cat_filter=<string:optional>&subcat_filter=<string:optional>`
 ```json (Response)
 {
     "status": "success"/"failed",
@@ -835,7 +839,7 @@ Authorization: <string:token>
 
 # Profiles
 ## Get all profiles
-GET `api.axow.se/site/profiles/getAll`
+GET `api.axow.se/site/profiles/get_all`
 ```json (Response)
 {
     "status": "success"/"failed",
