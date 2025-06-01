@@ -315,24 +315,28 @@ GET `api.axow.se/site/articles/get?id=<string:article_id>`
             "category": "<string:category>",
             "subcategory": "<string:subcategory>",
             "favicon": "<string:optional:url_or_base_url>",
-            "banner": "<string:optional:url_or_base_url>",
-            "card_background": "<string:optional:url_or_base_url>"
+            "banner": "<string:optional:url_or_base_url>"
         },
         "content": "<markdown>",
         "url_previews": {
             "<string:url>": {
-                "type": "twitter"/"opengraph",
-                "title": "<string>",
-                "description": "<string>",
-                "image": "<string>",
-                "url": "<string>",
-                "type": "<string=type/card>"
+                "format": "twitter"/"opengraph",
+                "title": "<optional:string>",
+                "description": "<optional:string>",
+                "favicon": "<optional:string>",
+                "image": "<optional:string>",
+                "url": "<optional:string>",
+                "type": "<optional:string=type/card>",
+                "oembed": <optional:json>,
+                "was_cached": <bool>,
+                "cache_expiry": <epoch>
             },
             ...
         }
     }
 }
 ```
+(Note that the `card_background` field is not sent on `get`)
 
 ## Add an article
 POST `api.axow.se/site/articles/add` (Authed)
@@ -427,12 +431,16 @@ GET `api.axow.se/site/projects/axo77_server`
     },
     "url_previews": {
         "<string:url>": {
-            "type": "twitter"/"opengraph",
-            "title": "<string>",
-            "description": "<string>",
-            "image": "<string>",
-            "url": "<string>",
-            "type": "<string=type/card>"
+            "format": "twitter"/"opengraph",
+            "title": "<optional:string>",
+            "description": "<optional:string>",
+            "favicon": "<optional:string>",
+            "image": "<optional:string>",
+            "url": "<optional:string>",
+            "type": "<optional:string=type/card>",
+            "oembed": <optional:json>,
+            "was_cached": <bool>,
+            "cache_expiry": <epoch>
         },
         ...
     }
@@ -672,12 +680,16 @@ GET `api.axow.se/site/wiki/home`
     },
     "url_previews": {
         "<string:url>": {
-            "type": "twitter"/"opengraph",
-            "title": "<string>",
-            "description": "<string>",
-            "image": "<string>",
-            "url": "<string>",
-            "type": "<string=type/card>"
+            "format": "twitter"/"opengraph",
+            "title": "<optional:string>",
+            "description": "<optional:string>",
+            "favicon": "<optional:string>",
+            "image": "<optional:string>",
+            "url": "<optional:string>",
+            "type": "<optional:string=type/card>",
+            "oembed": <optional:json>,
+            "was_cached": <bool>,
+            "cache_expiry": <epoch>
         },
         ...
     }
@@ -762,12 +774,16 @@ GET `api.axow.se/site/wiki/articles/get?id=<string>`
     },
     "url_previews": {
         "<string:url>": {
-            "type": "twitter"/"opengraph",
-            "title": "<string>",
-            "description": "<string>",
-            "image": "<string>",
-            "url": "<string>",
-            "type": "<string=type/card>"
+            "format": "twitter"/"opengraph",
+            "title": "<optional:string>",
+            "description": "<optional:string>",
+            "favicon": "<optional:string>",
+            "image": "<optional:string>",
+            "url": "<optional:string>",
+            "type": "<optional:string=type/card>",
+            "oembed": <optional:json>,
+            "was_cached": <bool>,
+            "cache_expiry": <epoch>
         },
         ...
     }

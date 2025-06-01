@@ -1,5 +1,6 @@
 backend/
 └── site/
+    ├── _config_/.../          <- Contains general API configurations
     ├── _data_/                <- Contains all data nodes
     │   └── .../
     │       ├── data/...       <- Contains a data nodes data-files
@@ -15,7 +16,6 @@ backend/
     │   ├── permissions.php    <- contains helper functions for the digit-based permission system
     │   ├── requests.php       <- contains helper functions for interacting as a rest api
     │   ├── responders.php     <- contains function wrappers that auto respond with JSON
-    │   ├── secret_config.php  <- contains configuration
     │   └── user.php           <- contains user management functions
     ├── _db_/
     │   ├── schema.sql         <- A schema/sql-setup describing the auth database

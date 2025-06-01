@@ -28,7 +28,7 @@
     
 */
 
-require_once(__DIR__ . "/../secret_config.php");
+require_once(__DIR__ . "/../../_config_/general.php");
 require_once(__DIR__ . "/../requests.php"); 
 require_once(__DIR__ . "/../db.php"); 
 
@@ -127,7 +127,7 @@ function resolve_url($relative, $base) {
 
 // Main HTML parser function
 function parse_html_for_preview($html, $url, ?string $oEmbed_url = null) {
-    global $SECRETS;
+    global $GENERAL_CONFIG;
     libxml_use_internal_errors(true);                                   // Disable displaying errors from libxml (Used by DOMDocument)
     $doc = new DOMDocument();                                           // Create a new DOMDocument object
     $loaded = $doc->loadHTML($html, LIBXML_NOERROR | LIBXML_NOWARNING); // Parse the HTML into the DOMDocument, suppressing errors
@@ -226,7 +226,7 @@ function parse_html_for_preview($html, $url, ?string $oEmbed_url = null) {
         if ($oEmbed_url === "auto") {
             $oembed_autofilled = true;
             // Guess the oEmbed URL based on the URL
-            $oEmbeds = $SECRETS["oembed_urls_per_provider"]; // "<provider>" => "<oembed_url>" (e.g. "youtube" => "https://www.youtube.com/oembed?url=%&format=json")
+            $oEmbeds = $GENERAL_CONFIG["oembed_urls_per_provider"]; // "<provider>" => "<oembed_url>" (e.g. "youtube" => "https://www.youtube.com/oembed?url=%&format=json")
             // if domain main is in the oEmbed list use that provider
             $parsed_url = parse_url($url);
             $domain = $parsed_url["host"] ?? null;
@@ -242,7 +242,7 @@ function parse_html_for_preview($html, $url, ?string $oEmbed_url = null) {
                 $oEmbed_url = $oEmbeds[$domain];
             } else {
                 // Fallback to generic oEmbed URL
-                $oEmbed_url = $SECRETS["oembed_generic_url"];
+                $oEmbed_url = $GENERAL_CONFIG["oembed_generic_url"];
             }
         }
         $oEmbed_link = str_replace("%", rawurlencode($url), $oEmbed_url);
@@ -445,7 +445,7 @@ function fetch_url_preview($url, $user_agent, $ttl_seconds, ?string $oEmbed_url 
 
 #region Responders
 function extract_url_params_for_url_preview($req_data) {
-    global $SECRETS;
+    global $GENERAL_CONFIG;
     
     $use_client_user_agent = $req_data["client-user-agent"] ?? false;
     $user_agent = "MetadataFetcher/1.0";
@@ -453,7 +453,7 @@ function extract_url_params_for_url_preview($req_data) {
         $user_agent = $_SERVER["HTTP_USER_AGENT"];
     }
 
-    $ttl_seconds = $SECRETS["url_preview_default_ttl"];
+    $ttl_seconds = $GENERAL_CONFIG["url_preview_default_ttl"];
     if (isset($req_data["cache-ttl"])) {
         $ttl_seconds = intval($req_data["cache-ttl"]);
     }
@@ -467,7 +467,7 @@ function extract_url_params_for_url_preview($req_data) {
 }
 
 function req_fetch_url_preview($req_data) {
-    global $SECRETS;
+    global $GENERAL_CONFIG;
 
     list($user_agent, $ttl_seconds, $oEmbed_url) = extract_url_params_for_url_preview($req_data);
 
@@ -488,7 +488,7 @@ function req_fetch_url_preview($req_data) {
     if (isset($req_data["url"])) {
         $request_urls = [$req_data["url"]];
     } else if (isset($req_data["urls"])) {
-        $request_urls = explode($SECRETS["url_preview_multi_delim"], $req_data["urls"]);
+        $request_urls = explode($GENERAL_CONFIG["url_preview_multi_delim"], $req_data["urls"]);
     }
 
     $toret_final = [
@@ -510,8 +510,8 @@ function req_fetch_url_preview($req_data) {
             continue;
         }
 
-        if ($ttl_seconds > $SECRETS["url_preview_max_ttl"]) {
-            $ttl_seconds = $SECRETS["url_preview_max_ttl"];
+        if ($ttl_seconds > $GENERAL_CONFIG["url_preview_max_ttl"]) {
+            $ttl_seconds = $GENERAL_CONFIG["url_preview_max_ttl"];
         }
 
         list($preview, $success, $error_message, $http_code) = fetch_url_preview($request_url, $user_agent, $ttl_seconds, $oEmbed_url);

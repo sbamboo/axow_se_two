@@ -4,7 +4,7 @@
  * @brief This file contains functions needed for handling authentication.
  */
 
-require_once("secret_config.php");
+require_once(__DIR__ . "/../_config_/secrets.php");
 require_once("db.php");
 require_once("jwt.php");
 require_once("requests.php");

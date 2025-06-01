@@ -27,58 +27,58 @@ $req_data = get_request_body();
 list($data, $msg) = get_node_data("articles");
 if ($data === null) {
     req_send(false, "Failed to retrieve articles data: $msg", 500);  // HTTP code 500 : Internal Server Error
-} else {
-    if (isset($data["articles"]) && is_array($data["articles"])) {
-        $articles = array_map(function($article) {
-            // Remove the "banner" field
-            unset($article["banner"]);
+}
 
-            // Favicon as base64
-            if (isset($article["favicon"]) && filter_var($article["favicon"], FILTER_VALIDATE_URL) === false) {
-                if (strpos($article["favicon"], "/") === false) {
-                    $file = "data/" . $article["id"] . "/" . $article["favicon"];
-                } else {
-                    $file = "data/" . $article["favicon"];
-                }
-                $file_exists = check_data_node_file_exists("articles", $file);
-                if ($file_exists) {
-                    list($image, $msg) = read_data_node_file("articles", $file);
-                    if ($image !== null) {
-                        $article["favicon"] = "data:image/png;base64," . base64_encode($image);
-                    } else {
-                        $article["favicon"] = null;
-                    }
+if (isset($data["articles"]) && is_array($data["articles"])) {
+    $articles = array_map(function($article) {
+        // Remove the "banner" field
+        unset($article["banner"]);
+
+        // Favicon as base64
+        if (isset($article["favicon"]) && filter_var($article["favicon"], FILTER_VALIDATE_URL) === false) {
+            if (strpos($article["favicon"], "/") === false) {
+                $file = "data/" . $article["id"] . "/" . $article["favicon"];
+            } else {
+                $file = "data/" . $article["favicon"];
+            }
+            $file_exists = check_data_node_file_exists("articles", $file);
+            if ($file_exists) {
+                list($image, $msg) = read_data_node_file("articles", $file);
+                if ($image !== null) {
+                    $article["favicon"] = "data:image/png;base64," . base64_encode($image);
                 } else {
                     $article["favicon"] = null;
                 }
+            } else {
+                $article["favicon"] = null;
             }
+        }
 
-            // Card background as base64
-            if (isset($article["card_background"]) && filter_var($article["card_background"], FILTER_VALIDATE_URL) === false) {
-                if (strpos($article["card_background"], "/") === false) {
-                    $file = "data/" . $article["id"] . "/" . $article["card_background"];
-                } else {
-                    $file = "data/" . $article["card_background"];
-                }
-                $file_exists = check_data_node_file_exists("articles", $file);
-                if ($file_exists) {
-                    list($image, $msg) = read_data_node_file("articles", $file);
-                    if ($image !== null) {
-                        $article["card_background"] = "data:image/png;base64," . base64_encode($image);
-                    } else {
-                        $article["card_background"] = null;
-                    }
+        // Card background as base64
+        if (isset($article["card_background"]) && filter_var($article["card_background"], FILTER_VALIDATE_URL) === false) {
+            if (strpos($article["card_background"], "/") === false) {
+                $file = "data/" . $article["id"] . "/" . $article["card_background"];
+            } else {
+                $file = "data/" . $article["card_background"];
+            }
+            $file_exists = check_data_node_file_exists("articles", $file);
+            if ($file_exists) {
+                list($image, $msg) = read_data_node_file("articles", $file);
+                if ($image !== null) {
+                    $article["card_background"] = "data:image/png;base64," . base64_encode($image);
                 } else {
                     $article["card_background"] = null;
                 }
+            } else {
+                $article["card_background"] = null;
             }
+        }
 
-            // Return the article with the modified fields
-            return $article;
-        }, $data["articles"]);
+        // Return the article with the modified fields
+        return $article;
+    }, $data["articles"]);
 
-        req_send(true, "", 200, ["articles" => $articles]);  // HTTP code 200 : OK
-    } else {
-        req_send(false, "No articles found", 404);  // HTTP code 404 : Not Found
-    }
+    req_send(true, "", 200, ["articles" => $articles]);  // HTTP code 200 : OK
+} else {
+    req_send(false, "No articles found", 404);  // HTTP code 404 : Not Found
 }

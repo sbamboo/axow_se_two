@@ -4,7 +4,7 @@
  * @brief This file contains classes to handle JWTs. (JSON Web Tokens)
  */
 
-require_once("secret_config.php"); 
+require_once(__DIR__ . "/../_config_/secrets.php");
 require_once("permissions.php");
 
 class JwtToken {

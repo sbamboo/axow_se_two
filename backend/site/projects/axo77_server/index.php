@@ -53,13 +53,24 @@ if ($data === null) {
             foreach ($data["media"]["carusell"] as $i => $entry) {
                 if (isset($entry["description"]) && is_string($entry["description"])) {
                     // Extract URLs from the description
-                    preg_match_all('/https?:\/\/[^\s]+/', $entry["description"], $matches);
-                    foreach ($matches[0] as $url) {
+                    preg_match_all('/https?:\/\/[^\s)>\]]+/', $entry["description"], $matches);
+            
+                    $urls = array_map(function ($url) {
+                        // Remove trailing punctuation that is not likely part of the URL
+                        return rtrim($url, '.,);:!?]>');
+                    }, $matches[0]);
+
+                    foreach ($urls as $url) {
                         list($url_previews["media/carusell/" . strval($i) . "/description"], $msg) = fetch_url_preview($url, $url_preview_user_agent, $url_preview_ttl_seconds, $url_preview_oembed_url);
                     }
                 }
             }
         }
+
+        // Filter any null values from the URL previews
+        $url_previews = array_filter($url_previews, function($preview) {
+            return $preview !== null;
+        });
 
 
         $data["url_previews"] = $url_previews;
