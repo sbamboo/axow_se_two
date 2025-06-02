@@ -155,21 +155,21 @@
                 "type": "wiki",
                 "category": "pois",
                 "page": "tree_of_life",
-                "media": "$pois/tree_of_life/banner.png",
+                "media": "$minecraft:pois/tree_of_life/banner.png",
                 "description": "%meta.title%"
             },
             {
                 "type": "wiki",
                 "category": "pois",
                 "page": "lithil_campfire",
-                "media": "$pois/lithil_campfire/banner.png",
+                "media": "$minecraft:pois/lithil_campfire/banner.png",
                 "description": "%meta.title%"
             },
             {
                 "type": "wiki",
                 "category": "pois",
                 "page": "oldc_towncenter",
-                "media": "$pois/oldc_towncenter/banner.png",
+                "media": "$minecraft:pois/oldc_towncenter/banner.png",
                 "description": "%meta.title%"
             },
             {

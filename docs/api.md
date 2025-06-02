@@ -290,8 +290,8 @@ GET `api.axow.se/site/articles/get_all`
             "tags": ["<string>"],
             "category": "<string:category>",
             "subcategory": "<string:subcategory>",
-            "favicon": "<string:optional:url_or_base_url>",
-            "card_background": "<string:optional:url_or_base_url>"
+            "favicon": "<string:optional:url_or_base_file>",
+            "card_background": "<string:optional:url_or_base_file>"
         }
     ]
 }
@@ -314,8 +314,8 @@ GET `api.axow.se/site/articles/get?id=<string:article_id>`
             "tags": ["<string>"],
             "category": "<string:category>",
             "subcategory": "<string:subcategory>",
-            "favicon": "<string:optional:url_or_base_url>",
-            "banner": "<string:optional:url_or_base_url>"
+            "favicon": "<string:optional:url_or_base_file>",
+            "banner": "<string:optional:url_or_base_file>"
         },
         "content": "<markdown>",
         "url_previews": {
@@ -355,9 +355,9 @@ Authorization: <string:token>
         "tags": ["<string>"],
         "category": "<string:category>",
         "subcategory": "<string:subcategory>",
-        "favicon": "<string:optional:url_or_base_url>",
-        "banner": "<string:optional:url_or_base_url>",
-            "card_background": "<string:optional:url_or_base_url>"
+        "favicon": "<string:optional:url_or_base_file>",
+        "banner": "<string:optional:url_or_base_file>",
+            "card_background": "<string:optional:url_or_base_file>"
     },
     "content": "<markdown:if-action=merge>"
 }
@@ -380,9 +380,9 @@ Authorization: <string:token>
         "tags": ["<string>"],
         "category": "<string:category>",
         "subcategory": "<string:subcategory>",
-        "favicon": "<string:optional:url_or_base_url>",
-        "banner": "<string:optional:url_or_base_url>",
-        "card_background": "<string:optional:url_or_base_url>"
+        "favicon": "<string:optional:url_or_base_file>",
+        "banner": "<string:optional:url_or_base_file>",
+        "card_background": "<string:optional:url_or_base_file>"
     },
     "content": "<markdown:if-action=merge>"
 }
@@ -530,15 +530,77 @@ GET `api.axow.se/site/chibits/repos`
 <br><br>
 
 # Wiki
-## Get all categories
-GET `api.axow.se/site/wiki/categories/get_all`
+## Get all wikis
+GET `api.axow.se/site/wiki/get_all`
 ```json (Response)
 {
     "status": "success"/"failed",
     "msg": "<string:optional>",
-    "categories": [
-        "<string:category>"
+    "wikis": [
+        {
+            "name": "<string>",
+            "description": "<string>",
+            "categories": [
+                {"name": "<string>", "icon": "<string:optional:url_or_base_file>"},
+                ...
+            ]
+        }
     ]
+}
+```
+
+## Get a wiki
+GET `api.axow.se/site/wiki/get?wiki=<string>`
+```json (Response)
+{
+    "status": "success"/"failed",
+    "msg": "<string:optional>",
+    "wiki": {
+        "name": "<string>",
+        "description": "<string>",
+        "editors": [
+            "<string:profile_id_with_@>"
+        ],
+        "categories": [
+            {"name": "<string>", "icon": "<string:optional:url_or_base_file>"},
+            ...
+        ],
+        "highlighted_media": {
+            "carousel": [
+                {...media_type_and_data...}
+            ]
+        }
+    }
+}
+```
+
+## List pages for a wiki
+GET `api.axow.se/site/wiki/pages?wiki=<string>`
+```json (Response)
+{
+    "status": "success"/"failed",
+    "msg": "<string:optional>",
+    "pages": ["<$<wiki>:<category>/<page>>",...]
+}
+```
+
+## List pages for a wiki and category
+GET `api.axow.se/site/wiki/pages?wiki=<string>&category=<category>`
+```json (Response)
+{
+    "status": "success"/"failed",
+    "msg": "<string:optional>",
+    "pages": ["<$<wiki>:<category>/<page>>",...]
+}
+```
+
+## Get a page
+GET `api.axow.se/site/wiki/get?page=<$<wiki>:<category>/<page>>`
+```json (Response)
+{
+    "status": "success"/"failed",
+    "msg": "<string:optional>",
+    "page": {...page_data...}
 }
 ```
 
@@ -664,7 +726,7 @@ GET `api.axow.se/site/wiki/home`
         "editors": [
             "<string:profile_id_with_@>"
         ],
-        "highlight_media": {
+        "highlighted_media": {
             "carousel": [
                 {...media_type_and_data...}
             ]
@@ -710,7 +772,7 @@ Authorization: <string:token>
         "editors": [
             "<string:profile_id_with_@>"
         ],
-        "highlight_media": {
+        "highlighted_media": {
             "carousel": [
                 {...media_type_and_data...}
             ]
@@ -746,7 +808,7 @@ GET `api.axow.se/site/wiki/articles/get_all?cat_filter=<string:optional>&subcat_
             "category": "<string:category>",
             "subcategory": "<string:subcategory>",
             "assets": [
-                "<string:optional:url_or_base_url>"
+                "<string:optional:url_or_base_file>"
             ],
             "title": "<string:optional>",
             "data": {...article_data...}
@@ -767,7 +829,7 @@ GET `api.axow.se/site/wiki/articles/get?id=<string>`
         "category": "<string:category>",
         "subcategory": "<string:subcategory>",
         "assets": [ 
-            "<string:optional:url_or_base_url>"
+            "<string:optional:url_or_base_file>"
         ],
         "title": "<string:optional>",
         "data": {...article_data...}
@@ -803,7 +865,7 @@ Authorization: <string:token>
         "category": "<string:category>",
         "subcategory": "<string:subcategory>",
         "assets": [ 
-            "<string:optional:url_or_base_url>"
+            "<string:optional:url_or_base_file>"
         ],
         "title": "<string:optional>",
         "data": {...article_data...}
@@ -824,7 +886,7 @@ Authorization: <string:token>
         "category": "<string:category>",
         "subcategory": "<string:subcategory>",
         "assets": [ 
-            "<string:optional:url_or_base_url>"
+            "<string:optional:url_or_base_file>"
         ],
         "title": "<string:optional>",
         "data": {...article_data...}
@@ -874,7 +936,7 @@ GET `api.axow.se/site/profiles/get?id=<string:profile_id_with_@>`
     "msg": "<string:optional>",
     "profile": {
         "name": "<string>",
-        "image": "<string:optional:url_or_base_url>",
+        "image": "<string:optional:url_or_base_file>",
         "description": "<string:optional>",
         "title": "<string:optional>",
         "socials": {
@@ -922,7 +984,7 @@ Authorization: <string:token>
     "id": "<string:profile_id_with_@>", // The new id
     "profile": {
         "name": "<string>",
-        "image": "<string:optional:url_or_base_url>",
+        "image": "<string:optional:url_or_base_file>",
         "description": "<string:optional>",
         "title": "<string:optional>",
         "socials": {
@@ -956,7 +1018,7 @@ Authorization: <string:token>
 {
     "profile": {
         "name": "<string>",
-        "image": "<string:optional:url_or_base_url>",
+        "image": "<string:optional:url_or_base_file>",
         "description": "<string:optional>",
         "title": "<string:optional>",
         "socials": {

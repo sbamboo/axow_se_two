@@ -42,8 +42,13 @@ if ($data === null) {
         // Check media/carusell/{i}/media if type is "link" url is "href" field
         if (isset($data["media"]) && isset($data["media"]["carusell"]) && is_array($data["media"]["carusell"])) {
             foreach ($data["media"]["carusell"] as $i => $entry) {
-                if (isset($entry["type"]) && $entry["type"] === "link" && isset($entry["href"]) && filter_var($entry["href"], FILTER_VALIDATE_URL)) {
-                    list($url_previews["media/carusell/" . strval($i) . "/media"], $msg) = fetch_url_preview($entry["href"], $url_preview_user_agent, $url_preview_ttl_seconds, $url_preview_oembed_url);
+                if (isset($entry["type"]) && $entry["type"] === "link") {
+                    if (isset($entry["href"]) && filter_var($entry["href"], FILTER_VALIDATE_URL)) {
+                        list($url_previews["media/carusell/" . strval($i) . "/media/href"], $msg) = fetch_url_preview($entry["href"], $url_preview_user_agent, $url_preview_ttl_seconds, $url_preview_oembed_url);
+                    }
+                    if (isset($entry["src"]) && filter_var($entry["src"], FILTER_VALIDATE_URL)) {
+                        list($url_previews["media/carusell/" . strval($i) . "/media/src"], $msg) = fetch_url_preview($entry["src"], $url_preview_user_agent, $url_preview_ttl_seconds, $url_preview_oembed_url);
+                    }
                 }
             }
         }

@@ -1,1 +1,66 @@
-{}
+{
+    "wikis": {
+        "default": {
+            "name": "Default",
+            "description": "The default wiki, avaliable as a reference.",
+            "editors": [
+                "@Admin"
+            ],
+            "categories": {
+                "examples": {
+                    "name": "Default",
+                    "icon": "default.svg"
+                }
+            },
+            "subcategories": {
+                "examples": {
+                    "name": "Examples",
+                    "icon": "examples.svg"
+                }
+            },
+            "highlighted_media": [
+                {
+                    "type": "image",
+                    "src": "https://picsum.photos/id/664/1920/1080.jpg",
+                    "alt": "Example Image",
+                    "description": "Example description mentioning a the profile @TheAxolot77",
+                    "href": "$default:examples/1"
+                }
+            ],
+            "highlighted_articles": [
+                "$default:examples/1"
+            ]
+        },
+        "minecraft": {
+            "name": "Minecraft",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque laoreet dui nec dolor aliquam posuere. Maecenas imperdiet mattis ipsum id tincidunt. Nam iaculis iaculis urna sit amet ullamcorper. Suspendisse vulputate vitae ipsum at fringilla. Nunc leo tortor, mollis nec luctus sit amet, interdum quis magna. Donec pharetra, diam eu pellentesque hendrerit, quam lorem volutpat ligula, nec mollis odio arcu ultrices sapien. Fusce tempor ultrices sagittis. Nulla quis leo eget ante aliquam volutpat eget vel felis. Curabitur urna mauris, fringilla a congue quis, hendrerit eget magna. Curabitur imperdiet malesuada molestie. Suspendisse potenti. Phasellus eget laoreet lacus. Nunc tincidunt nisi pellentesque lacus egestas placerat. In fringilla congue tortor, sit amet egestas elit vestibulum id. Vestibulum ut fringilla elit.",
+            "editors": [
+                "@TheAxolot77"
+            ],
+            "categories": {
+                "servers": {
+                    "name": "Servers",
+                    "icon": "servers.svg"
+                }
+            },
+            "subcategories": {
+                "axo77": {
+                    "name": "TheAxolot77",
+                    "icon": "axo77.svg"
+                }
+            },
+            "highlighted_media": [
+                {
+                    "type": "image",
+                    "src": "https://picsum.photos/id/664/1920/1080.jpg",
+                    "alt": "Example Image",
+                    "description": "Example description mentioning a the profile @TheAxolot77",
+                    "href": "$default:examples/1"
+                }
+            ],
+            "highlighted_articles": [
+                "$minecraft:servers/axo77/main_server"
+            ]
+        }
+    }
+}

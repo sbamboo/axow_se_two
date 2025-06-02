@@ -1,0 +1,385 @@
+{
+    "wiki": "default",
+    "category": "default",
+    "subcategory": "examples",
+    "page": "1",
+
+    "meta": {
+        "title": "Full V1",
+        "short_description": "Example wikipage!"
+    },
+
+    "infobox": [
+        {
+            "type": "title",
+            "content": "%meta.title%",
+            "attribute_id": "title"
+        },
+
+        {
+            "type": "banner",
+            "content": "$cities/kayo_beach/banner.png",
+            "attribute_id": "banner"
+        },
+        {
+            "type": "banner_source",
+            "content": "[BannerSource](__axo77_bluemap__)",
+            "attribute_id": "banner_source-__axo77_bluemap__"
+        },
+
+        {
+            "type": "attributed_profile",
+            "title": "AttributedProfile.Profile",
+            "profiles": ["@TheAxolot77"],
+            "attribute_id": "attributed_profile_profile"
+        },
+        {
+            "type": "attributed_profile",
+            "title": "AttributedProfile.Org",
+            "profiles": ["$organizations/kayo_beach_state"],
+            "attribute_id": "attributed_profile_org"
+        },
+
+        {
+            "type": "metadata",
+            "attribute_id": "metadata",
+            "value": {
+                "period": "$timeperiods/freelands_period",
+                "date": "xx-xx-xxxx"
+            },
+            "value_type": "time"
+        },
+
+        {
+            "type": "attribute",
+            "title": "Attribute",
+            "content": "Attribute",
+            "attribute_id": "attribute"
+        },
+        {
+            "type": "attribute",
+            "title": "Attribute.ArticleFetch",
+            "content": "$cities/kayo_beach:meta.short_description",
+            "attribute_id": "attribute_articlefetch"
+        },
+        {
+            "type": "attribute",
+            "title": "Attribute.ArticleLink",
+            "content": "$cities/kayo_beach",
+            "attribute_id": "attribute_articlelink"
+        },
+        {
+            "type": "attribute",
+            "title": "Attribute.Placeholder",
+            "content": "!UNPARSED!",
+            "attribute_id": "attribute_placeholder"
+        },
+
+        {
+            "type": "header",
+            "content": "Header"
+        },
+        {
+            "type": "attributed_location",
+            "title": "Coordinates",
+            "content": ["-337", "-537"],
+            "attribute_id": "coordinates"
+        },
+        {
+            "type": "named_multivalue_attribute",
+            "title": "NamedMultiValueAttribute",
+            "content": [
+                {
+                    "name": "Text",
+                    "type": "text",
+                    "value": "Content",
+                    "attribute_id": "mutlivalue_text_content"
+                },
+                {
+                    "name": "URL",
+                    "type": "url",
+                    "value": "https://example.com/",
+                    "attribute_id": "mutlivalue_url_content"
+                },
+                {
+                    "name": "Markdown",
+                    "type": "markdown",
+                    "value": "# Header1\n\nNormal",
+                    "attribute_id": "mutlivalue_markdown_content"
+                },
+                {
+                    "name": "Datetime",
+                    "type": "datetime",
+                    "value": "xx-xx-xxxx",
+                    "attribute_id": "mutlivalue_datetime_content"
+                },
+                {
+                    "name": "Time",
+                    "type": "time",
+                    "value": {
+                        "period": "$timeperiods/freelands_period",
+                        "date": "xx-xx-xxxx"
+                    },
+                    "attribute_id": "mutlivalue_time_content"
+                },
+
+                {
+                    "name": "Media.Image",
+                    "type": "media",
+                    "value": {
+                        "type": "image",
+                        "media": "https://picsum.photos/id/267/1920/1080.jpg",
+                        "alt": "Alt",
+                        "desc": "!MARKDOWN!"
+                    },
+                    "attribute_id": "mutlivalue_media_content_image"
+                },
+                {
+                    "name": "Media.Video",
+                    "type": "media",
+                    "value": {
+                        "type": "video",
+                        "media": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4",
+                        "alt": "Alt",
+                        "desc": "!MARKDOWN!"
+                    },
+                    "attribute_id": "mutlivalue_media_content_video"
+                },
+                {
+                    "name": "Media.Embed",
+                    "type": "media",
+                    "value": {
+                        "type": "embed",
+                        "media": "<p style='background-color:red;'>HELLO WORLD</p>",
+                        "alt": "Alt",
+                        "desc": "!MARKDOWN!"
+                    },
+                    "attribute_id": "mutlivalue_media_content_embed"
+                },
+                {
+                    "name": "Media.Link",
+                    "type": "media",
+                    "value": {
+                        "type": "link",
+                        "media": "https://example.com/",
+                        "desc": "!MARKDOWN!"
+                    },
+                    "attribute_id": "mutlivalue_media_content_link"
+                },
+                {
+                    "name": "Media.Link.Alt",
+                    "type": "media",
+                    "value": {
+                        "type": "link",
+                        "media": "https://example.com/",
+                        "alt": "Alt",
+                        "desc": "!MARKDOWN!"
+                    },
+                    "attribute_id": "mutlivalue_media_content_link_alt"
+                },
+                {
+                    "name": "Media.Audio",
+                    "type": "media",
+                    "value": {
+                        "type": "audio",
+                        "media": "https://github.com/rafaelreis-hotmart/Audio-Sample-files/raw/master/sample.mp3",
+                        "alt": "Alt",
+                        "desc": "!MARKDOWN!"
+                    },
+                    "attribute_id": "mutlivalue_media_content_audio"
+                },
+
+                {
+                    "name": "Reference",
+                    "type": "reference",
+                    "value": {
+                        "id": 1,
+                        "text": "Title",
+                        "href": "https://example.com/",
+                        "time": "xx-xx-xxxx"
+                    },
+                    "attribute_id": "mutlivalue_reference_content"
+                },
+                {
+                    "name": "Coord",
+                    "type": "coord",
+                    "value": ["202", 4, "~"],
+                    "attribute_id": "mutlivalue_coord_content"
+                },
+                {
+                    "name": "Profiles",
+                    "type": "profiles",
+                    "value": ["@TheAxolot77", "$organizations/kayo_beach_state"],
+                    "attribute_id": "mutlivalue_profiles_content"
+                },
+                {
+                    "name": "DescProfiles",
+                    "type": "desc_profiles",
+                    "value": [
+                        ["@TheAxolot77", "Profile"],
+                        ["$organizations/kayo_beach_state", "Org"]
+                    ],
+                    "attribute_id": "mutlivalue_descprofiles_content"
+                }
+            ],
+            "attribute_id": "mutlivalue"
+        },
+
+        {
+            "type": "header",
+            "content": "Header2"
+        },
+        {
+            "type": "attributed_time",
+            "title": "AttributedTime",
+            "time": "%infobox.{metadata}.value%",
+            "description": "",
+            "attribute_id": "historic_event_founded"
+        },
+        {
+            "type": "attributed_descripted_profiles",
+            "title": "AttributedDescriptedProfiles",
+            "value": [
+                ["@TheAxolot77", "Profile"],
+                ["$organizations/kayo_beach_state", "Org"]
+            ]
+        }
+
+    ],
+
+    "sections": [
+        {
+            "type": "introduction",
+            "content": "# Header1\n\n## Header2\n\n### Header3\n\n**Bold**\n\n*Italic*\n\nNormal",
+            "section_id": "introduction"
+        },
+        {
+            "type": "text",
+            "title": "Text",
+            "content": "# Header1\n\n## Header2\n\n### Header3\n\n**Bold**\n\n*Italic*\n\nNormal",
+            "section_id": "text"
+        },
+        {
+            "type": "media_grid",
+            "title": "Gallery",
+            "content": [
+                {
+                    "type": "image",
+                    "media": "https://picsum.photos/id/664/1920/1080.jpg",
+                    "alt": "Image",
+                    "desc": "I **am** a description!"
+                },
+                {
+                    "type": "video",
+                    "media": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                    "alt": "Image",
+                    "desc": "I **am** a description!"
+                },
+                {
+                    "type": "image",
+                    "media": "https://picsum.photos/id/600/1920/1080.jpg",
+                    "alt": "Image",
+                    "desc": "I **am** a description!"
+                },
+                {
+                    "type": "image",
+                    "media": "https://picsum.photos/id/600/1920/1080.jpg",
+                    "alt": "Image",
+                    "desc": "I **am** a description!"
+                },
+                {
+                    "type": "image",
+                    "media": "https://picsum.photos/id/600/1920/1080.jpg",
+                    "alt": "Image",
+                    "desc": "I **am** a description!"
+                },
+                {
+                    "type": "image",
+                    "media": "https://picsum.photos/id/600/1920/1080.jpg",
+                    "alt": "Image",
+                    "desc": "I **am** a description!"
+                },
+                {
+                    "type": "image",
+                    "media": "https://picsum.photos/id/600/1920/1080.jpg",
+                    "alt": "Image",
+                    "desc": "I **am** a description!"
+                }
+            ],
+            "section_id": "gallery"
+        },
+        {
+            "type": "sources",
+            "title": "Sources",
+            "content": [
+                {
+                    "id": 1,
+                    "text": "Title",
+                    "href": "https://example.com/",
+                    "time": "xx-xx-2024"
+                },
+                {
+                    "id": 2,
+                    "href": "https://example.com/",
+                    "time": "xx-xx-2024"
+                }
+            ],
+            "section_id": "sources"
+        },
+        {
+            "type": "timeline",
+            "title": "Timeline",
+            "content": {
+                "01-02-0304": {
+                    "title": "Title",
+                    "description": "# Header1\n\nNormal"
+                },
+                "02-03-0405": {
+                    "title": "Title",
+                    "description": "## Header2\n\nNormal"
+                }
+            },
+            "section_id": "timeline"
+        },
+        {
+            "type": "img-table",
+            "title": "Image Table",
+            "content": {
+                "columns": ["Media", "Url", "Coord", "Short Description"],
+                "entries": [
+                    [
+                        ["media", {
+                            "type": "image",
+                            "media": "https://picsum.photos/id/267/1920/1080.jpg",
+                            "alt": "Alt",
+                            "desc": "!MARKDOWN!"
+                        }],
+                        ["url", "$pois/easter_island_2024"],
+                        ["coord", ["202","4","-4740"]],
+                        ["url", "$pois/easter_island_2024:meta.short_description"]
+                    ],
+                    [
+                        ["media", {
+                            "type": "video",
+                            "media": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+                            "alt": "Alt",
+                            "desc": "!MARKDOWN!"
+                        }],
+                        ["url", "https://example.com/"],
+                        ["coord", ["202"]],
+                        ["text", "Hello there"]
+                    ]
+                ]
+            }
+        }
+    ],
+
+    "comments": [
+        {
+            "by": "@TheAxolot77",
+            "title": "Example Comment",
+            "content": "*Does this work?* (See $cities/kayo_beach) @TheAxolot77 @PigiBlossom",
+            "posted": "2025"
+        }
+    ]
+}

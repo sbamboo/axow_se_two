@@ -11,6 +11,7 @@
 - Ensure proper access control i.e no web access to any folder named _{}_
 - Implement endpoints
 - Epoch -> ? (Y2K38; 2038 32bit epoch overflow)
+- FIGURE OUT THE FRIGGIN WIKI? HOW WE STORE AND HOW ARE ID'S 
 
 # Frontend
 - Make website

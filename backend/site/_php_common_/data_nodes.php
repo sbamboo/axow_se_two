@@ -112,6 +112,12 @@ function check_data_node_file_exists($node_id, $relative_path) {
     return file_exists($path);
 }
 
+// Function to check if a data node folder exists using the node_id and a relative path
+function check_data_node_dir_exists($node_id, $relative_path) {
+    $path = normalize_path_to_api_root("./_data_/$node_id/$relative_path");
+    return is_dir($path);
+}
+
 // Function to read a data node file using the node_id and a relative path
 function read_data_node_file($node_id, $relative_path) {
     $path = normalize_path_to_api_root("./_data_/$node_id/$relative_path");

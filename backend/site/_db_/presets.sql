@@ -45,50 +45,45 @@ INSERT INTO user_permissions (string, digit_index, digit) VALUES
     ("wiki.add-remove", 4, 6),
     ("wiki.remove-modify", 4, 7);
 
--- Index 5 (wiki-cat)
+-- Index 5 (wiki-page)
 INSERT INTO user_permissions (string, digit_index, digit) VALUES 
-    ("wiki-cat.*", 5, 1),
-    ("wiki-cat.add", 5, 2),
-    ("wiki-cat.modify", 5, 3),
-    ("wiki-cat.remove", 5, 4),
-    ("wiki-cat.add-modify", 5, 5),
-    ("wiki-cat.add-remove", 5, 6),
-    ("wiki-cat.remove-modify", 5, 7);
+    ("wiki-page.*", 5, 1),
+    ("wiki-page.add", 5, 2),
+    ("wiki-page.modify", 5, 3),
+    ("wiki-page.remove", 5, 4),
+    ("wiki-page.add-modify", 5, 5),
+    ("wiki-page.add-remove", 5, 6),
+    ("wiki-page.remove-modify", 5, 7);
 
--- Index 6 (wiki-subcat)
+-- Index 6 (wiki-cat)
 INSERT INTO user_permissions (string, digit_index, digit) VALUES 
-    ("wiki-subcat.*", 6, 1),
-    ("wiki-subcat.add", 6, 2),
-    ("wiki-subcat.modify", 6, 3),
-    ("wiki-subcat.remove", 6, 4),
-    ("wiki-subcat.add-modify", 6, 5),
-    ("wiki-subcat.add-remove", 6, 6),
-    ("wiki-subcat.remove-modify", 6, 7);
+    ("wiki-cat.*", 6, 1),
+    ("wiki-cat.add", 6, 2),
+    ("wiki-cat.modify", 6, 3),
+    ("wiki-cat.remove", 6, 4),
+    ("wiki-cat.add-modify", 6, 5),
+    ("wiki-cat.add-remove", 6, 6),
+    ("wiki-cat.remove-modify", 6, 7);
 
--- Index 7 (wiki-home)
+-- Index 7 (profiles)
 INSERT INTO user_permissions (string, digit_index, digit) VALUES 
-    ("wiki-home.*", 7, 1),
-    ("wiki-home.update", 7, 2);
+    ("profiles.*", 7, 1),
+    ("profiles.add", 7, 2),
+    ("profiles.modify", 7, 3),
+    ("profiles.remove", 7, 4),
+    ("profiles.add-modify", 7, 5),
+    ("profiles.add-remove", 7, 6),
+    ("profiles.remove-modify", 7, 7);
 
--- Index 8 (profiles)
+-- Index 8 (profile scope)
 INSERT INTO user_permissions (string, digit_index, digit) VALUES 
-    ("profiles.*", 8, 1),
-    ("profiles.add", 8, 2),
-    ("profiles.modify", 8, 3),
-    ("profiles.remove", 8, 4),
-    ("profiles.add-modify", 8, 5),
-    ("profiles.add-remove", 8, 6),
-    ("profiles.remove-modify", 8, 7);
+    ("all-profiles", 8, 1),
+    ("your-profile", 8, 2);
 
--- Index 9 (profile scope)
+-- Index 9 (url-preview)
 INSERT INTO user_permissions (string, digit_index, digit) VALUES 
-    ("all-profiles", 9, 1),
-    ("your-profile", 9, 2);
-
--- Index 10 (url-preview)
-INSERT INTO user_permissions (string, digit_index, digit) VALUES 
-    ("url-preview.*", 10, 1),
-    ("url-preview.fetch", 10, 2);
+    ("url-preview.*", 9, 1),
+    ("url-preview.fetch", 9, 2);
 
 -- Add the admin user with full permissions
 INSERT INTO users (username, password_hash) VALUES ("admin", "$2y$10$jYCWrLmfdm9MGrvKJ5D5yOwS3a0Bi6W5u1w0AXc9.0rIzCkZb9coi"); -- Temp "admin" password (sha256) CHANGE TO SAFER IN PROD
