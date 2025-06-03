@@ -11,8 +11,12 @@
 - Ensure proper access control i.e no web access to any folder named _{}_
 - Implement endpoints
 - Epoch -> ? (Y2K38; 2038 32bit epoch overflow)
-- FIGURE OUT THE FRIGGIN WIKI? HOW WE STORE AND HOW ARE ID'S 
+- Wiki store with wiki-category>wiki>page-category>page, wiki-category is just a property
+- Article permission edit own or all 
 
 # Frontend
 - Make website
 - Update opengraph/twitter meta and SEO
+- Darkmode by default overridden by url param
+- Each page sets PAGE_IDENTIFIER which can be passed in url param
+- Common for nav bar, theme, noscript and footer with last-edit and github url for site
