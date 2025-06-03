@@ -312,3 +312,104 @@ function update_data_node_json_file($node_id, $relative_path, $data) {
     
     return [true, ""];
 }
+
+// Function to move/rename a data node file, file is relative to the node_id
+function move_data_node_file($node_id, $old_relative_path, $new_relative_path) {
+    $old_path = normalize_path_to_api_root("./_data_/$node_id/$old_relative_path");
+    $new_path = normalize_path_to_api_root("./_data_/$node_id/$new_relative_path");
+
+    // If the old file does not exist, return an error
+    if (!file_exists($old_path)) {
+        return [false, "Old file does not exist"];
+    }
+
+    // Ensure the directory for the new path exists
+    $new_dir = dirname($new_path);
+    if (!is_dir($new_dir)) {
+        mkdir($new_dir, 0755, true); // 0755 permissions = read/write/execute for owner, read/execute for group and others
+        if (!is_dir($new_dir)) {
+            return [false, "Failed to create directory for new path"];
+        }
+    }
+
+    // Rename the file
+    $result = rename($old_path, $new_path);
+    if ($result === false) {
+        return [false, "Failed to rename file"];
+    }
+
+    return [true, ""];
+}
+
+function remove_non_empty_folder($folder) {
+    if (!is_dir($folder)) return false;
+
+    $items = scandir($folder);
+    foreach ($items as $item) {
+        if ($item == '.' || $item == '..') continue;
+
+        $path = $folder . DIRECTORY_SEPARATOR . $item;
+        if (is_dir($path)) {
+            remove_non_empty_folder($path);
+        } else {
+            unlink($path);
+        }
+    }
+
+    return rmdir($folder);
+}
+
+function remove_data_node_folder($node_id, $relative_path) {
+    $folder = normalize_path_to_api_root("./_data_/$node_id/$relative_path");
+
+    // If the folder does not exist, return an error
+    if (!is_dir($folder)) {
+        return [false, "Folder does not exist"];
+    }
+
+    // Remove the folder and all its contents
+    $result = remove_non_empty_folder($folder);
+    if ($result === false) {
+        return [false, "Failed to remove folder"];
+    }
+
+    return [true, ""];
+}
+
+function recursively_merge_mixed_array(array &$base, array $merge) {
+    foreach ($merge as $key => $value) {
+        if (is_array($value) && isset($base[$key]) && is_array($base[$key])) {
+            array_merge_recursive_distinct($base[$key], $value);
+        } else {
+            $base[$key] = $value;
+        }
+    }
+    return $base;
+}
+
+function merge_data_node_json_file($node_id, $relative_path, $data) {
+    $path = normalize_path_to_api_root("./_data_/$node_id/$relative_path");
+    
+    // If file not exists use write_data_node_file
+    if (!file_exists($path)) {
+        return write_data_node_json_file($node_id, $relative_path, $data);
+    }
+
+    // Read the existing data using read_data_node_json_file
+    list($existing_data, $error) = read_data_node_json_file($node_id, $relative_path);
+    if ($existing_data === null) {
+        return [false, "Failed to read existing file: $error"];
+    }
+    
+    // Merge the existing data with the new data
+    $merged_data = recursively_merge_mixed_array($existing_data, $data);
+
+    // Remove possibly existing file
+    $exists = check_data_node_file_exists($node_id, $relative_path);
+    if ($exists) {
+        remove_data_node_file($node_id, $relative_path);
+    }
+
+    // Write the merged data back to the file
+    return write_data_node_json_file($node_id, $relative_path, $merged_data);
+}

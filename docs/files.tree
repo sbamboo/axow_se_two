@@ -36,31 +36,9 @@ backend/
     ├── url_preview/
     │   └── index.php          <- Endpoint
     ├── articles/
-    │   ├── categories/
-    │   │   ├── get/
-    │   │   │   └── index.php  <- Endpoint
-    │   │   ├── getAll/
-    │   │   │   └── index.php  <- Endpoint
-    │   │   ├── add/
-    │   │   │   └── index.php  <- Endpoint
-    │   │   ├── update/
-    │   │   │   └── index.php  <- Endpoint
-    │   │   └── remove/
-    │   │       └── index.php  <- Endpoint
-    │   ├── subcategories/
-    │   │   ├── get/
-    │   │   │   └── index.php  <- Endpoint
-    │   │   ├── getAll/
-    │   │   │   └── index.php  <- Endpoint
-    │   │   ├── add/
-    │   │   │   └── index.php  <- Endpoint
-    │   │   ├── update/
-    │   │   │   └── index.php  <- Endpoint
-    │   │   └── remove/
-    │   │       └── index.php  <- Endpoint
     │   ├── get/
     │   │   └── index.php      <- Endpoint
-    │   ├── getAll/
+    │   ├── get_all/
     │   │   └── index.php      <- Endpoint
     │   ├── add/
     │   │   └── index.php      <- Endpoint
@@ -75,7 +53,7 @@ backend/
     ├── profiles/
     │   ├── get/
     │   │   └── index.php      <- Endpoint
-    │   ├── getAll/
+    │   ├── get_all/
     │   │   └── index.php      <- Endpoint
     │   ├── resolve/
     │   │   └── index.php      <- Endpoint
@@ -93,7 +71,7 @@ backend/
     │   ├── categories/
     │   │   ├── get/
     │   │   │   └── index.php  <- Endpoint
-    │   │   ├── getAll/
+    │   │   ├── get_all/
     │   │   │   └── index.php  <- Endpoint
     │   │   ├── add/
     │   │   │   └── index.php  <- Endpoint
@@ -104,7 +82,7 @@ backend/
     │   ├── subcategories/
     │   │   ├── get/
     │   │   │   └── index.php  <- Endpoint
-    │   │   ├── getAll/
+    │   │   ├── get_all/
     │   │   │   └── index.php  <- Endpoint
     │   │   ├── add/
     │   │   │   └── index.php  <- Endpoint
@@ -115,7 +93,7 @@ backend/
     │   └── articles/
     │       ├── get/
     │       │   └── index.php  <- Endpoint
-    │       ├── getAll/
+    │       ├── get_all/
     │       │   └── index.php  <- Endpoint
     │       ├── add/
     │       │   └── index.php  <- Endpoint
