@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS users_to_permissions (
     UNIQUE (user_id, permission_id) -- Ensure a user can't have the same permission multiple times
 );
 
--- You can optionally add an index on the username for faster lookups
+-- Index on the username for faster lookups
 CREATE INDEX idx_username ON users (username);
 
 

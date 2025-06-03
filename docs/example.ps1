@@ -205,5 +205,5 @@ class axow {
 #$client.validate()
 #$client.change_username("new_username")
 #$client.change_password("password","new_password")
-#$client.preview("https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DjPJCYrxqyT8",$true,-1)
+#$client.preview("https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DjPJCYrxqyT8")
 #$client.unauth()
