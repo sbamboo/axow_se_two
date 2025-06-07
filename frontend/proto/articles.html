@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proto > Articles</title>
+</head>
+<body>
+    <link rel="stylesheet" href="../css/common/popup.css">
+    <script src="../js/common/api.js"></script>
+    <script src="../js/common/popup.js"></script>
+    <script>
+        async function main() {
+            const api = new Api();
+            const response = await api.auth("admin","admin");
+            console.log(response);
+
+            const popupHandler = new PopupHandler(document.getElementById("popupjs-inner-container"));
+            const testPopup = new Popup(popupHandler, "text");
+            const action = await testPopup.openAsync("Hello!", {"cancel": ["Cancel", "secondary"], "accept": ["Accept", "primary"]});
+            console.log("Popup action:", action);
+        }
+        window.onload = main;
+    </script>
+
+    <div id="popupjs-container" class="popupjs-wrapper-hidden"><div id="popupjs-inner-container"></div></div>
+
+    <main></main>
+</body>
+</html>

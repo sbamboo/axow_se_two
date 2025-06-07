@@ -203,11 +203,44 @@ function check_user_permission_exact($userid, $permission) {
     return false;
 }
 
+// Function to check if a $permission_string has is_property to 1 (its TINYINT(1))
+function is_property_permission($permission) {
+    list($db, $db_success, $db_msg, $db_http_code) = get_db();
+    if (!$db_success) {
+        return [null, false, $db_msg, $db_http_code];
+    }
+
+    $stmt = $db->prepare("SELECT is_property FROM user_permissions WHERE string = ?");
+    $stmt->bind_param("s", $permission);
+    if (!$stmt) {
+        $db->close();
+        return [null, false, "Database error: " . $db->error, 500]; // HTTP code 500 : Internal Server Error
+    }
+    $stmt->execute();
+    if ($stmt->error) {
+        $stmt->close();
+        $db->close();
+        return [null, false, "Database error: " . $stmt->error, 500]; // HTTP code 500 : Internal Server Error
+    }
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $stmt->close();
+    $db->close();
+    if (!$row) {
+        return [null, false, "Permission not found", 404]; // HTTP code 404 : Not Found
+    }
+    return [$row['is_property'] == 1, true, "", 200]; // HTTP code 200 : OK
+}
+
 // Function to check if a user has a "permission_string" or a higher-level or joint permission including the "permission_string"
 function check_user_permission($userid, $permission) {
     // Check if the $user has the "*" permission, i.e full access
     if (check_user_permission_exact($userid, "*")) {
         return true;
+        // If the $permission is a property this does not count
+        if (!is_property_permission($permission)) {
+            return true;
+        }
     }
 
     // Get the root of $permission (i.e articles.add -> articles)
@@ -264,6 +297,10 @@ function check_digits_permission($digits, $permission) {
     // Check if the $user has the "*" permission, i.e full access
     if (in_array("*", $permission_array)) {
         return true;
+        // If the $permission is a property this does not count
+        if (!is_property_permission($permission)) {
+            return true;
+        }
     }
 
     // Get the root of $permission (i.e articles.add -> articles)

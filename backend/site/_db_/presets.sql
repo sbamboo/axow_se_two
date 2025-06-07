@@ -36,9 +36,9 @@ INSERT INTO user_permissions (string, digit_index, digit) VALUES
     ("articles-subcat.remove-modify", 3, 7);
 
 -- Index 4 (article-own)
-INSERT INTO user_permissions (string, digit_index, digit) VALUES 
-    ("all-articles", 4, 1),
-    ("your-articles", 4, 2);
+INSERT INTO user_permissions (string, digit_index, digit, is_property) VALUES 
+    ("all-articles", 4, 1, 1),
+    ("your-articles", 4, 2, 1);
 
 -- Index 5 (wiki)
 INSERT INTO user_permissions (string, digit_index, digit) VALUES 
@@ -81,9 +81,9 @@ INSERT INTO user_permissions (string, digit_index, digit) VALUES
     ("profiles.remove-modify", 8, 7);
 
 -- Index 9 (profile scope)
-INSERT INTO user_permissions (string, digit_index, digit) VALUES 
-    ("all-profiles", 9, 1),
-    ("your-profile", 9, 2);
+INSERT INTO user_permissions (string, digit_index, digit, is_property) VALUES 
+    ("all-profiles", 9, 1, 1),
+    ("your-profile", 9, 2, 1);
 
 -- Index 10 (url-preview)
 INSERT INTO user_permissions (string, digit_index, digit) VALUES 

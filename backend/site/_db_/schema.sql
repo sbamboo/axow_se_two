@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS user_permissions (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     string VARCHAR(255) NOT NULL UNIQUE, -- e.g., 'articles.add'
     digit_index INT NOT NULL,
-    digit INT NOT NULL
+    digit INT NOT NULL,
+    is_property TINYINT(1) NOT NULL DEFAULT 0 -- 0 for FALSE, TRUE for property
 );
 
 -- Create the user_permissions table

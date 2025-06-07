@@ -122,6 +122,20 @@ if (isset($req_data["category"])) {
         req_send(false, "Article with query '$article_query' not found", 404); // HTTP code 404 : Not Found
     }
 
+    // Validate that unless user has the "all-articles" property permission the article author.lowercase() must be "@<username>"
+    $has_all_articles = check_user_permission_exact($decoded_token["usr"], "all-articles");
+    if (!$has_all_articles) {
+        $article_author = strtolower($article["author"]);
+        // $decoded_token["usr"] is userID use get_current_username to get username by ID from database
+        list($username, $msg) = get_current_username($decoded_token["usr"]);
+        if (!$username !== null) {
+            req_send(false, "Failed to get current username: $msg", 500); // HTTP code 500 : Internal Server Error
+        }
+        if ($article_author !== "@" . strtolower($username)) {
+            req_send(false, "You do not have permission to update this article", 403); // HTTP code 403 : Forbidden
+        }
+    }
+
     // Build the article_folder
     $article_folder = str_replace([".", "/", "\\"], "_", $category) . "." . str_replace([".", "/", "\\"], "_", $subcategory) . "." . str_replace([".", "/", "\\"], "_", $article_id);
 

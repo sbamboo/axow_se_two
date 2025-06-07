@@ -1,0 +1,81 @@
+div.popupjs-wrapper {
+    /* vert flex; darkmode */
+    display: flex;
+    flex-direction: column;
+    background-color: var(--popupjs-wrapper-background-color, #181818);
+    color: var(--popupjs-wrapper-text-color, #ffffff);
+    border: var(--popupjs-wrapper-border-width, 1px) solid var(--popupjs-wrapper-border-color, #444444);
+    border-radius: var(--popupjs-wrapper-border-radius, 8px);
+    box-shadow: var(--popupjs-wrapper-box-shadow, 0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+div.popupjs-content {
+    background-color: var(--popupjs-wrapper-background-color, #1f1f1f);
+}
+
+div.popupjs-buttonwrapper {
+    /* horiz flex */
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+button.popupjs-button {
+    /* border */
+    border: var(--popupjs-button-border-width, 1px) solid var(--popupjs-button-border-color, #444444);
+    border-radius: var(--popupjs-button-border-radius, 4px);
+}
+
+button.popupjs-button-primary {
+    /* blue background and border */
+    background-color: var(--popupjs-button-primary-background-color, #1e90ff);
+    color: var(--popupjs-button-primary-text-color, #ffffff);
+    border-color: var(--popupjs-button-primary-border-color, #1e90ff);
+}
+
+button.popupjs-button-secondary {}
+
+button.popupjs-button-danger {
+    /* red background and border */
+    background-color: var(--popupjs-button-danger-background-color, #ff4d4d);
+    color: var(--popupjs-button-danger-text-color, #ffffff);
+    border-color: var(--popupjs-button-danger-border-color, #ff4d4d);
+}
+
+button.popupjs-button-link {
+    /* blue text */
+    background: none;
+    color: var(--popupjs-button-link-color, #1e90ff);
+    text-decoration: underline;
+}
+
+div.popupjs-content-text-wrapper {}
+
+p.popupjs-content-text {}
+
+div.popupjs-content-html-wrapper {}
+
+div.popupjs-wrapper-hidden, div.popupjs-outer-container-hidden {
+    display: none;
+}
+
+#popupjs-container {
+    /* Fill entire screen and x,y center child */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    z-index: 9999; /* Ensure it appears above other content */
+}
+
+#popupjs-inner-container {
+    /* Centered popup rectangle */
+    width: 400px; /* Fixed width */
+    height: auto; /* Auto height based on content */
+    display: block;
+}
